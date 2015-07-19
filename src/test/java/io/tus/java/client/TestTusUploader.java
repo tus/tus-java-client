@@ -35,7 +35,7 @@ public class TestTusUploader extends TestCase {
         mockServer.stop();
     }
 
-    public void testTusUploader() throws IOException {
+    public void testTusUploader() throws IOException, ProtocolException {
         byte[] content = "hello world".getBytes();
 
         mockServer.when(new HttpRequest()
