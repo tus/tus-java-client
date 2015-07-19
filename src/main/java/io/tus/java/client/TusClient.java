@@ -16,10 +16,6 @@ public class TusClient {
 
     }
 
-    public TusClient(URL uploadCreationURL) {
-        setUploadCreationURL(uploadCreationURL);
-    }
-
     public void setUploadCreationURL(URL uploadCreationURL) {
         this.uploadCreationURL = uploadCreationURL;
     }

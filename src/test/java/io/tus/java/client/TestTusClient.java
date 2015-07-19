@@ -46,7 +46,8 @@ public class TestTusClient extends TestCase {
 
 	@Test
 	public void testTusClientURL() throws MalformedURLException {
-		TusClient client = new TusClient(creationUrl);
+		TusClient client = new TusClient();
+		client.setUploadCreationURL(creationUrl);
 		assertEquals(client.getUploadCreationURL(), creationUrl);
 	}
 
@@ -82,7 +83,8 @@ public class TestTusClient extends TestCase {
                 .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
                 .withHeader("Location", "http://master.tus.io/files/foo"));
 
-		TusClient client = new TusClient(mockServerURL);
+		TusClient client = new TusClient();
+		client.setUploadCreationURL(mockServerURL);
 	    TusUpload upload = new TusUpload();
         upload.setSize(10);
         upload.setInputStream(new ByteArrayInputStream(new byte[10]));
@@ -102,7 +104,8 @@ public class TestTusClient extends TestCase {
 						.withHeader("Tus-Resumable", TusClient.TUS_VERSION)
 						.withHeader("Upload-Offset", "3"));
 
-		TusClient client = new TusClient(mockServerURL);
+		TusClient client = new TusClient();
+		client.setUploadCreationURL(mockServerURL);
         client.enableResuming(new TestResumeUploadStore(this));
 
 		TusUpload upload = new TusUpload();
@@ -153,7 +156,8 @@ public class TestTusClient extends TestCase {
                         .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
                         .withHeader("Location", "http://master.tus.io/files/foo"));
 
-        TusClient client = new TusClient(mockServerURL);
+        TusClient client = new TusClient();
+		client.setUploadCreationURL(mockServerURL);
         TusUpload upload = new TusUpload();
         upload.setSize(10);
         upload.setInputStream(new ByteArrayInputStream(new byte[10]));
