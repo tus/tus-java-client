@@ -112,6 +112,8 @@ public class TusUploader {
 
     /**
      * Finish the request by closing the HTTP connection and the InputStream.
+     * You can call this method even before the entire file has been uploaded. Use this behavior to
+     * enable pausing uploads.
      *
      * @throws io.tus.java.client.ProtocolException Thrown if the server sends an unexpected status
      * code
