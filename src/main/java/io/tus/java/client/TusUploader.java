@@ -66,6 +66,8 @@ public class TusUploader {
      * Upload a part of the file by read a chunks specified size from the InputStream and writing
      * it to the HTTP request's body. If the number of available bytes is lower than the chunk's
      * size, all available bytes will be uploaded and nothing more.
+     * No new connection will be established when calling this method, instead the connection opened
+     * in the constructor will be used.
      * In order to obtain the new offset, use {@link #getOffset()} after this method returns.
      *
      * @param chunkSize Maximum number of bytes which will be uploaded. When choosing a value
