@@ -1,13 +1,16 @@
 sudo: false
 language: java
 jdk:
-    - oraclejdk8
-    - oraclejdk7
-    - openjdk6
-    - openjdk7
+- oraclejdk8
+- oraclejdk7
+- openjdk6
+- openjdk7
 deploy:
-    provider: script
-    script: ./deploy-gh-pages.sh
-    on:
-        branch: master
-        jdk: openjdk7
+  provider: script
+  script: ./deploy-gh-pages.sh
+  on:
+    branch: master
+    jdk: openjdk7
+env:
+  global:
+    secure: mS1DS1f5YNes5zKES3yhTGY0zXGyFG2SO/wMtFT/89JFLYNbyNLteZLMcBZ8ve1Oeis0vUybMrG4UhJv0PAWoXj84cOAjRAW632VoOAYabROjIV8kGiWbnYkPVthcF0k8oV946ZyoufLSFsgtzPNM2NAQTBLJa4XrenDPA29ba1HnoE1aE8o7V7DHQis+bPDJwtsxB3wmrczRkJUVjRTuUkwMM/JE1gZ/EhuBrqUV2zHZmseSiRIgwQdOIUcU+DsqC8MZcHqKqdiNyISSWsJb/rinCaBX08+S+FHhwe5ynd39V97saPwWyiuY4mdEJexDSroE+o2GLdwhqVca9veKdle4xNoAcSgF1YtqO+efy+HN44x5Q/kuRtxlBlt88RzjxpwTTkyuwRPaPvvpME2iKEZ16/+Ago+ko1cNj4vVhxWan2j8x4RSonTrz4b109HEM5eDItIb95QVw4EYphu0YhOPTwrhgmRz1Ll5F46PG4V6jxnq6kxF4LSdM9YaqB0gfSORQGQ75QE2M5EHj1/WfgdBiYx2eAWm57toQ9CMlvQuYXXLHq3ul4YsQdY2m0X8+/VQuO4EDZRS91Vw4DrNVYNFR034h+NnaaTMBN1DDWm5eNEtowLg5vP7nfFpJpetJLyQZWyTEq45XPAzke+PYyAusjvHkTnNapyAtmxAcI=
