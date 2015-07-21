@@ -5,7 +5,7 @@ echo "Publishing javadocs to GitHub pages..."git
 set -x
 
 git log
-git fetch gh-pages
+git fetch origin gh-pages
 git checkout gh-pages
 git log
 git merge master
