@@ -50,3 +50,7 @@ uploader.finish();
 ## Documentation
 
 The documentation of the latest version (master branch of git repository) can be found online at [tus.github.io/tus-java-client/javadoc/](https://tus.github.io/tus-java-client/javadoc/).
+
+## License
+
+MIT
