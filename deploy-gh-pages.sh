@@ -7,6 +7,10 @@ commit=$(git rev-parse HEAD)
 javadoc io.tus.java.client -sourcepath ./src/main/java -d ../gh-pages/javadoc
 
 cd ../gh-pages
+
+git config user.email "maerious@gmail.com"
+git config user.name "Travis CI in the name of Acconut"
+
 git add ./javadoc
 git commit -m "Update javadoc for ${commit}" || true
 git push origin gh-pages --quiet
