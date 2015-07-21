@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo "Publishing javadocs to GitHub pages..."git
+
 set -x
 
 git log

@@ -7,6 +7,6 @@ jdk:
     - openjdk7
 deploy:
     provider: script
-    script: deploy-gh-pages.sh
+    script: ./deploy-gh-pages.sh
     on:
         branch: master
