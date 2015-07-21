@@ -9,6 +9,10 @@ import java.net.URLConnection;
  * This class is used for creating or resuming uploads.
  */
 public class TusClient {
+    /**
+     * Version of the tus protocol used by the client. The remote server needs to support this
+     * version, too.
+     */
     public final static String TUS_VERSION = "1.0.0";
 
     private URL uploadCreationURL;
