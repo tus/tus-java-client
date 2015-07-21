@@ -10,3 +10,4 @@ deploy:
     script: ./deploy-gh-pages.sh
     on:
         branch: master
+        jdk: openjdk7
