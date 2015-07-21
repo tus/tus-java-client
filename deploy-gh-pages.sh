@@ -4,14 +4,14 @@ echo "Publishing javadocs to GitHub pages..."git
 
 set -x
 
+git clone --branch=gh-pages git://github.com/tus/tus-java-client.git ../gh-pages
+commit=$(git rev-parse HEAD)
 git log
-git fetch origin gh-pages
-git checkout -b gh-pages origin/gh-pages
-git log
-git merge master
-git log
-javadoc io.tus.java.client -sourcepath ./src/main/java -d ./javadoc
+javadoc io.tus.java.client -sourcepath ./src/main/java -d ../gh-pages/javadoc
+
+cd ../gh-pages
 git add ./javadoc
-git commit -m "Update javadoc for $(git rev-parse HEAD)" || true
+git commit -m "Update javadoc for ${commit}" || true
 git push origin gh-pages
-git checkout master
+
+cd ../tus-java-client
