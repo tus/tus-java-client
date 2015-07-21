@@ -39,7 +39,7 @@ while(uploader.uploadChunk(1024 * 1024) > -1) {
   // the current offset.
   long totalBytes = upload.getSize();
   long bytesUploaded = uploader.getOffset();
-  double progress = (double) bytesUploaded / totalBytes * 100
+  double progress = (double) bytesUploaded / totalBytes * 100;
 }
 
 // Allow the HTTP connection to be closed and cleaned up
