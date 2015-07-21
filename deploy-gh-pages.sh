@@ -12,7 +12,7 @@ git config user.email "maerious@gmail.com"
 git config user.name "Travis CI in the name of Acconut"
 
 git add ./javadoc
-git commit -m "Update javadoc for ${commit}" || true
+git commit -m "Update javadoc for ${commit}"
 git push origin gh-pages --quiet
 
 cd ../tus-java-client
