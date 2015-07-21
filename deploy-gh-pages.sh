@@ -6,7 +6,7 @@ set -x
 
 git log
 git fetch origin gh-pages
-git checkout gh-pages
+git checkout -b gh-pages origin/gh-pages
 git log
 git merge master
 git log
