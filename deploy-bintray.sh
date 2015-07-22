@@ -22,7 +22,7 @@ function upload {
     curl \
         -X PUT \
         "$base_url/content/tus/maven/tus-java-client/$version/$dst?publish=1" \
-        -d @build/libs/$src
+        -F "file=@build/libs/$src"
 }
 
 # Upload files
