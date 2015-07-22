@@ -8,3 +8,13 @@ dependencies {
     testCompile 'junit:junit:4.12'
     testCompile 'org.mock-server:mockserver-netty:3.9.17'
 }
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}

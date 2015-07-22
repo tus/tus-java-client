@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
 # Generate files
-./gradlew jar
+./gradlew jar javadocJar sourcesJar
 
 base_url="https://acconut:$BINTRAY_TOKEN@api.bintray.com/"
 version="$TRAVIS_TAG"
@@ -15,8 +15,17 @@ curl \
     -H "Content-Type: application/json" \
     -d "{\"name\":\"${version}\",\"vcs_tag\":\"${version}\"}"
 
+function upload {
+    local src=$1
+    local dst=$2
+
+    curl \
+        -X PUT \
+        "$base_url/content/tus/maven/tus-java-client/$version/$dst?publish=1" \
+        -d @build/libs/$src
+}
+
 # Upload files
-curl \
-    -X PUT \
-    "$base_url/content/tus/maven/tus-java-client/$version/tus-java-client-$version.jar?publish=1" \
-    -d @build/libs/tus-java-client.jar
+upload "tus-java-client.jar" "tus-java-client-$version.jar"
+upload "tus-java-client-javadoc.jar" "tus-java-client-$version-javadoc.jar"
+upload "tus-java-client-sources.jar" "tus-java-client-$version-sources.jar"
