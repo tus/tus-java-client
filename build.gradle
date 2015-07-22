@@ -1,4 +1,6 @@
 apply plugin: 'java'
+apply plugin: 'maven'
+
 
 repositories {
     mavenCentral()
@@ -17,4 +19,23 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
+}
+
+task createPom << {
+    pom {
+        project {
+            groupId 'io.tus.java.client'
+            artifactId 'tus-java-client'
+            version project.getProperties().get('version')
+
+            inceptionYear '2015'
+            licenses {
+                license {
+                    name 'The MIT License (MIT)'
+                    url 'http://opensource.org/licenses/MIT'
+                    distribution 'repo'
+                }
+            }
+        }
+    }.writeTo("build/libs/pom.xml")
 }

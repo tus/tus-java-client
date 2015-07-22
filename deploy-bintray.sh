@@ -2,11 +2,11 @@
 
 set -e
 
-# Generate files
-./gradlew jar javadocJar sourcesJar
-
 base_url="https://acconut:$BINTRAY_TOKEN@api.bintray.com/"
 version="$TRAVIS_TAG"
+
+# Generate files
+./gradlew jar javadocJar sourcesJar createPom -Pversion=$version
 
 # Create new version
 curl \
@@ -22,10 +22,11 @@ function upload {
     curl \
         -X PUT \
         "$base_url/content/tus/maven/tus-java-client/$version/$dst?publish=1" \
-        -F "file=@build/libs/$src"
+        -T ./build/libs/$src
 }
 
 # Upload files
 upload "tus-java-client.jar" "tus-java-client-$version.jar"
 upload "tus-java-client-javadoc.jar" "tus-java-client-$version-javadoc.jar"
 upload "tus-java-client-sources.jar" "tus-java-client-$version-sources.jar"
+upload "pom.xml" "pom.xml"
