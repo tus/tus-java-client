@@ -6,11 +6,20 @@ jdk:
 - openjdk6
 - openjdk7
 deploy:
-  provider: script
-  script: ./deploy-gh-pages.sh
-  on:
-    branch: master
-    jdk: openjdk7
+  - provider: script
+    script: ./deploy-gh-pages.sh
+    on:
+      branch: master
+      jdk: openjdk7
+  - provider: script
+    script: ./deploy-bintray.sh
+    on:
+      tags: true
+      jdk: openjdk7
+
 env:
   global:
+  # GitHub
   - secure: gvjC/Ye8iTorFO2nDHOwe6VP3VfMz2Bkf0u/qhjVvSHRKnm8ktQqBs0zeNLsFVg1SULica57iossKbQTuJwB8DQKZRx5mcUB5sQOzje5/vfBUq2f1jdl9SIJ2JFMxS09ogkSTA5YQ+t3xSf27Jb9izxoRQomCh88O4UYO1aPpJDH5gs/Q5eDWvuM+QO7NTZdOw0i9AeMAeZ+O+NA43hU8Punt/cuNemJlL9XnFHs94p7TbtcDjIGaP9P4okCeYmIgArxN0j3jwzGs7ojwekqk/eq95z+aY4YcyQdEbRxWZqPpPkZyv5iRELGJEjJIMRf843SJAhX4ldnL04cfYff/6UKGQJKxY3QiSOsnroOgZWAEqvxcu+/mBMvylB0Fy4tbS2Wu1o2yGt7N6UI54MRiUarCyyrkY565ETSuHWu3GecMxmEdTnkVMVdlRXj6jUcN5mma81i7rrhHdlSdgZsc6D3bmL7qwFpmCh5wha9gUtq078/n3VJIRxvETH8Iqjyza32wrD4KZkAAL0HRxv4XgGwu8H5d1kEtAxoSrAn0RqTFp1/E7X4XhyQvTOVCkhmLOv/nFPDLnN8XnggHCV1c9AQW3Bk6Ad1MG4k/58ZYAdxcFfu8GBcccPIjAJPAYayphLP0m/ZThXC1ekhyoolLjnpGDmutzv/08p841RzVXQ=
+  # Bintray
+  - secure: LKYpgp/2LBUP3i+FLBcxqmQG2BHyabcZVhoa21k1iyFeKVHnRFej8AFX6+3CrSKSLaU89GpwthdGKu30F1kQAtNtwVdpRGVahk25gSsOU4cI1xMyrYtTtpZJgOBhR3Cpz1U/sif9wJijMzRwJ1+111Nt4HZBM9Yk2ofQcFGmH+2v10W31FS1OY8/Wc6HT46Lb08ZyrR87Sc3es6GDjMEAKZ/OYRRA5kCvIvgbDZMVns+nQD5j0ae8GRIaAs6y0+pxZt96HN1ES6IhQjho0xMgEfCQAxBzA5ISTtEVTY/xFhZ5rntaqnorC9PN+4PzJgU01z1GFoUgbJ/w6py13NACAS9zQpE7z873PGe/ipVMbb9VVbbOztfMw6Me+pYeFE35c497q1AS7fUoJ4rYOYm0MwIcRu/shlA722KtWSyXQlor1JYWgfp90sDWMsQoTxrKjIiwZVUpVLgNKG7aaouFiu1nXqXuULDJxkZSvf4i2FfQlotSXj2RBNi540IUr4piNJhZxTMiLVtUt4y8yeayyZ6WMTv64ReB4Z/nLZbbpdNkRPRMzZbNZqVQ+j8vpnyVIkBnU7/fKk/241PplRIevjR6HubUcC5SaOS3c4zXlxrCFQjKnzeDbkvDViquDwhCRCNMWinQDX3LEPWYeKVNjlZ0APx0lh9vYmXGZHIXWY=
