@@ -8,6 +8,8 @@
 
 **tus-java-client** is a library for uploading files using the *tus* protocol to any remote server supporting it.
 
+This library is also compatible with the Android platform and can be used without any modifications using the API. The [tus-android-client](https://github.com/tus/tus-android-client) provides additional classes which can be used in addition the Java library.
+
 ## Usage
 
 ```java
