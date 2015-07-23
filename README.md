@@ -49,6 +49,26 @@ uploader.finish();
 
 ```
 
+## Installation
+
+The JARs can be downloaded manually from our [Bintray project](https://bintray.com/tus/maven/tus-java-client/view#files). tus-java-client is also available in JCenter (Maven Central is coming soon).
+
+**Gradle:**
+
+```groovy
+compile 'io.tus.java.client:tus-java-client:0.1.1'
+```
+
+**Maven:**
+
+```xml
+<dependency>
+  <groupId>io.tus.java.client</groupId>
+  <artifactId>tus-java-client</artifactId>
+  <version>0.1.1</version>
+</dependency>
+```
+
 ## Documentation
 
 The documentation of the latest version (master branch of git repository) can be found online at [tus.github.io/tus-java-client/javadoc/](https://tus.github.io/tus-java-client/javadoc/).
