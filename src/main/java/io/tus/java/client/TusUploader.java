@@ -54,7 +54,7 @@ public class TusUploader {
             // Check whether we are running on a buggy JRE
         } catch (final ProtocolException pe) {
             connection.setRequestMethod("POST");
-            connection.setRequestProperty("Tus-Method-Override", "PATCH");
+            connection.setRequestProperty("X-HTTP-Method-Override", "PATCH");
         }
 
         connection.setDoOutput(true);
