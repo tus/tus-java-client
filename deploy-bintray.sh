@@ -21,7 +21,7 @@ function upload {
 
     curl \
         -X PUT \
-        "$base_url/content/tus/maven/tus-java-client/$version/$dst?publish=1" \
+        "$base_url/content/tus/maven/tus-java-client/$version/io/tus/java/client/tus-java-client/$version/$dst?publish=1" \
         -T ./build/libs/$src
 }
 
@@ -29,4 +29,4 @@ function upload {
 upload "tus-java-client.jar" "tus-java-client-$version.jar"
 upload "tus-java-client-javadoc.jar" "tus-java-client-$version-javadoc.jar"
 upload "tus-java-client-sources.jar" "tus-java-client-$version-sources.jar"
-upload "pom.xml" "pom.xml"
+upload "pom.xml" "tus-java-client-$version.pom"
