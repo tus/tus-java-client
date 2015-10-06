@@ -6,7 +6,7 @@ base_url="https://acconut:$BINTRAY_TOKEN@api.bintray.com/"
 version="$TRAVIS_TAG"
 
 # Generate files
-./gradlew jar javadocJar sourcesJar createPom -Pversion=$version
+./gradlew jar javadocJar sourcesJar createPom -PpomVersion=$version
 
 # Create new version
 curl \

@@ -26,14 +26,31 @@ task createPom << {
         project {
             groupId 'io.tus.java.client'
             artifactId 'tus-java-client'
-            version project.getProperties().get('version')
+            name 'tus-java-client'
+            version project.getProperties().get('pomVersion')
+            packaging 'pom'
+            description 'Java client for tus, the resumable file uploading protocol.'
+            url 'http://tus.io'
+
+            scm {
+                url 'https://github.com/tus/tus-java-client'
+                connection 'https://github.com/tus/tus-java-client'
+                developerConnection 'https://github.com/tus/tus-java-client'
+            }
+
+            developers {
+                developer {
+                    id 'acconut'
+                    name 'Marius Kleidl'
+                    email 'maerious@gmail.com'
+                }
+            }
 
             inceptionYear '2015'
             licenses {
                 license {
                     name 'The MIT License (MIT)'
                     url 'http://opensource.org/licenses/MIT'
-                    distribution 'repo'
                 }
             }
         }
