@@ -81,7 +81,7 @@ public class TestTusClient extends TestCase {
         .respond(new HttpResponse()
                 .withStatusCode(201)
                 .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                .withHeader("Location", "http://master.tus.io/files/foo"));
+                .withHeader("Location", mockServerURL + "/foo"));
 
 		TusClient client = new TusClient();
 		client.setUploadCreationURL(mockServerURL);
@@ -90,7 +90,7 @@ public class TestTusClient extends TestCase {
         upload.setInputStream(new ByteArrayInputStream(new byte[10]));
         TusUploader uploader = client.createUpload(upload);
 
-        assertEquals(uploader.getUploadURL(), new URL("http://master.tus.io/files/foo"));
+        assertEquals(uploader.getUploadURL(), new URL(mockServerURL + "/foo"));
     }
 
 	@Test
@@ -154,7 +154,7 @@ public class TestTusClient extends TestCase {
                 .respond(new HttpResponse()
                         .withStatusCode(201)
                         .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Location", "http://master.tus.io/files/foo"));
+                        .withHeader("Location", mockServerURL + "/foo"));
 
         TusClient client = new TusClient();
 		client.setUploadCreationURL(mockServerURL);
@@ -163,7 +163,7 @@ public class TestTusClient extends TestCase {
         upload.setInputStream(new ByteArrayInputStream(new byte[10]));
         TusUploader uploader = client.resumeOrCreateUpload(upload);
 
-        assertEquals(uploader.getUploadURL(), new URL("http://master.tus.io/files/foo"));
+        assertEquals(uploader.getUploadURL(), new URL(mockServerURL + "/foo"));
 	}
 
 	@Test
