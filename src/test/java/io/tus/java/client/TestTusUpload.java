@@ -6,13 +6,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class TestTusUpload extends TestCase {
     public void testTusUploadFile() throws IOException {
         String content = "hello world";
-        Map<String, String> metadata = new HashMap<String, String>();
+        Map<String, String> metadata = new LinkedHashMap<String, String>();
         metadata.put("foo", "hello");
         metadata.put("bar", "world");
 

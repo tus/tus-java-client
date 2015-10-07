@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.junit.After;
@@ -86,7 +86,7 @@ public class TestTusClient extends TestCase {
                         .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
                         .withHeader("Location", mockServerURL + "/foo"));
 
-        Map<String, String> metadata = new HashMap<String, String>();
+        Map<String, String> metadata = new LinkedHashMap<String, String>();
         metadata.put("foo", "hello");
         metadata.put("bar", "world");
 
