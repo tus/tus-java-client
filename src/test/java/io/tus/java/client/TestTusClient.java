@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
@@ -77,17 +79,23 @@ public class TestTusClient extends TestCase {
             .withMethod("POST")
             .withPath("/files")
             .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+            .withHeader("Upload-Metadata", "foo aGVsbG8=,bar d29ybGQ=")
             .withHeader("Upload-Length", "10"))
         .respond(new HttpResponse()
                 .withStatusCode(201)
                 .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
                 .withHeader("Location", mockServerURL + "/foo"));
 
+        Map<String, String> metadata = new HashMap<String, String>();
+        metadata.put("foo", "hello");
+        metadata.put("bar", "world");
+
 		TusClient client = new TusClient();
 		client.setUploadCreationURL(mockServerURL);
 	    TusUpload upload = new TusUpload();
         upload.setSize(10);
         upload.setInputStream(new ByteArrayInputStream(new byte[10]));
+        upload.setMetadata(metadata);
         TusUploader uploader = client.createUpload(upload);
 
         assertEquals(uploader.getUploadURL(), new URL(mockServerURL + "/foo"));

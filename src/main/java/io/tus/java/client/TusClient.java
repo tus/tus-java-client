@@ -97,6 +97,11 @@ public class TusClient {
         connection.setRequestMethod("POST");
         prepareConnection(connection);
 
+        String encodedMetadata = upload.getEncodedMetadata();
+        if(encodedMetadata.length() > 0) {
+            connection.setRequestProperty("Upload-Metadata", encodedMetadata);
+        }
+
         connection.addRequestProperty("Upload-Length", Long.toString(upload.getSize()));
         connection.connect();
 
