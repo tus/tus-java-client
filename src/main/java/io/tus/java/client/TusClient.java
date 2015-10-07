@@ -76,7 +76,7 @@ public class TusClient {
      * @return True if resuming has been enabled using {@link #enableResuming(TusURLStore)}
      */
     public boolean resumingEnabled() {
-    	return resumingEnabled;
+        return resumingEnabled;
     }
 
     /**

@@ -15,7 +15,7 @@ import java.util.Map;
 public class TusURLMemoryStore implements TusURLStore {
 
 	private Map<String, URL> store = new HashMap<String, URL>();
-	
+
 	@Override
 	public void set(String fingerprint, URL url) {
 		store.put(fingerprint, url);

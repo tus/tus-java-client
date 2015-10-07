@@ -38,13 +38,13 @@ public class TestTusUploader extends TestCase {
         byte[] content = "hello world".getBytes();
 
         mockServer.when(new HttpRequest()
-            .withPath("/files/foo")
-            .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-            .withHeader("Upload-Offset", "3")
-            .withBody(Arrays.copyOfRange(content, 3, 11)))
-        .respond(new HttpResponse()
-                .withStatusCode(204)
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION));
+                .withPath("/files/foo")
+                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                .withHeader("Upload-Offset", "3")
+                .withBody(Arrays.copyOfRange(content, 3, 11)))
+                .respond(new HttpResponse()
+                        .withStatusCode(204)
+                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION));
 
         TusClient client = new TusClient();
         URL uploadUrl = new URL(mockServerURL + "/foo");
