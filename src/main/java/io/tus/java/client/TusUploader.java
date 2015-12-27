@@ -49,6 +49,7 @@ public class TusUploader {
         connection = (HttpURLConnection) uploadURL.openConnection();
         client.prepareConnection(connection);
         connection.setRequestProperty("Upload-Offset", Long.toString(offset));
+        connection.setRequestProperty("Content-Type", "application/offset+octet-stream");
         try {
             connection.setRequestMethod("PATCH");
             // Check whether we are running on a buggy JRE

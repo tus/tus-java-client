@@ -41,6 +41,7 @@ public class TestTusUploader extends TestCase {
                 .withPath("/files/foo")
                 .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
                 .withHeader("Upload-Offset", "3")
+                .withHeader("Content-Type", "application/offset+octet-stream")
                 .withBody(Arrays.copyOfRange(content, 3, 11)))
                 .respond(new HttpResponse()
                         .withStatusCode(204)
