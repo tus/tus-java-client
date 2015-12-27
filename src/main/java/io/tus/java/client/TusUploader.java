@@ -25,6 +25,7 @@ public class TusUploader {
     private URL uploadURL;
     private InputStream input;
     private long offset;
+    private byte[] buffer;
 
     private HttpURLConnection connection;
     private OutputStream output;
@@ -46,6 +47,8 @@ public class TusUploader {
 
         input.skip(offset);
 
+        setChunkSize(2 * 1024 * 1024);
+
         connection = (HttpURLConnection) uploadURL.openConnection();
         client.prepareConnection(connection);
         connection.setRequestProperty("Upload-Offset", Long.toString(offset));
@@ -64,23 +67,42 @@ public class TusUploader {
     }
 
     /**
-     * Upload a part of the file by read a chunks specified size from the InputStream and writing
+     * Sets the used chunk size. This number is used by {@link #uploadChunk()} to indicate how
+     * much data is uploaded in a single take. When choosing a value for this parameter you need to
+     * consider that uploadChunk() will only return once the specified number of bytes has been
+     * sent. For slow internet connections this may take a long time. In addition, a buffer with
+     * the chunk size is allocated and kept in memory.
+     *
+     * @param size The new chunk size
+     */
+    public void setChunkSize(int size) {
+        buffer = new byte[size];
+    }
+
+    /**
+     * Returns the current chunk size set using {@link #setChunkSize(int)}.
+     *
+     * @return Current chunk size
+     */
+    public int getChunkSize() {
+        return buffer.length;
+    }
+
+    /**
+     * Upload a part of the file by reading a chunk from the InputStream and writing
      * it to the HTTP request's body. If the number of available bytes is lower than the chunk's
      * size, all available bytes will be uploaded and nothing more.
      * No new connection will be established when calling this method, instead the connection opened
      * in the constructor will be used.
+     * The size of the read chunk can be obtained using {@link #getChunkSize()} and changed
+     * using {@link #setChunkSize(int)}.
      * In order to obtain the new offset, use {@link #getOffset()} after this method returns.
      *
-     * @param chunkSize Maximum number of bytes which will be uploaded. When choosing a value
-     *                  for this parameter you need to consider that the method call will only
-     *                  return once the specified number of bytes have been sent. For slow
-     *                  internet connections this may take a long time.
      * @return Number of bytes read and written.
      * @throws IOException  Thrown if an exception occurs while reading from the source or writing
      *                      to the HTTP request.
      */
-    public int uploadChunk(int chunkSize) throws IOException {
-        byte[] buffer = new byte[chunkSize];
+    public int uploadChunk() throws IOException {
         int bytesRead = input.read(buffer);
         if(bytesRead == -1) {
             // No bytes were read since the input stream is empty
@@ -91,6 +113,47 @@ public class TusUploader {
         // be filled up with 0x00s if the number of read bytes is lower then
         // the chunk's size.
         output.write(buffer, 0, bytesRead);
+        output.flush();
+
+        offset += bytesRead;
+
+        return bytesRead;
+    }
+
+    /**
+     * Upload a part of the file by read a chunks specified size from the InputStream and writing
+     * it to the HTTP request's body. If the number of available bytes is lower than the chunk's
+     * size, all available bytes will be uploaded and nothing more.
+     * No new connection will be established when calling this method, instead the connection opened
+     * in the constructor will be used.
+     * In order to obtain the new offset, use {@link #getOffset()} after this method returns.
+     *
+     * @deprecated This method is inefficient and has been replaced by {@link #setChunkSize(int)}
+     *             and {@link #uploadChunk()} and should not be used anymore. The reason is, that
+     *             this method allocates a new buffer with the supplied chunk size for each time
+     *             it's called without reusing it. This results in a high number of memory
+     *             allocations and should be avoided. The new methods do not have this issue.
+     *
+     * @param chunkSize Maximum number of bytes which will be uploaded. When choosing a value
+     *                  for this parameter you need to consider that the method call will only
+     *                  return once the specified number of bytes have been sent. For slow
+     *                  internet connections this may take a long time.
+     * @return Number of bytes read and written.
+     * @throws IOException  Thrown if an exception occurs while reading from the source or writing
+     *                      to the HTTP request.
+     */
+    @Deprecated public int uploadChunk(int chunkSize) throws IOException {
+        byte[] buf = new byte[chunkSize];
+        int bytesRead = input.read(buf);
+        if(bytesRead == -1) {
+            // No bytes were read since the input stream is empty
+            return -1;
+        }
+
+        // Do not write the entire buffer to the stream since the array will
+        // be filled up with 0x00s if the number of read bytes is lower then
+        // the chunk's size.
+        output.write(buf, 0, bytesRead);
         output.flush();
 
         offset += bytesRead;

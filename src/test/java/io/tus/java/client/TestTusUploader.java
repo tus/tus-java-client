@@ -53,9 +53,13 @@ public class TestTusUploader extends TestCase {
         long offset = 3;
 
         TusUploader uploader = new TusUploader(client, uploadUrl, input, offset);
-        assertEquals(5, uploader.uploadChunk(5));
+
+        uploader.setChunkSize(5);
+        assertEquals(uploader.getChunkSize(), 5);
+
+        assertEquals(5, uploader.uploadChunk());
         assertEquals(3, uploader.uploadChunk(5));
-        assertEquals(-1, uploader.uploadChunk(5));
+        assertEquals(-1, uploader.uploadChunk());
         assertEquals(11, uploader.getOffset());
         uploader.finish();
     }

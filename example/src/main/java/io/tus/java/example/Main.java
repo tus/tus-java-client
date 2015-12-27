@@ -34,9 +34,12 @@ public class Main {
 
             System.out.println("Starting upload...");
 
-            // Upload the file in chunks of 1KB as long as data is available. Once the
+            // Upload the file in chunks of 1KB sizes.
+            uploader.setChunkSize(1024);
+
+            // Upload the file as long as data is available. Once the
             // file has been fully uploaded the method will return -1
-            while (uploader.uploadChunk(1024) > -1) {
+            while(uploader.uploadChunk() > -1) {
                 // Calculate the progress using the total size of the uploading file and
                 // the current offset.
                 long totalBytes = upload.getSize();

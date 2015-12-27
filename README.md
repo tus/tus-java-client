@@ -34,9 +34,12 @@ TusUpload upload = new TusUpload(file);
 // a connection to the remote server and doing the uploading.
 TusUploader uploader = client.resumeOrCreateUpload(upload);
 
-// Upload the file in chunks of 1MB as long as data is available. Once the
+// Upload the file in chunks of 1MB sizes.
+uploader.setChunkSize(1024 * 1024);
+
+// Upload the file as long as data is available. Once the
 // file has been fully uploaded the method will return -1
-while(uploader.uploadChunk(1024 * 1024) > -1) {
+while(uploader.uploadChunk() > -1) {
   // Calculate the progress using the total size of the uploading file and
   // the current offset.
   long totalBytes = upload.getSize();
