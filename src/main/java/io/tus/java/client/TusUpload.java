@@ -98,7 +98,7 @@ public class TusUpload {
             if(!firstElement) {
                 encoded += ",";
             }
-            encoded += entry.getKey() + " " + new String(base64Encode(entry.getValue().getBytes()));
+            encoded += entry.getKey() + " " + base64Encode(entry.getValue().getBytes());
 
             firstElement = false;
         }
