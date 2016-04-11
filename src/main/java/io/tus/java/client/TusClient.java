@@ -111,7 +111,7 @@ public class TusClient {
         }
 
         String urlStr = connection.getHeaderField("Location");
-        if(urlStr.length() == 0) {
+        if(urlStr == null || urlStr.length() == 0) {
             throw new ProtocolException("missing upload URL in response for creating upload");
         }
 
@@ -163,7 +163,7 @@ public class TusClient {
         }
 
         String offsetStr = connection.getHeaderField("Upload-Offset");
-        if(offsetStr.length() == 0) {
+        if(offsetStr == null || offsetStr.length() == 0) {
             throw new ProtocolException("missing upload offset in response for resuming upload");
         }
         long offset = Long.parseLong(offsetStr);

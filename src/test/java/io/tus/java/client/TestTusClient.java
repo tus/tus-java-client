@@ -102,6 +102,30 @@ public class TestTusClient extends TestCase {
     }
 
     @Test
+    public void testCreateUploadWithMissingLocationHeader() throws IOException, Exception {
+        mockServer.when(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files")
+                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                .withHeader("Upload-Length", "10"))
+                .respond(new HttpResponse()
+                        .withStatusCode(201)
+                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION));
+
+        TusClient client = new TusClient();
+        client.setUploadCreationURL(mockServerURL);
+        TusUpload upload = new TusUpload();
+        upload.setSize(10);
+        upload.setInputStream(new ByteArrayInputStream(new byte[10]));
+        try {
+            TusUploader uploader = client.createUpload(upload);
+            throw new Exception("unreachable code reached");
+        } catch(ProtocolException e) {
+            assertEquals(e.getMessage(), "missing upload URL in response for creating upload");
+        }
+    }
+
+    @Test
     public void testResumeUpload() throws ResumingNotEnabledException, FingerprintNotFoundException, IOException, ProtocolException {
         mockServer.when(new HttpRequest()
                 .withMethod("HEAD")
