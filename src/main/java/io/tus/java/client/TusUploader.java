@@ -192,7 +192,7 @@ public class TusUploader {
         connection.disconnect();
 
         if(!(responseCode >= 200 && responseCode < 300)) {
-            throw new io.tus.java.client.ProtocolException("unexpected status code (" + responseCode + ") while uploading chunk");
+            throw new io.tus.java.client.ProtocolException("unexpected status code (" + responseCode + ") while uploading chunk", connection);
         }
     }
 }
