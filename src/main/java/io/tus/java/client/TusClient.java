@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Map;
 
 /**
  * This class is used for creating or resuming uploads.
@@ -18,6 +19,7 @@ public class TusClient {
     private URL uploadCreationURL;
     private boolean resumingEnabled;
     private TusURLStore urlStore;
+    private Map<String, String> headers;
 
     /**
      * Create a new tus client.
@@ -77,6 +79,33 @@ public class TusClient {
      */
     public boolean resumingEnabled() {
         return resumingEnabled;
+    }
+
+    /**
+     * Set headers which will be added to every HTTP requestes made by this TusClient instance.
+     * These may to overwrite tus-specific headers, which can be identified by their Tus-*
+     * prefix, and can cause unexpected behavior.
+     *
+     * @see #getHeaders()
+     * @see #prepareConnection(URLConnection)
+     *
+     * @param headers The map of HTTP headers
+     */
+    public void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
+    }
+
+    /**
+     * Get the HTTP headers which should be contained in every request and were configured using
+     * {@link #setHeaders(Map)}.
+     *
+     * @see #setHeaders(Map)
+     * @see #prepareConnection(URLConnection)
+     *
+     * @return The map of configured HTTP headers
+     */
+    public Map<String, String> getHeaders() {
+        return headers;
     }
 
     /**
@@ -192,12 +221,18 @@ public class TusClient {
     }
 
     /**
-     * Set headers used for every HTTP request. Currently, this will add the Tus-Resumable header.
+     * Set headers used for every HTTP request. Currently, this will add the Tus-Resumable header
+     * and any custom header which can be configured using {@link #setHeaders(Map)},
      *
      * @param connection The connection whose headers will be modified.
      */
     public void prepareConnection(URLConnection connection) {
         connection.addRequestProperty("Tus-Resumable", TUS_VERSION);
-        // TODO: add custom headers
+
+        if(headers != null) {
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                connection.addRequestProperty(entry.getKey(), entry.getValue());
+            }
+        }
     }
 }
