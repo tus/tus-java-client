@@ -59,7 +59,7 @@ The JARs can be downloaded manually from our [Bintray project](https://bintray.c
 **Gradle:**
 
 ```groovy
-compile 'io.tus.java.client:tus-java-client:0.1.4'
+compile 'io.tus.java.client:tus-java-client:0.2.1'
 ```
 
 **Maven:**
