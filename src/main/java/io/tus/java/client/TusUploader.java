@@ -15,9 +15,9 @@ import java.net.URLConnection;
  * <br>
  * After obtaining an instance you can upload a file by following these steps:
  * <ol>
- *  <li>Upload a chunk using {@link #uploadChunk(int)}</li>
+ *  <li>Upload a chunk using {@link #uploadChunk()}</li>
  *  <li>Optionally get the new offset ({@link #getOffset()} to calculate the progress</li>
- *  <li>Repeat step 1 until the {@link #uploadChunk(int)} returns -1</li>
+ *  <li>Repeat step 1 until the {@link #uploadChunk()} returns -1</li>
  *  <li>Close HTTP connection and InputStream using {@link #finish()} to free resources</li>
  * </ol>
  */
