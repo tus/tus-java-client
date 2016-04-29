@@ -107,12 +107,12 @@ public class TusClient {
 
         int responseCode = connection.getResponseCode();
         if(!(responseCode >= 200 && responseCode < 300)) {
-            throw new ProtocolException("unexpected status code (" + responseCode + ") while creating upload");
+            throw new ProtocolException("unexpected status code (" + responseCode + ") while creating upload", connection);
         }
 
         String urlStr = connection.getHeaderField("Location");
         if(urlStr == null || urlStr.length() == 0) {
-            throw new ProtocolException("missing upload URL in response for creating upload");
+            throw new ProtocolException("missing upload URL in response for creating upload", connection);
         }
 
         URL uploadURL = new URL(urlStr);
@@ -159,12 +159,12 @@ public class TusClient {
 
         int responseCode = connection.getResponseCode();
         if(!(responseCode >= 200 && responseCode < 300)) {
-            throw new ProtocolException("unexpected status code (" + responseCode + ") while resuming upload");
+            throw new ProtocolException("unexpected status code (" + responseCode + ") while resuming upload", connection);
         }
 
         String offsetStr = connection.getHeaderField("Upload-Offset");
         if(offsetStr == null || offsetStr.length() == 0) {
-            throw new ProtocolException("missing upload offset in response for resuming upload");
+            throw new ProtocolException("missing upload offset in response for resuming upload", connection);
         }
         long offset = Long.parseLong(offsetStr);
 
