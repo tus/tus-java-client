@@ -31,7 +31,7 @@ public class ProtocolException extends Exception {
         try {
             int responseCode = connection.getResponseCode();
 
-            return responseCode >= 500 && responseCode < 600;
+            return responseCode >= 500 && responseCode < 600 || responseCode == 423;
         } catch(IOException e) {
             return false;
         }
