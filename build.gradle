@@ -3,8 +3,10 @@ apply plugin: 'maven'
 
 group 'io.tus.java.client'
 
-repositories {
-    mavenCentral()
+allprojects {
+    repositories {
+        mavenCentral()
+    }
 }
 
 dependencies {
