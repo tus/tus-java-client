@@ -1,5 +1,7 @@
 package io.tus.java.client;
 
+import com.sun.istack.internal.NotNull;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -32,7 +34,7 @@ public class TusUpload {
      * @param file The file whose content should be later uploaded.
      * @throws FileNotFoundException Thrown if the file cannot be found.
      */
-    public TusUpload(File file) throws FileNotFoundException {
+    public TusUpload(@NotNull File file) throws FileNotFoundException {
         size = file.length();
         input = new FileInputStream(file);
 
