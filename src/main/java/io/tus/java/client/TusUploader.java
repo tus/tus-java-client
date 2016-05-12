@@ -40,7 +40,7 @@ public class TusUploader {
      * @param offset Offset to read from
      * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
      */
-    public TusUploader(TusClient client, URL uploadURL, InputStream input, long offset) throws IOException {
+    public TusUploader(TusClient client, URL uploadURL, InputStream input, long offset) throws IOException, io.tus.java.client.ProtocolException {
         this.uploadURL = uploadURL;
         this.input = input;
         this.offset = offset;
@@ -53,6 +53,7 @@ public class TusUploader {
         client.prepareConnection(connection);
         connection.setRequestProperty("Upload-Offset", Long.toString(offset));
         connection.setRequestProperty("Content-Type", "application/offset+octet-stream");
+        connection.setRequestProperty("Expect", "100-continue");
         try {
             connection.setRequestMethod("PATCH");
             // Check whether we are running on a buggy JRE
@@ -63,7 +64,17 @@ public class TusUploader {
 
         connection.setDoOutput(true);
         connection.setChunkedStreamingMode(0);
-        output = connection.getOutputStream();
+        try {
+            output = connection.getOutputStream();
+        } catch(ProtocolException pe) {
+            // If we already have a response code available, our expectation using the "Expect: 100-
+            // continue" header failed and we should handle this response.
+            if(connection.getResponseCode() != -1) {
+                finish();
+            }
+
+            throw pe;
+        }
     }
 
     /**
@@ -187,7 +198,7 @@ public class TusUploader {
      */
     public void finish() throws io.tus.java.client.ProtocolException, IOException {
         input.close();
-        output.close();
+        if(output != null) output.close();
         int responseCode = connection.getResponseCode();
         connection.disconnect();
 
