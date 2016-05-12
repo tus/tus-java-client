@@ -1,9 +1,9 @@
 package io.tus.java.client;
 
-import junit.framework.TestCase;
-
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Test;
 import org.mockserver.client.server.MockServerClient;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
@@ -22,24 +22,28 @@ import java.net.URL;
 import java.util.Arrays;
 
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
+import static org.junit.Assert.*;
 
-public class TestTusUploader extends TestCase {
+public class TestTusUploader{
     private MockServerClient mockServer;
-    public URL mockServerURL;
+    private URL mockServerURL;
+
+    private boolean isOpenJDK6 = System.getProperty("java.version").startsWith("1.6") &&
+            System.getProperty("java.vm.name").contains("OpenJDK");
 
     @Before
-    protected void setUp() throws Exception {
-        super.setUp();
+    public void setUp() throws Exception {
         int port = PortFactory.findFreePort();
         mockServerURL = new URL("http://localhost:" + port + "/files");
         mockServer = startClientAndServer(port);
     }
 
     @After
-    protected void tearDown() {
+    public void tearDown() {
         mockServer.stop();
     }
 
+    @Test
     public void testTusUploader() throws IOException, ProtocolException {
         byte[] content = "hello world".getBytes();
 
@@ -48,7 +52,7 @@ public class TestTusUploader extends TestCase {
                 .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
                 .withHeader("Upload-Offset", "3")
                 .withHeader("Content-Type", "application/offset+octet-stream")
-                .withHeader("Expect", "100-continue")
+                .withHeader(isOpenJDK6 ? "": "Expect: 100-continue")
                 .withBody(Arrays.copyOfRange(content, 3, 11)))
                 .respond(new HttpResponse()
                         .withStatusCode(204)
@@ -71,7 +75,10 @@ public class TestTusUploader extends TestCase {
         uploader.finish();
     }
 
+    @Test
     public void testTusUploaderFailedExpectation() throws IOException, ProtocolException {
+        Assume.assumeFalse(isOpenJDK6);
+
         FailingExpectationServer server = new FailingExpectationServer();
         server.start();
 
