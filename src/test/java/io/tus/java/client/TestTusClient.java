@@ -227,4 +227,18 @@ public class TestTusClient extends TestCase {
         assertEquals(connection.getRequestProperty("Greeting"), "Hello");
         assertEquals(connection.getRequestProperty("Important"), "yes");
     }
+
+    @Test
+    public void testSetConnectionTimeout() throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) mockServerURL.openConnection();
+        TusClient client = new TusClient();
+
+        assertEquals(client.getConnectTimeout(), 5000);
+        client.setConnectTimeout(3000);
+        assertEquals(client.getConnectTimeout(), 3000);
+
+        client.prepareConnection(connection);
+
+        assertEquals(connection.getConnectTimeout(), 3000);
+    }
 }

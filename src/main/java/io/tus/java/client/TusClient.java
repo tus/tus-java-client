@@ -23,6 +23,7 @@ public class TusClient {
     private boolean resumingEnabled;
     private TusURLStore urlStore;
     private Map<String, String> headers;
+    private int connectTimeout = 5000;
 
     /**
      * Create a new tus client.
@@ -110,6 +111,14 @@ public class TusClient {
     @Nullable
     public Map<String, String> getHeaders() {
         return headers;
+    }
+
+    public void setConnectTimeout(int timeout) {
+        connectTimeout = timeout;
+    }
+
+    public int getConnectTimeout() {
+        return connectTimeout;
     }
 
     /**
@@ -231,6 +240,7 @@ public class TusClient {
      * @param connection The connection whose headers will be modified.
      */
     public void prepareConnection(@NotNull URLConnection connection) {
+        connection.setConnectTimeout(connectTimeout);
         connection.addRequestProperty("Tus-Resumable", TUS_VERSION);
 
         if(headers != null) {
