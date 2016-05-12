@@ -1,99 +1,95 @@
 package io.tus.java.client;
 
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.IOException;
 
 public class TusRetryingClient extends TusClient {
-    private int maxRetries = 5;
+    private int[] delays = new int[]{500, 1000, 2000, 3000};
 
-    public void setMaxRetries(int retries) {
-        maxRetries = retries;
+    public void setDelays(int[] delays) {
+        this.delays = delays;
+    }
+
+    public int[] getDelays() {
+        return delays;
     }
 
     @Override
-    public TusUploader createUpload(TusUpload upload) throws ProtocolException, IOException {
+    @Nullable
+    public TusUploader createUpload(@NotNull TusUpload upload) throws ProtocolException, IOException {
         int attempt = 0;
         while(true) {
             attempt++;
 
             try {
                 return super.createUpload(upload);
-            } catch(IOException e) {
-                if(attempt < maxRetries) {
-                    continue;
-                }
-
-                throw e;
             } catch(ProtocolException e) {
-                if(e.shouldRetry()) {
-                    continue;
-                }
+                // Do not attempt a retry, if the Exception suggests so.
+                if(!e.shouldRetry()) throw e;
 
-                if(attempt < maxRetries) {
-                    continue;
+                if(attempt >= delays.length) {
+                    // We exceeds the number of maximum retries. In this case the latest exception
+                    // is thrown.
+                    throw e;
                 }
+            }  catch(IOException e) {
+                if(attempt >= delays.length) {
+                    // We exceeds the number of maximum retries. In this case the latest exception
+                    // is thrown.
+                    throw e;
+                }
+            }
 
-                throw e;
+            try {
+                // Sleep for the specified delay before attempting the next retry.
+                Thread.sleep(delays[attempt]);
+            } catch(InterruptedException e) {
+                // If we get interrupted while waiting for the next retry, the user has cancelled
+                // the upload willingly and we return null as a signal.
+                return null;
             }
         }
     }
 
     @Override
-    public TusUploader resumeUpload(TusUpload upload) throws FingerprintNotFoundException, ResumingNotEnabledException, ProtocolException, IOException {
+    @Nullable
+    public TusUploader resumeUpload(@NotNull TusUpload upload) throws FingerprintNotFoundException, ResumingNotEnabledException, ProtocolException, IOException {
         int attempt = 0;
         while(true) {
             attempt++;
 
             try {
                 return super.resumeUpload(upload);
-            } catch(IOException e) {
-                if(attempt < maxRetries) {
-                    continue;
-                }
-
-                throw e;
             } catch(ProtocolException e) {
-                if(e.shouldRetry()) {
-                    continue;
-                }
+                // Do not attempt a retry, if the Exception suggests so.
+                if(!e.shouldRetry()) throw e;
 
-                if(attempt < maxRetries) {
-                    continue;
+                if(attempt >= delays.length) {
+                    // We exceeds the number of maximum retries. In this case the latest exception
+                    // is thrown.
+                    throw e;
                 }
-
-                throw e;
+            }  catch(IOException e) {
+                if(attempt >= delays.length) {
+                    // We exceeds the number of maximum retries. In this case the latest exception
+                    // is thrown.
+                    throw e;
+                }
             }
-        }
-    }
-
-    @Override
-    public TusUploader resumeOrCreateUpload(TusUpload upload) throws IOException, ProtocolException {
-        int attempt = 0;
-        while(true) {
-            attempt++;
 
             try {
-                return super.resumeOrCreateUpload(upload);
-            } catch(IOException e) {
-                if(attempt < maxRetries) {
-                    continue;
-                }
-
-                break;
-            } catch(ProtocolException e) {
-                if(e.shouldRetry()) {
-                    continue;
-                }
-
-                if(attempt < maxRetries) {
-                    continue;
-                }
-
-                break;
+                // Sleep for the specified delay before attempting the next retry.
+                Thread.sleep(delays[attempt]);
+            } catch(InterruptedException e) {
+                // If we get interrupted while waiting for the next retry, the user has cancelled
+                // the upload willingly and we return null as a signal.
+                return null;
             }
         }
-
-        // Fall back to creating an upload if resuming failed for too long.
-        return createUpload(upload);
     }
+
+    // TODO resumeOrCreateUpload will return null if resumeUpload does so without trying to create one.
 }
