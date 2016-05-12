@@ -1,12 +1,16 @@
 apply plugin: 'java'
 apply plugin: 'maven'
 
+group 'io.tus.java.client'
 
-repositories {
-    mavenCentral()
+allprojects {
+    repositories {
+        mavenCentral()
+    }
 }
 
 dependencies {
+    compile 'org.jetbrains:annotations:13.0'
     testCompile 'junit:junit:4.12'
     testCompile 'org.mock-server:mockserver-netty:3.9.17'
 }

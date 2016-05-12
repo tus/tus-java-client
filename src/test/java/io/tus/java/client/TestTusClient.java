@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -205,5 +206,25 @@ public class TestTusClient extends TestCase {
         client.prepareConnection(connection);
 
         assertEquals(connection.getRequestProperty("Tus-Resumable"), TusClient.TUS_VERSION);
+    }
+
+    @Test
+    public void testSetHeaders() throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) mockServerURL.openConnection();
+        TusClient client = new TusClient();
+
+        Map<String, String> headers = new HashMap<String, String>();
+        headers.put("Greeting", "Hello");
+        headers.put("Important", "yes");
+        headers.put("Tus-Resumable", "evil");
+
+        assertNull(client.getHeaders());
+        client.setHeaders(headers);
+        assertEquals(headers, client.getHeaders());
+
+        client.prepareConnection(connection);
+
+        assertEquals(connection.getRequestProperty("Greeting"), "Hello");
+        assertEquals(connection.getRequestProperty("Important"), "yes");
     }
 }

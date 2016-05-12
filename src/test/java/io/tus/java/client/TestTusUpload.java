@@ -12,9 +12,6 @@ import java.util.Map;
 public class TestTusUpload extends TestCase {
     public void testTusUploadFile() throws IOException {
         String content = "hello world";
-        Map<String, String> metadata = new LinkedHashMap<String, String>();
-        metadata.put("foo", "hello");
-        metadata.put("bar", "world");
 
         File file = File.createTempFile("tus-upload-test", ".tmp");
         OutputStream output = new FileOutputStream(file);
@@ -23,9 +20,18 @@ public class TestTusUpload extends TestCase {
 
         TusUpload upload = new TusUpload(file);
 
+        Map<String, String> metadata = new LinkedHashMap<String, String>();
+        metadata.put("foo", "hello");
+        metadata.put("bar", "world");
+        metadata.putAll(upload.getMetadata());
+
+        assertEquals(metadata.get("filename"), file.getName());
+
         upload.setMetadata(metadata);
         assertEquals(upload.getMetadata(), metadata);
-        assertEquals(upload.getEncodedMetadata(), "foo aGVsbG8=,bar d29ybGQ=");
+        assertEquals(
+                upload.getEncodedMetadata(),
+                "foo aGVsbG8=,bar d29ybGQ=,filename " + TusUpload.base64Encode(file.getName().getBytes()));
 
         assertEquals(upload.getSize(), content.length());
         assertNotSame(upload.getFingerprint(), "");

@@ -1,9 +1,12 @@
 package io.tus.java.client;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -31,11 +34,14 @@ public class TusUpload {
      * @param file The file whose content should be later uploaded.
      * @throws FileNotFoundException Thrown if the file cannot be found.
      */
-    public TusUpload(File file) throws FileNotFoundException {
+    public TusUpload(@NotNull File file) throws FileNotFoundException {
         size = file.length();
         input = new FileInputStream(file);
 
         fingerprint = String.format("%s-%d", file.getAbsolutePath(), size);
+
+        metadata = new HashMap<String, String>();
+        metadata.put("filename", file.getName());
     }
 
     public long getSize() {
@@ -111,7 +117,7 @@ public class TusUpload {
      * published on Wikipedia (https://en.wikipedia.org/wiki/Base64#Sample_Implementation_in_Java)
      * under the Creative Commons Attribution-ShareAlike License.
      */
-    private static String base64Encode(byte[] in)       {
+    static String base64Encode(byte[] in)       {
         StringBuilder out = new StringBuilder((in.length * 4) / 3);
         String codes = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 

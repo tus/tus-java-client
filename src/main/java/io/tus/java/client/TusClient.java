@@ -1,9 +1,13 @@
 package io.tus.java.client;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Map;
 
 /**
  * This class is used for creating or resuming uploads.
@@ -18,6 +22,7 @@ public class TusClient {
     private URL uploadCreationURL;
     private boolean resumingEnabled;
     private TusURLStore urlStore;
+    private Map<String, String> headers;
 
     /**
      * Create a new tus client.
@@ -52,7 +57,7 @@ public class TusClient {
      *
      * @param urlStore Storage used to save and retrieve upload URLs by its fingerprint.
      */
-    public void enableResuming(TusURLStore urlStore) {
+    public void enableResuming(@NotNull TusURLStore urlStore) {
         resumingEnabled = true;
         this.urlStore = urlStore;
     }
@@ -80,6 +85,34 @@ public class TusClient {
     }
 
     /**
+     * Set headers which will be added to every HTTP requestes made by this TusClient instance.
+     * These may to overwrite tus-specific headers, which can be identified by their Tus-*
+     * prefix, and can cause unexpected behavior.
+     *
+     * @see #getHeaders()
+     * @see #prepareConnection(URLConnection)
+     *
+     * @param headers The map of HTTP headers
+     */
+    public void setHeaders(@Nullable Map<String, String> headers) {
+        this.headers = headers;
+    }
+
+    /**
+     * Get the HTTP headers which should be contained in every request and were configured using
+     * {@link #setHeaders(Map)}.
+     *
+     * @see #setHeaders(Map)
+     * @see #prepareConnection(URLConnection)
+     *
+     * @return The map of configured HTTP headers
+     */
+    @Nullable
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    /**
      * Create a new upload using the Creation extension. Before calling this function, an "upload
      * creation URL" must be defined using {@link #setUploadCreationURL(URL)} or else this
      * function will fail.
@@ -92,7 +125,7 @@ public class TusClient {
      * wrong status codes or missing/invalid headers.
      * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
      */
-    public TusUploader createUpload(TusUpload upload) throws ProtocolException, IOException {
+    public TusUploader createUpload(@NotNull TusUpload upload) throws ProtocolException, IOException {
         HttpURLConnection connection = (HttpURLConnection) uploadCreationURL.openConnection();
         connection.setRequestMethod("POST");
         prepareConnection(connection);
@@ -141,7 +174,7 @@ public class TusClient {
      * wrong status codes or missing/invalid headers.
      * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
      */
-    public TusUploader resumeUpload(TusUpload upload) throws FingerprintNotFoundException, ResumingNotEnabledException, ProtocolException, IOException {
+    public TusUploader resumeUpload(@NotNull TusUpload upload) throws FingerprintNotFoundException, ResumingNotEnabledException, ProtocolException, IOException {
         if(!resumingEnabled) {
             throw new ResumingNotEnabledException();
         }
@@ -181,7 +214,7 @@ public class TusClient {
      * wrong status codes or missing/invalid headers.
      * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
      */
-    public TusUploader resumeOrCreateUpload(TusUpload upload) throws ProtocolException, IOException {
+    public TusUploader resumeOrCreateUpload(@NotNull TusUpload upload) throws ProtocolException, IOException {
         try {
             return resumeUpload(upload);
         } catch(FingerprintNotFoundException e) {
@@ -192,12 +225,18 @@ public class TusClient {
     }
 
     /**
-     * Set headers used for every HTTP request. Currently, this will add the Tus-Resumable header.
+     * Set headers used for every HTTP request. Currently, this will add the Tus-Resumable header
+     * and any custom header which can be configured using {@link #setHeaders(Map)},
      *
      * @param connection The connection whose headers will be modified.
      */
-    public void prepareConnection(URLConnection connection) {
+    public void prepareConnection(@NotNull URLConnection connection) {
         connection.addRequestProperty("Tus-Resumable", TUS_VERSION);
-        // TODO: add custom headers
+
+        if(headers != null) {
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                connection.addRequestProperty(entry.getKey(), entry.getValue());
+            }
+        }
     }
 }
