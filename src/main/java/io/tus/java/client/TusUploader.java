@@ -275,9 +275,18 @@ public class TusUploader {
                 throw new io.tus.java.client.ProtocolException("unexpected status code (" + responseCode + ") while uploading chunk", connection);
             }
 
-            // Update the offset property to match the server's status
             // TODO detect changes and seek accordingly
-            offset = connection.getHeaderFieldLong("Offset", offset);
+            long serverOffset = connection.getHeaderFieldLong("Upload-Offset", -1);
+            if(serverOffset == -1) {
+                throw new io.tus.java.client.ProtocolException("response to PATCH request contains no or invalid Upload-Offset header", connection);
+            }
+            if(offset != serverOffset) {
+                throw new io.tus.java.client.ProtocolException(
+                        String.format("response contains different Upload-Offset value (%d) than expected (%d)",
+                                serverOffset,
+                                offset),
+                        connection);
+            }
 
             connection = null;
         }

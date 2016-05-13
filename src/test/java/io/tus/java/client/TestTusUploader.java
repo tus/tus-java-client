@@ -56,7 +56,8 @@ public class TestTusUploader{
                 .withBody(Arrays.copyOfRange(content, 3, 11)))
                 .respond(new HttpResponse()
                         .withStatusCode(204)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION));
+                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                        .withHeader("Upload-Offset", "11"));
 
         TusClient client = new TusClient();
         URL uploadUrl = new URL(mockServerURL + "/foo");
@@ -223,5 +224,62 @@ public class TestTusUploader{
 
         // Throws IllegalStateException
         uploader.setRequestPayloadSize(100);
+    }
+
+    @Test
+    public void testMissingUploadOffsetHeader() throws Exception {
+        byte[] content = "hello world".getBytes();
+
+        mockServer.when(new HttpRequest()
+                .withPath("/files/missingHeader"))
+                .respond(new HttpResponse()
+                        .withStatusCode(204)
+                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION));
+
+        TusClient client = new TusClient();
+        URL uploadUrl = new URL(mockServerURL + "/missingHeader");
+        InputStream input = new ByteArrayInputStream(content);
+
+        TusUploader uploader = new TusUploader(client, uploadUrl, input, 0);
+
+        boolean exceptionThrown = false;
+        try {
+            assertEquals(11, uploader.uploadChunk());
+            uploader.finish();
+        } catch(ProtocolException e) {
+            assertTrue(e.getMessage().contains("no or invalid Upload-Offset header"));
+            exceptionThrown = true;
+        } finally {
+            assertTrue(exceptionThrown);
+        }
+    }
+
+    @Test
+    public void testUnmatchingUploadOffsetHeader() throws Exception {
+        byte[] content = "hello world".getBytes();
+
+        mockServer.when(new HttpRequest()
+                .withPath("/files/unmatchingHeader"))
+                .respond(new HttpResponse()
+                        .withStatusCode(204)
+                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                        .withHeader("Upload-Offset", "44"));
+
+        TusClient client = new TusClient();
+        URL uploadUrl = new URL(mockServerURL + "/unmatchingHeader");
+        InputStream input = new ByteArrayInputStream(content);
+
+        TusUploader uploader = new TusUploader(client, uploadUrl, input, 0);
+
+        boolean exceptionThrown = false;
+        try {
+            assertEquals(11, uploader.uploadChunk());
+            uploader.finish();
+        } catch(ProtocolException e) {
+            assertTrue(e.getMessage().contains("different Upload-Offset value (44) than expected (11)"));
+            exceptionThrown = true;
+        } finally {
+            assertTrue(exceptionThrown);
+        }
     }
 }
