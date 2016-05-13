@@ -71,6 +71,7 @@ public class TestTusUploader{
         assertEquals(5, uploader.uploadChunk());
         assertEquals(3, uploader.uploadChunk(5));
         assertEquals(-1, uploader.uploadChunk());
+        assertEquals(-1, uploader.uploadChunk(5));
         assertEquals(11, uploader.getOffset());
         uploader.finish();
     }
@@ -90,8 +91,9 @@ public class TestTusUploader{
         long offset = 3;
 
         boolean exceptionThrown = false;
+        TusUploader uploader = new TusUploader(client, uploadUrl, input, offset);
         try {
-            TusUploader uploader = new TusUploader(client, uploadUrl, input, offset);
+            uploader.uploadChunk();
         } catch(ProtocolException e) {
             assertTrue(e.getMessage().contains("500"));
             exceptionThrown = true;
@@ -142,5 +144,84 @@ public class TestTusUploader{
                 return null;
             }
         }
+    }
+
+    @Test
+    public void testSetRequestPayloadSize() throws Exception {
+        byte[] content = "hello world".getBytes();
+
+        mockServer.when(new HttpRequest()
+                .withPath("/files/payload")
+                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                .withHeader("Upload-Offset", "0")
+                .withHeader("Content-Type", "application/offset+octet-stream")
+                .withBody(Arrays.copyOfRange(content, 0, 5)))
+                .respond(new HttpResponse()
+                        .withStatusCode(204)
+                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                        .withHeader("Upload-Offset", "5"));
+
+        mockServer.when(new HttpRequest()
+                .withPath("/files/payload")
+                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                .withHeader("Upload-Offset", "5")
+                .withHeader("Content-Type", "application/offset+octet-stream")
+                .withBody(Arrays.copyOfRange(content, 5, 10)))
+                .respond(new HttpResponse()
+                        .withStatusCode(204)
+                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                        .withHeader("Upload-Offset", "10"));
+
+        mockServer.when(new HttpRequest()
+                .withPath("/files/payload")
+                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                .withHeader("Upload-Offset", "10")
+                .withHeader("Content-Type", "application/offset+octet-stream")
+                .withBody(Arrays.copyOfRange(content, 10, 11)))
+                .respond(new HttpResponse()
+                        .withStatusCode(204)
+                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                        .withHeader("Upload-Offset", "11"));
+
+        TusClient client = new TusClient();
+        URL uploadUrl = new URL(mockServerURL + "/payload");
+        InputStream input = new ByteArrayInputStream(content);
+
+        TusUploader uploader = new TusUploader(client, uploadUrl, input, 0);
+
+        assertEquals(uploader.getRequestPayloadSize(), 1024 * 1024);
+        uploader.setRequestPayloadSize(5);
+        assertEquals(uploader.getRequestPayloadSize(), 5);
+
+        uploader.setChunkSize(4);
+
+        // First request
+        assertEquals(4, uploader.uploadChunk());
+        assertEquals(1, uploader.uploadChunk());
+
+        // Second request
+        uploader.setChunkSize(100);
+        assertEquals(5, uploader.uploadChunk());
+
+        // Third request
+        assertEquals(1, uploader.uploadChunk());
+        uploader.finish();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testSetRequestPayloadSizeThrows() throws Exception {
+        byte[] content = "hello world".getBytes();
+
+        TusClient client = new TusClient();
+        URL uploadUrl = new URL(mockServerURL + "/payloadException");
+        InputStream input = new ByteArrayInputStream(content);
+
+        TusUploader uploader = new TusUploader(client, uploadUrl, input, 0);
+
+        uploader.setChunkSize(4);
+        uploader.uploadChunk();
+
+        // Throws IllegalStateException
+        uploader.setRequestPayloadSize(100);
     }
 }
