@@ -3,7 +3,7 @@ package io.tus.java.example;
 import java.io.File;
 import java.net.URL;
 
-import io.tus.java.client.TusClient;
+import io.tus.java.client.TusRetryingClient;
 import io.tus.java.client.TusURLMemoryStore;
 import io.tus.java.client.TusUpload;
 import io.tus.java.client.TusUploader;
@@ -12,7 +12,7 @@ public class Main {
     public static void main(String[] args) {
         try {
             // Create a new TusClient instance
-            TusClient client = new TusClient();
+            TusRetryingClient client = new TusRetryingClient();
 
             // Configure tus HTTP endpoint. This URL will be used for creating new uploads
             // using the Creation extension
