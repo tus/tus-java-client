@@ -115,7 +115,7 @@ public class TestTusClient extends MockServerProvider {
 
         TusClient client = new TusClient();
         client.setUploadCreationURL(mockServerURL);
-        client.enableResuming(new TestResumeUploadStore(this));
+        client.enableResuming(new TestResumeUploadStore());
 
         TusUpload upload = new TusUpload();
         upload.setSize(10);
@@ -129,14 +129,8 @@ public class TestTusClient extends MockServerProvider {
     }
 
     private class TestResumeUploadStore implements TusURLStore {
-        private TestTusClient testCase;
-
-        public TestResumeUploadStore(TestTusClient testCase) {
-            this.testCase = testCase;
-        }
-
         public void set(String fingerprint, URL url) {
-
+            assertTrue("set method must not be called", false);
         }
 
         public URL get(String fingerprint) {
@@ -149,7 +143,7 @@ public class TestTusClient extends MockServerProvider {
         }
 
         public void remove(String fingerprint) {
-
+            assertTrue("remove method must not be called", false);
         }
     }
 
