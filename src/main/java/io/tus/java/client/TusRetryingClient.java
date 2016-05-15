@@ -20,7 +20,7 @@ public class TusRetryingClient extends TusClient {
     @Override
     @Nullable
     public TusUploader createUpload(@NotNull TusUpload upload) throws ProtocolException, IOException {
-        int attempt = 0;
+        int attempt = -1;
         while(true) {
             attempt++;
 
@@ -28,7 +28,9 @@ public class TusRetryingClient extends TusClient {
                 return super.createUpload(upload);
             } catch(ProtocolException e) {
                 // Do not attempt a retry, if the Exception suggests so.
-                if(!e.shouldRetry()) throw e;
+                if(!e.shouldRetry()) {
+                    throw e;
+                }
 
                 if(attempt >= delays.length) {
                     // We exceeds the number of maximum retries. In this case the latest exception
