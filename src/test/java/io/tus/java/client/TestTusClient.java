@@ -9,37 +9,14 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockserver.client.server.MockServerClient;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
-import org.mockserver.socket.PortFactory;
 
 import static org.junit.Assert.*;
 
-import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 
-public class TestTusClient {
-    private MockServerClient mockServer;
-    public URL mockServerURL;
-
-    static URL creationUrl;
-
-    @Before
-    public void setUp() throws Exception {
-        creationUrl = new URL("http://master.tus.io");
-        int port = PortFactory.findFreePort();
-        mockServerURL = new URL("http://localhost:" + port + "/files");
-        mockServer = startClientAndServer(port);
-    }
-
-    @After
-    public void tearDown() {
-        mockServer.stop();
-    }
-
+public class TestTusClient extends MockServerProvider {
     @Test
     public void testTusClient() {
         TusClient client = new TusClient();

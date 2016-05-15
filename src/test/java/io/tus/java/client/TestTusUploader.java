@@ -1,10 +1,7 @@
 package io.tus.java.client;
 
-import org.junit.After;
 import org.junit.Assume;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockserver.client.server.MockServerClient;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 import org.mockserver.socket.PortFactory;
@@ -21,27 +18,11 @@ import java.net.Socket;
 import java.net.URL;
 import java.util.Arrays;
 
-import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.junit.Assert.*;
 
-public class TestTusUploader{
-    private MockServerClient mockServer;
-    private URL mockServerURL;
-
+public class TestTusUploader extends MockServerProvider {
     private boolean isOpenJDK6 = System.getProperty("java.version").startsWith("1.6") &&
             System.getProperty("java.vm.name").contains("OpenJDK");
-
-    @Before
-    public void setUp() throws Exception {
-        int port = PortFactory.findFreePort();
-        mockServerURL = new URL("http://localhost:" + port + "/files");
-        mockServer = startClientAndServer(port);
-    }
-
-    @After
-    public void tearDown() {
-        mockServer.stop();
-    }
 
     @Test
     public void testTusUploader() throws IOException, ProtocolException {
