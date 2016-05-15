@@ -91,7 +91,7 @@ public class TusClient {
      * prefix, and can cause unexpected behavior.
      *
      * @see #getHeaders()
-     * @see #prepareConnection(URLConnection)
+     * @see #prepareConnection(HttpURLConnection)
      *
      * @param headers The map of HTTP headers
      */
@@ -104,7 +104,7 @@ public class TusClient {
      * {@link #setHeaders(Map)}.
      *
      * @see #setHeaders(Map)
-     * @see #prepareConnection(URLConnection)
+     * @see #prepareConnection(HttpURLConnection)
      *
      * @return The map of configured HTTP headers
      */
@@ -239,7 +239,12 @@ public class TusClient {
      *
      * @param connection The connection whose headers will be modified.
      */
-    public void prepareConnection(@NotNull URLConnection connection) {
+    public void prepareConnection(@NotNull HttpURLConnection connection) {
+        // Only follow redirects, if the POST methods is preserved. If http.strictPostRedirect is
+        // disabled, a POST request will be transformed into a GET request which is not wanted by us.
+        // See: http://grepcode.com/file/repository.grepcode.com/java/root/jdk/openjdk/7u40-b43/sun/net/www/protocol/http/HttpURLConnection.java#2372
+        connection.setInstanceFollowRedirects(Boolean.getBoolean("http.strictPostRedirect"));
+
         connection.setConnectTimeout(connectTimeout);
         connection.addRequestProperty("Tus-Resumable", TUS_VERSION);
 

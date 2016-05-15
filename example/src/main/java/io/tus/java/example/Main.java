@@ -11,6 +11,12 @@ import io.tus.java.client.TusUploader;
 public class Main {
     public static void main(String[] args) {
         try {
+            // When Java's HTTP client follows a redirect for a POST request, it will change the
+            // method from POST to GET which can be disabled using following system property.
+            // If you do not enable strict redirects, the tus-java-client will not follow any
+            // redirects but still work correctly.
+            System.setProperty("http.strictPostRedirect", "true");
+
             // Create a new TusClient instance
             TusRetryingClient client = new TusRetryingClient();
 

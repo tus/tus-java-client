@@ -241,4 +241,47 @@ public class TestTusClient extends TestCase {
 
         assertEquals(connection.getConnectTimeout(), 3000);
     }
+
+    @Test
+    public void testFollowRedirects() throws Exception {
+        HttpURLConnection connection = (HttpURLConnection) mockServerURL.openConnection();
+        TusClient client = new TusClient();
+
+        // Should not follow by default
+        client.prepareConnection(connection);
+        assertFalse(connection.getInstanceFollowRedirects());
+
+        // Only follow if we enable strict redirects
+        System.setProperty("http.strictPostRedirect", "true");
+        client.prepareConnection(connection);
+        assertTrue(connection.getInstanceFollowRedirects());
+
+        // Attempt a real redirect
+        mockServer.when(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/filesRedirect")
+                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                .withHeader("Upload-Length", "10"))
+                .respond(new HttpResponse()
+                        .withStatusCode(301)
+                        .withHeader("Location", mockServerURL + "Redirected"));
+
+        mockServer.when(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/filesRedirected")
+                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                .withHeader("Upload-Length", "10"))
+                .respond(new HttpResponse()
+                        .withStatusCode(201)
+                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                        .withHeader("Location", mockServerURL + "/foo"));
+
+        client.setUploadCreationURL(new URL(mockServerURL + "Redirect"));
+        TusUpload upload = new TusUpload();
+        upload.setSize(10);
+        upload.setInputStream(new ByteArrayInputStream(new byte[10]));
+        TusUploader uploader = client.createUpload(upload);
+
+        assertEquals(uploader.getUploadURL(), new URL(mockServerURL + "/foo"));
+    }
 }
