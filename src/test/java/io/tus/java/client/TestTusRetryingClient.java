@@ -158,4 +158,51 @@ public class TestTusRetryingClient extends MockServerProvider {
 
         client.createUpload(upload);
     }
+
+    @Test
+    public void testResumeOrCreateUpload() throws Exception {
+        mockServer.when(new HttpRequest()
+                .withMethod("HEAD")
+                .withPath("/files/hash")
+                .withHeader("Tus-Resumable", TusClient.TUS_VERSION))
+                .respond(new HttpResponse()
+                        .withStatusCode(500));
+
+        mockServer.when(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files")
+                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                .withHeader("Upload-Length", "10"),
+                Times.exactly(2))
+                .respond(new HttpResponse()
+                        .withStatusCode(500));
+
+
+        mockServer.when(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files")
+                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                .withHeader("Upload-Length", "10"))
+                .respond(new HttpResponse()
+                        .withStatusCode(201)
+                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                        .withHeader("Location", mockServerURL + "/foo"));
+
+        TusRetryingClient client = new TusRetryingClient();
+
+        TusURLStore store = new TusURLMemoryStore();
+        store.set("fingerprint", new URL(mockServerURL + "/hash"));
+
+        client.setDelays(new int[]{1, 2, 3});
+        client.setUploadCreationURL(mockServerURL);
+        client.enableResuming(store);
+
+        TusUpload upload = new TusUpload();
+        upload.setSize(10);
+        upload.setInputStream(new ByteArrayInputStream(new byte[10]));
+        upload.setFingerprint("fingerprint");
+
+        TusUploader uploader = client.resumeOrCreateUpload(upload);
+        assertEquals(uploader.getUploadURL(), new URL(mockServerURL + "/foo"));
+    }
 }

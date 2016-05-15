@@ -93,5 +93,15 @@ public class TusRetryingClient extends TusClient {
         }
     }
 
-    // TODO resumeOrCreateUpload will return null if resumeUpload does so without trying to create one.
+    @Override
+    @Nullable
+    public TusUploader resumeOrCreateUpload(@NotNull TusUpload upload) throws IOException, ProtocolException {
+        try {
+            return super.resumeOrCreateUpload(upload);
+        } catch(ProtocolException e) {
+            return createUpload(upload);
+        } catch(IOException e) {
+            return createUpload(upload);
+        }
+    }
 }
