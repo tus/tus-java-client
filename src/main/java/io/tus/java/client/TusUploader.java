@@ -276,7 +276,7 @@ public class TusUploader {
             }
 
             // TODO detect changes and seek accordingly
-            long serverOffset = connection.getHeaderFieldLong("Upload-Offset", -1);
+            long serverOffset = getHeaderFieldLong(connection, "Upload-Offset");
             if(serverOffset == -1) {
                 throw new io.tus.java.client.ProtocolException("response to PATCH request contains no or invalid Upload-Offset header", connection);
             }
@@ -289,6 +289,19 @@ public class TusUploader {
             }
 
             connection = null;
+        }
+    }
+
+    private long getHeaderFieldLong(URLConnection connection, String field) {
+        String value = connection.getHeaderField(field);
+        if(value == null) {
+            return -1;
+        }
+
+        try {
+            return Long.parseLong(value);
+        } catch(NumberFormatException e) {
+            return -1;
         }
     }
 }
