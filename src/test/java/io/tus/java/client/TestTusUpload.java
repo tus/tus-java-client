@@ -1,6 +1,8 @@
 package io.tus.java.client;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -9,7 +11,8 @@ import java.io.OutputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class TestTusUpload extends TestCase {
+public class TestTusUpload {
+    @Test
     public void testTusUploadFile() throws IOException {
         String content = "hello world";
 

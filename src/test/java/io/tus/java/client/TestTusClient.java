@@ -17,19 +17,18 @@ import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 import org.mockserver.socket.PortFactory;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 
-public class TestTusClient extends TestCase {
+public class TestTusClient {
     private MockServerClient mockServer;
     public URL mockServerURL;
 
     static URL creationUrl;
 
     @Before
-    protected void setUp() throws Exception {
-        super.setUp();
+    public void setUp() throws Exception {
         creationUrl = new URL("http://master.tus.io");
         int port = PortFactory.findFreePort();
         mockServerURL = new URL("http://localhost:" + port + "/files");
@@ -37,7 +36,7 @@ public class TestTusClient extends TestCase {
     }
 
     @After
-    protected void tearDown() {
+    public void tearDown() {
         mockServer.stop();
     }
 
@@ -164,10 +163,10 @@ public class TestTusClient extends TestCase {
         }
 
         public URL get(String fingerprint) {
-            testCase.assertEquals(fingerprint, "test-fingerprint");
+            assertEquals(fingerprint, "test-fingerprint");
 
             try {
-                return new URL(testCase.mockServerURL.toString() + "/foo");
+                return new URL(mockServerURL.toString() + "/foo");
             } catch(Exception e) {}
             return null;
         }

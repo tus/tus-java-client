@@ -5,9 +5,9 @@ import java.net.URL;
 
 import org.junit.Test;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
-public class TestTusURLMemoryStore extends TestCase {
+public class TestTusURLMemoryStore {
 
     @Test
     public void test() throws MalformedURLException {
