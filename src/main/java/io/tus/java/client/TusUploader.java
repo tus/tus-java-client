@@ -37,7 +37,7 @@ public class TusUploader {
      * Begin a new upload request by opening a PATCH request to specified upload URL. After this
      * method returns a connection will be ready and you can upload chunks of the file.
      *
-     * @param client Used for preparing a request ({@link TusClient#prepareConnection(URLConnection)}
+     * @param client Used for preparing a request ({@link TusClient#prepareConnection(HttpURLConnection)}
      * @param uploadURL URL to send the request to
      * @param input Stream to read (and seek) from and upload to the remote server
      * @param offset Offset to read from
