@@ -3,7 +3,6 @@ package io.tus.java.client;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -53,7 +52,7 @@ public class TusUploader {
         setChunkSize(2 * 1024 * 1024);
     }
 
-    private void openConnection() throws IOException, io.tus.java.client.ProtocolException {
+    private void openConnection() throws IOException, ProtocolException {
         // Only open a connection, if we have none open.
         if(connection != null) {
             return;
@@ -70,7 +69,7 @@ public class TusUploader {
         try {
             connection.setRequestMethod("PATCH");
             // Check whether we are running on a buggy JRE
-        } catch (final ProtocolException pe) {
+        } catch (java.net.ProtocolException pe) {
             connection.setRequestMethod("POST");
             connection.setRequestProperty("X-HTTP-Method-Override", "PATCH");
         }
@@ -79,7 +78,7 @@ public class TusUploader {
         connection.setChunkedStreamingMode(0);
         try {
             output = connection.getOutputStream();
-        } catch(ProtocolException pe) {
+        } catch(java.net.ProtocolException pe) {
             // If we already have a response code available, our expectation using the "Expect: 100-
             // continue" header failed and we should handle this response.
             if(connection.getResponseCode() != -1) {
@@ -162,7 +161,7 @@ public class TusUploader {
      * @throws IOException  Thrown if an exception occurs while reading from the source or writing
      *                      to the HTTP request.
      */
-    public int uploadChunk() throws IOException, io.tus.java.client.ProtocolException {
+    public int uploadChunk() throws IOException, ProtocolException {
         openConnection();
 
         int bytesToRead = Math.min(getChunkSize(), bytesRemainingForRequest);
@@ -214,7 +213,7 @@ public class TusUploader {
      * @throws IOException  Thrown if an exception occurs while reading from the source or writing
      *                      to the HTTP request.
      */
-    @Deprecated public int uploadChunk(int chunkSize) throws IOException, io.tus.java.client.ProtocolException {
+    @Deprecated public int uploadChunk(int chunkSize) throws IOException, ProtocolException {
         openConnection();
 
         byte[] buf = new byte[chunkSize];
@@ -255,18 +254,18 @@ public class TusUploader {
      * You can call this method even before the entire file has been uploaded. Use this behavior to
      * enable pausing uploads.
      *
-     * @throws io.tus.java.client.ProtocolException Thrown if the server sends an unexpected status
+     * @throws ProtocolException Thrown if the server sends an unexpected status
      * code
      * @throws IOException  Thrown if an exception occurs while cleaning up.
      */
-    public void finish() throws io.tus.java.client.ProtocolException, IOException {
+    public void finish() throws ProtocolException, IOException {
         finishConnection();
         // Close the TusInputStream after checking the response and closing the connection to ensure
         // that we will not need to read from it again in the future.
         input.close();
     }
 
-    private void finishConnection() throws io.tus.java.client.ProtocolException, IOException {
+    private void finishConnection() throws ProtocolException, IOException {
         if(output != null) output.close();
 
         if(connection != null) {
@@ -274,16 +273,16 @@ public class TusUploader {
             connection.disconnect();
 
             if (!(responseCode >= 200 && responseCode < 300)) {
-                throw new io.tus.java.client.ProtocolException("unexpected status code (" + responseCode + ") while uploading chunk", connection);
+                throw new ProtocolException("unexpected status code (" + responseCode + ") while uploading chunk", connection);
             }
 
             // TODO detect changes and seek accordingly
             long serverOffset = getHeaderFieldLong(connection, "Upload-Offset");
             if(serverOffset == -1) {
-                throw new io.tus.java.client.ProtocolException("response to PATCH request contains no or invalid Upload-Offset header", connection);
+                throw new ProtocolException("response to PATCH request contains no or invalid Upload-Offset header", connection);
             }
             if(offset != serverOffset) {
-                throw new io.tus.java.client.ProtocolException(
+                throw new ProtocolException(
                         String.format("response contains different Upload-Offset value (%d) than expected (%d)",
                                 serverOffset,
                                 offset),
