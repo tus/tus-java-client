@@ -6,7 +6,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Map;
 
 /**
@@ -163,7 +162,7 @@ public class TusClient {
             urlStore.set(upload.getFingerprint(), uploadURL);
         }
 
-        return new TusUploader(this, uploadURL, upload.getInputStream(), 0);
+        return new TusUploader(this, uploadURL, upload.getTusInputStream(), 0);
     }
 
     /**
@@ -210,7 +209,7 @@ public class TusClient {
         }
         long offset = Long.parseLong(offsetStr);
 
-        return new TusUploader(this, uploadURL, upload.getInputStream(), offset);
+        return new TusUploader(this, uploadURL, upload.getTusInputStream(), offset);
     }
 
     /**

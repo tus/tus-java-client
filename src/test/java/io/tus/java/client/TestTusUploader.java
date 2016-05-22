@@ -42,7 +42,7 @@ public class TestTusUploader extends MockServerProvider {
 
         TusClient client = new TusClient();
         URL uploadUrl = new URL(mockServerURL + "/foo");
-        InputStream input = new ByteArrayInputStream(content);
+        TusInputStream input = new TusInputStream(new ByteArrayInputStream(content));
         long offset = 3;
 
         TusUploader uploader = new TusUploader(client, uploadUrl, input, offset);
@@ -69,7 +69,7 @@ public class TestTusUploader extends MockServerProvider {
 
         TusClient client = new TusClient();
         URL uploadUrl = new URL(server.getURL() + "/expect");
-        InputStream input = new ByteArrayInputStream(content);
+        TusInputStream input = new TusInputStream(new ByteArrayInputStream(content));
         long offset = 3;
 
         boolean exceptionThrown = false;
@@ -167,7 +167,7 @@ public class TestTusUploader extends MockServerProvider {
 
         TusClient client = new TusClient();
         URL uploadUrl = new URL(mockServerURL + "/payload");
-        InputStream input = new ByteArrayInputStream(content);
+        TusInputStream input = new TusInputStream(new ByteArrayInputStream(content));
 
         TusUploader uploader = new TusUploader(client, uploadUrl, input, 0);
 
@@ -196,7 +196,7 @@ public class TestTusUploader extends MockServerProvider {
 
         TusClient client = new TusClient();
         URL uploadUrl = new URL(mockServerURL + "/payloadException");
-        InputStream input = new ByteArrayInputStream(content);
+        TusInputStream input = new TusInputStream(new ByteArrayInputStream(content));
 
         TusUploader uploader = new TusUploader(client, uploadUrl, input, 0);
 
@@ -219,7 +219,7 @@ public class TestTusUploader extends MockServerProvider {
 
         TusClient client = new TusClient();
         URL uploadUrl = new URL(mockServerURL + "/missingHeader");
-        InputStream input = new ByteArrayInputStream(content);
+        TusInputStream input = new TusInputStream(new ByteArrayInputStream(content));
 
         TusUploader uploader = new TusUploader(client, uploadUrl, input, 0);
 
@@ -248,7 +248,7 @@ public class TestTusUploader extends MockServerProvider {
 
         TusClient client = new TusClient();
         URL uploadUrl = new URL(mockServerURL + "/unmatchingHeader");
-        InputStream input = new ByteArrayInputStream(content);
+        TusInputStream input = new TusInputStream(new ByteArrayInputStream(content));
 
         TusUploader uploader = new TusUploader(client, uploadUrl, input, 0);
 

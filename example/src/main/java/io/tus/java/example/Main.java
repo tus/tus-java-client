@@ -1,9 +1,12 @@
 package io.tus.java.example;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 
-import io.tus.java.client.TusRetryingClient;
+import io.tus.java.client.ProtocolException;
+import io.tus.java.client.TusClient;
+import io.tus.java.client.TusExecutor;
 import io.tus.java.client.TusURLMemoryStore;
 import io.tus.java.client.TusUpload;
 import io.tus.java.client.TusUploader;
@@ -18,7 +21,7 @@ public class Main {
             System.setProperty("http.strictPostRedirect", "true");
 
             // Create a new TusClient instance
-            TusRetryingClient client = new TusRetryingClient();
+            final TusClient client = new TusClient();
 
             // Configure tus HTTP endpoint. This URL will be used for creating new uploads
             // using the Creation extension
@@ -31,35 +34,49 @@ public class Main {
             // a File object, you can manually construct a TusUpload using an InputStream.
             // See the documentation for more information.
             File file = new File("./example/assets/prairie.jpg");
-            TusUpload upload = new TusUpload(file);
+            final TusUpload upload = new TusUpload(file);
 
-            // First try to resume an upload. If that's not possible we will create a new
-            // upload and get a TusUploader in return. This class is responsible for opening
-            // a connection to the remote server and doing the uploading.
-            TusUploader uploader = client.resumeOrCreateUpload(upload);
+            // You can also upload from an InputStream directly using a bit more work:
+            // InputStream stream = …;
+            // TusUpload upload = new TusUpload();
+            // upload.setInputStream(stream);
+            // upload.setSize(sizeOfStream);
+            // upload.setFingerprint("stream");
+
 
             System.out.println("Starting upload...");
 
-            // Upload the file in chunks of 1KB sizes.
-            uploader.setChunkSize(1024);
+            TusExecutor executor = new TusExecutor() {
+                @Override
+                protected void makeAttempt() throws ProtocolException, IOException {
+                    // First try to resume an upload. If that's not possible we will create a new
+                    // upload and get a TusUploader in return. This class is responsible for opening
+                    // a connection to the remote server and doing the uploading.
+                    TusUploader uploader = client.resumeOrCreateUpload(upload);
 
-            // Upload the file as long as data is available. Once the
-            // file has been fully uploaded the method will return -1
-            while(uploader.uploadChunk() > -1) {
-                // Calculate the progress using the total size of the uploading file and
-                // the current offset.
-                long totalBytes = upload.getSize();
-                long bytesUploaded = uploader.getOffset();
-                double progress = (double) bytesUploaded / totalBytes * 100;
+                    // Upload the file in chunks of 1KB sizes.
+                    uploader.setChunkSize(1024);
 
-                System.out.printf("Upload at %06.2f%%.\n", progress);
-            }
+                    // Upload the file as long as data is available. Once the
+                    // file has been fully uploaded the method will return -1
+                    do {
+                        // Calculate the progress using the total size of the uploading file and
+                        // the current offset.
+                        long totalBytes = upload.getSize();
+                        long bytesUploaded = uploader.getOffset();
+                        double progress = (double) bytesUploaded / totalBytes * 100;
 
-            // Allow the HTTP connection to be closed and cleaned up
-            uploader.finish();
+                        System.out.printf("Upload at %06.2f%%.\n", progress);
+                    } while(uploader.uploadChunk() > -1);
 
-            System.out.println("Upload finished.");
-            System.out.format("Upload available at: %s", uploader.getUploadURL().toString());
+                    // Allow the HTTP connection to be closed and cleaned up
+                    uploader.finish();
+
+                    System.out.println("Upload finished.");
+                    System.out.format("Upload available at: %s", uploader.getUploadURL().toString());
+                }
+            };
+            executor.makeAttempts();
         } catch(Exception e) {
             e.printStackTrace();
         }

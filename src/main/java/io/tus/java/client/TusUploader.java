@@ -1,7 +1,6 @@
 package io.tus.java.client;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
@@ -23,7 +22,7 @@ import java.net.URLConnection;
  */
 public class TusUploader {
     private URL uploadURL;
-    private InputStream input;
+    private TusInputStream input;
     private long offset;
     private TusClient client;
     private byte[] buffer;
@@ -43,13 +42,13 @@ public class TusUploader {
      * @param offset Offset to read from
      * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
      */
-    public TusUploader(TusClient client, URL uploadURL, InputStream input, long offset) throws IOException {
+    public TusUploader(TusClient client, URL uploadURL, TusInputStream input, long offset) throws IOException {
         this.uploadURL = uploadURL;
         this.input = input;
         this.offset = offset;
         this.client = client;
 
-        input.skip(offset);
+        input.seekTo(offset);
 
         setChunkSize(2 * 1024 * 1024);
     }
@@ -61,6 +60,7 @@ public class TusUploader {
         }
 
         bytesRemainingForRequest = requestPayloadSize;
+        input.mark(requestPayloadSize);
 
         connection = (HttpURLConnection) uploadURL.openConnection();
         client.prepareConnection(connection);
@@ -218,7 +218,7 @@ public class TusUploader {
         openConnection();
 
         byte[] buf = new byte[chunkSize];
-        int bytesRead = input.read(buf);
+        int bytesRead = input.read(buf, 0, chunkSize);
         if(bytesRead == -1) {
             // No bytes were read since the input stream is empty
             return -1;
@@ -260,8 +260,10 @@ public class TusUploader {
      * @throws IOException  Thrown if an exception occurs while cleaning up.
      */
     public void finish() throws io.tus.java.client.ProtocolException, IOException {
-        input.close();
         finishConnection();
+        // Close the TusInputStream after checking the response and closing the connection to ensure
+        // that we will not need to read from it again in the future.
+        input.close();
     }
 
     private void finishConnection() throws io.tus.java.client.ProtocolException, IOException {

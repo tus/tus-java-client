@@ -18,6 +18,7 @@ import java.util.Map;
 public class TusUpload {
     private long size;
     private InputStream input;
+    private TusInputStream tusInputStream;
     private String fingerprint;
     private Map<String, String> metadata;
 
@@ -36,7 +37,7 @@ public class TusUpload {
      */
     public TusUpload(@NotNull File file) throws FileNotFoundException {
         size = file.length();
-        input = new FileInputStream(file);
+        setInputStream(new FileInputStream(file));
 
         fingerprint = String.format("%s-%d", file.getAbsolutePath(), size);
 
@@ -69,6 +70,10 @@ public class TusUpload {
         return input;
     }
 
+    TusInputStream getTusInputStream() {
+        return tusInputStream;
+    }
+
     /**
      * Set the source from which will be read if the file will be later uploaded.
      *
@@ -76,6 +81,7 @@ public class TusUpload {
      */
     public void setInputStream(InputStream inputStream) {
         input = inputStream;
+        tusInputStream = new TusInputStream(inputStream);
     }
 
     public void setMetadata(Map<String, String> metadata) {
