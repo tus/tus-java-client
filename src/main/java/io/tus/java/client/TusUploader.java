@@ -166,7 +166,7 @@ public class TusUploader {
 
         int bytesToRead = Math.min(getChunkSize(), bytesRemainingForRequest);
 
-        int bytesRead = input.read(buffer, 0, bytesToRead);
+        int bytesRead = input.read(buffer, bytesToRead);
         if(bytesRead == -1) {
             // No bytes were read since the input stream is empty
             return -1;
@@ -217,7 +217,7 @@ public class TusUploader {
         openConnection();
 
         byte[] buf = new byte[chunkSize];
-        int bytesRead = input.read(buf, 0, chunkSize);
+        int bytesRead = input.read(buf, chunkSize);
         if(bytesRead == -1) {
             // No bytes were read since the input stream is empty
             return -1;

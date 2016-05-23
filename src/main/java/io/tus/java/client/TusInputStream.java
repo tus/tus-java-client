@@ -17,8 +17,8 @@ class TusInputStream {
         this.stream = stream;
     }
 
-    public int read(byte[] buffer, int offset, int length) throws IOException {
-        int bytesReadNow = stream.read(buffer, offset, length);
+    public int read(byte[] buffer, int length) throws IOException {
+        int bytesReadNow = stream.read(buffer, 0, length);
         bytesRead += bytesReadNow;
         return bytesReadNow;
     }
