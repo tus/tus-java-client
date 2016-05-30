@@ -46,6 +46,10 @@ public class Main {
 
             System.out.println("Starting upload...");
 
+            // We wrap our uploading code in the TusExecutor class which will automatically catch
+            // exceptions and issue retries with small delays between them and take fully
+            // advantage of tus' resumability to offer more reliability.
+            // This step is optional but highly recommended.
             TusExecutor executor = new TusExecutor() {
                 @Override
                 protected void makeAttempt() throws ProtocolException, IOException {
