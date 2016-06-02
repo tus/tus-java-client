@@ -229,6 +229,15 @@ public class TusClient {
             return createUpload(upload);
         } catch(ResumingNotEnabledException e) {
             return createUpload(upload);
+        } catch(ProtocolException e) {
+            // If the attempt to resume returned a 404 Not Found, we immediately try to create a new
+            // one since TusExectuor would not retry this operation.
+            HttpURLConnection connection = e.getCausingConnection();
+            if(connection != null && connection.getResponseCode() == 404) {
+                return createUpload(upload);
+            }
+
+            throw e;
         }
     }
 

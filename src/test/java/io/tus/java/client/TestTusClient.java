@@ -170,6 +170,41 @@ public class TestTusClient extends MockServerProvider {
     }
 
     @Test
+    public void testResumeOrCreateUploadNotFound() throws IOException, ProtocolException {
+        mockServer.when(new HttpRequest()
+                .withMethod("HEAD")
+                .withPath("/files/not_found")
+                .withHeader("Tus-Resumable", TusClient.TUS_VERSION))
+                .respond(new HttpResponse()
+                        .withStatusCode(404));
+
+        mockServer.when(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files")
+                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                .withHeader("Upload-Length", "10"))
+                .respond(new HttpResponse()
+                        .withStatusCode(201)
+                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                        .withHeader("Location", mockServerURL + "/foo"));
+
+        TusClient client = new TusClient();
+        client.setUploadCreationURL(mockServerURL);
+
+        TusURLStore store = new TusURLMemoryStore();
+        store.set("fingerprint", new URL(mockServerURL + "/not_found"));
+        client.enableResuming(store);
+
+        TusUpload upload = new TusUpload();
+        upload.setSize(10);
+        upload.setInputStream(new ByteArrayInputStream(new byte[10]));
+        upload.setFingerprint("fingerprint");
+        TusUploader uploader = client.resumeOrCreateUpload(upload);
+
+        assertEquals(uploader.getUploadURL(), new URL(mockServerURL + "/foo"));
+    }
+
+    @Test
     public void testPrepareConnection() throws IOException {
         HttpURLConnection connection = (HttpURLConnection) mockServerURL.openConnection();
         TusClient client = new TusClient();
