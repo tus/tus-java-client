@@ -3,7 +3,7 @@ package io.tus.java.client;
 import java.io.IOException;
 
 /**
- * TusExecutor is a wrapper class which you can built around your uploading mechanism and any
+ * TusExecutor is a wrapper class which you can build around your uploading mechanism and any
  * exception thrown by it will be caught and may result in a retry. This way you can easily add
  * retrying functionality to your application with defined delays between them.
  *
