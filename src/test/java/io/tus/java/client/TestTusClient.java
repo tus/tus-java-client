@@ -103,6 +103,44 @@ public class TestTusClient extends MockServerProvider {
     }
 
     @Test
+    public void testCreateUplaodWithRelativeLocation() throws Exception {
+        // We need to enable strict following for POST requests first
+        System.setProperty("http.strictPostRedirect", "true");
+
+        // Attempt a real redirect
+        mockServer.when(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/filesRedirect")
+                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                .withHeader("Upload-Length", "10"))
+                .respond(new HttpResponse()
+                        .withStatusCode(301)
+                        .withHeader("Location", mockServerURL + "Redirected/"));
+
+        mockServer.when(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/filesRedirected/")
+                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                .withHeader("Upload-Length", "10"))
+                .respond(new HttpResponse()
+                        .withStatusCode(201)
+                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                        .withHeader("Location", "foo"));
+
+        TusClient client = new TusClient();
+        client.setUploadCreationURL(new URL(mockServerURL + "Redirect"));
+        TusUpload upload = new TusUpload();
+        upload.setSize(10);
+        upload.setInputStream(new ByteArrayInputStream(new byte[10]));
+        TusUploader uploader = client.createUpload(upload);
+
+        // The upload URL must be relative to the URL of the request by which is was returned,
+        // not the upload creation URL. In most cases, there is no difference between those two
+        // but it's still important to be correct here.
+        assertEquals(uploader.getUploadURL(), new URL(mockServerURL + "Redirected/foo"));
+    }
+
+    @Test
     public void testResumeUpload() throws ResumingNotEnabledException, FingerprintNotFoundException, IOException, ProtocolException {
         mockServer.when(new HttpRequest()
                 .withMethod("HEAD")

@@ -156,7 +156,10 @@ public class TusClient {
             throw new ProtocolException("missing upload URL in response for creating upload", connection);
         }
 
-        URL uploadURL = new URL(urlStr);
+        // The upload URL must be relative to the URL of the request by which is was returned,
+        // not the upload creation URL. In most cases, there is no difference between those two
+        // but there may be cases in which the POST request is redirected.
+        URL uploadURL = new URL(connection.getURL(), urlStr);
 
         if(resumingEnabled) {
             urlStore.set(upload.getFingerprint(), uploadURL);
