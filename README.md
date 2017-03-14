@@ -1,4 +1,4 @@
-# tus-java-client
+# tus-java-client [![Build Status](https://travis-ci.org/tus/tus-java-client.svg?branch=master)](https://travis-ci.org/tus/tus-java-client)
 
 > **tus** is a protocol based on HTTP for *resumable file uploads*. Resumable
 > means that an upload can be interrupted at any moment and can be resumed without
