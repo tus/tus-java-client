@@ -15,7 +15,7 @@ deploy:
     script: ./deploy-bintray.sh
     on:
       tags: true
-      jdk: openjdk7
+      jdk: openjdk6
 
 env:
   global:
