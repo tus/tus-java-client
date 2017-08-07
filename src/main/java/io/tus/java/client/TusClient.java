@@ -21,6 +21,8 @@ public class TusClient {
     private URL uploadCreationURL;
     private boolean resumingEnabled;
     private TusURLStore urlStore;
+    private boolean deferLengthEnabled;
+    private TusUploadLengthStore sizeStore;
     private Map<String, String> headers;
     private int connectTimeout = 5000;
 
@@ -73,6 +75,35 @@ public class TusClient {
     }
 
     /**
+     * Enable defer-length feature.
+     *
+     * @param sizeStore Storage used to save and retrieve upload data size by its fingerprint.
+     */
+    public void enableDeferLength(@NotNull TusUploadLengthStore sizeStore) {
+        deferLengthEnabled = true;
+        this.sizeStore = sizeStore;
+    }
+
+    /**
+     * Disable defer-length feature.
+     *
+     * @see #enableResuming(TusURLStore)
+     */
+    public void disableDeferLength() {
+        deferLengthEnabled = false;
+        this.sizeStore = null;
+    }
+
+    /**
+     * Get the current status if defer-length-feature is enabled.
+     *
+     * @see #enableDeferLength(TusUploadLengthStore)
+     */
+    public boolean isDeferLengthEnabled() {
+        return deferLengthEnabled;
+    }
+
+    /**
      * Get the current status if resuming.
      *
      * @see #enableResuming(TusURLStore)
@@ -120,6 +151,11 @@ public class TusClient {
         return connectTimeout;
     }
 
+    @Nullable
+    public TusUploadLengthStore getSizeStore() {
+        return sizeStore;
+    }
+
     /**
      * Create a new upload using the Creation extension. Before calling this function, an "upload
      * creation URL" must be defined using {@link #setUploadCreationURL(URL)} or else this
@@ -143,7 +179,15 @@ public class TusClient {
             connection.setRequestProperty("Upload-Metadata", encodedMetadata);
         }
 
-        connection.addRequestProperty("Upload-Length", Long.toString(upload.getSize()));
+        // If the defer-length feature is disabled and the total upload size is not known the "Upload-Length"
+        // header is set to "0" (backward compatible behaviour!)
+        if (!isDeferLengthEnabled()
+                || upload.isSizeConfigured()) {
+            connection.addRequestProperty("Upload-Length", Long.toString(upload.getSize()));
+        } else {
+            connection.addRequestProperty("Upload-Defer-Length", "1");
+        }
+        boolean uploadLengthHeaderSet = connection.getRequestProperties().containsKey("Upload-Length");
         connection.connect();
 
         int responseCode = connection.getResponseCode();
@@ -163,6 +207,12 @@ public class TusClient {
 
         if(resumingEnabled) {
             urlStore.set(upload.getFingerprint(), uploadURL);
+        }
+
+        if (isDeferLengthEnabled()) {
+            if (uploadLengthHeaderSet) {
+                getSizeStore().set(uploadURL, upload.getSize());
+            }
         }
 
         return new TusUploader(this, uploadURL, upload.getTusInputStream(), 0);
@@ -198,7 +248,6 @@ public class TusClient {
         HttpURLConnection connection = (HttpURLConnection) uploadURL.openConnection();
         connection.setRequestMethod("HEAD");
         prepareConnection(connection);
-
         connection.connect();
 
         int responseCode = connection.getResponseCode();
@@ -210,9 +259,32 @@ public class TusClient {
         if(offsetStr == null || offsetStr.length() == 0) {
             throw new ProtocolException("missing upload offset in response for resuming upload", connection);
         }
+
         long offset = Long.parseLong(offsetStr);
 
-        return new TusUploader(this, uploadURL, upload.getTusInputStream(), offset);
+        // keep the client in sync with server regarding "Upload-Length" header
+        String deferLength = connection.getHeaderField("Upload-Defer-Length");
+        String uploadLength = connection.getHeaderField("Upload-Length");
+        if (deferLength == null && uploadLength == null
+                || deferLength != null && uploadLength != null) {
+            throw new ProtocolException("'HEAD' request must return a header named either 'Upload-Defer-Length' or 'Upload-Length'");
+        }
+
+        Long uploadSize = null;
+        if (isDeferLengthEnabled()) {
+            // keep the client in sync (respect the server and not the client state!)
+            sizeStore.remove(uploadURL);
+            if (uploadLength != null) {
+                sizeStore.set(uploadURL, Long.parseLong(uploadLength));
+            } else {
+                // upload size is unknown to server, but maybe it can be set now
+                if (upload.isSizeConfigured()) {
+                    uploadSize = upload.getSize();
+                }
+            }
+        }
+
+        return new TusUploader(this, uploadURL, upload.getTusInputStream(), offset, uploadSize);
     }
 
     /**

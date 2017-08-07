@@ -12,8 +12,7 @@ import java.util.Map;
 /**
  * This class contains information about a file which will be uploaded later. Uploading is not
  * done using this class but using {@link TusUploader} whose instances are returned by
- * {@link TusClient#createUpload(TusUpload)}, {@link TusClient#createUpload(TusUpload)} and
- * {@link TusClient#resumeOrCreateUpload(TusUpload)}.
+ * {@link TusClient#createUpload(TusUpload)} and {@link TusClient#resumeOrCreateUpload(TusUpload)}.
  */
 public class TusUpload {
     private long size;
@@ -21,6 +20,8 @@ public class TusUpload {
     private TusInputStream tusInputStream;
     private String fingerprint;
     private Map<String, String> metadata;
+    //this property becomes obsolete if the "size" property is an object allowing "null" value
+    private boolean sizeConfigured;
 
     /**
      * Create a new TusUpload object.
@@ -36,7 +37,7 @@ public class TusUpload {
      * @throws FileNotFoundException Thrown if the file cannot be found.
      */
     public TusUpload(@NotNull File file) throws FileNotFoundException {
-        size = file.length();
+        setSize(file.length());
         setInputStream(new FileInputStream(file));
 
         fingerprint = String.format("%s-%d", file.getAbsolutePath(), size);
@@ -55,7 +56,19 @@ public class TusUpload {
      * @param size File's size in bytes.
      */
     public void setSize(long size) {
+        if (size < 0) {
+            throw new IllegalArgumentException("The size must be a non-negative value!");
+        }
+        this.sizeConfigured = true;
         this.size = size;
+    }
+
+    /**
+     *
+     * @return <code>true</code> if the size of the upload is configured otherwise <code>false</code>
+     */
+    public boolean isSizeConfigured() {
+        return sizeConfigured;
     }
 
     public String getFingerprint() {
@@ -119,7 +132,7 @@ public class TusUpload {
     }
 
     /**
-     * Encode a byte-array using Base64. This is a sligtly modified version from an implementation
+     * Encode a byte-array using Base64. This is a slightly modified version from an implementation
      * published on Wikipedia (https://en.wikipedia.org/wiki/Base64#Sample_Implementation_in_Java)
      * under the Creative Commons Attribution-ShareAlike License.
      */

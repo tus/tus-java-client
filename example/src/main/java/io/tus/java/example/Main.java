@@ -7,6 +7,7 @@ import java.net.URL;
 import io.tus.java.client.ProtocolException;
 import io.tus.java.client.TusClient;
 import io.tus.java.client.TusExecutor;
+import io.tus.java.client.TusUploadLengthStoreImpl;
 import io.tus.java.client.TusURLMemoryStore;
 import io.tus.java.client.TusUpload;
 import io.tus.java.client.TusUploader;
@@ -29,6 +30,8 @@ public class Main {
 
             // Enable resumable uploads by storing the upload URL in memory
             client.enableResuming(new TusURLMemoryStore());
+            // Enable defer-length feature by storing the upload size in memory
+            client.enableDeferLength(new TusUploadLengthStoreImpl());
 
             // Open a file using which we will then create a TusUpload. If you do not have
             // a File object, you can manually construct a TusUpload using an InputStream.
