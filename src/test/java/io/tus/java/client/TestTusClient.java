@@ -149,7 +149,8 @@ public class TestTusClient extends MockServerProvider {
                 .respond(new HttpResponse()
                         .withStatusCode(204)
                         .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Upload-Offset", "3"));
+                        .withHeader("Upload-Offset", "3")
+                        .withHeader("Upload-Length", Long.toString(10)));
 
         TusClient client = new TusClient();
         client.setUploadCreationURL(mockServerURL);

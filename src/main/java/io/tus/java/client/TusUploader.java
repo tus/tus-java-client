@@ -8,8 +8,7 @@ import java.net.URLConnection;
 
 /**
  * This class is used for doing the actual upload of the files. Instances are returned by
- * {@link TusClient#createUpload(TusUpload)}, {@link TusClient#createUpload(TusUpload)} and
- * {@link TusClient#resumeOrCreateUpload(TusUpload)}.
+ * {@link TusClient#createUpload(TusUpload)} and {@link TusClient#resumeOrCreateUpload(TusUpload)}.
  * <br>
  * After obtaining an instance you can upload a file by following these steps:
  * <ol>
@@ -23,6 +22,7 @@ public class TusUploader {
     private URL uploadURL;
     private TusInputStream input;
     private long offset;
+    private Long uploadSize;
     private TusClient client;
     private byte[] buffer;
     private int requestPayloadSize = 1024 * 1024;
@@ -42,9 +42,25 @@ public class TusUploader {
      * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
      */
     public TusUploader(TusClient client, URL uploadURL, TusInputStream input, long offset) throws IOException {
+        this(client, uploadURL, input, offset, null);
+    }
+
+    /**
+     * Begin a new upload request by opening a PATCH request to specified upload URL. After this
+     * method returns a connection will be ready and you can upload chunks of the file.
+     *
+     * @param client Used for preparing a request ({@link TusClient#prepareConnection(HttpURLConnection)}
+     * @param uploadURL URL to send the request to
+     * @param input Stream to read (and seek) from and upload to the remote server
+     * @param offset Offset to read from
+     * @param uploadSize Total upload size
+     * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
+     */
+    public TusUploader(TusClient client, URL uploadURL, TusInputStream input, long offset, Long uploadSize) throws IOException {
         this.uploadURL = uploadURL;
         this.input = input;
         this.offset = offset;
+        this.uploadSize = uploadSize;
         this.client = client;
 
         input.seekTo(offset);
@@ -73,6 +89,8 @@ public class TusUploader {
             connection.setRequestMethod("POST");
             connection.setRequestProperty("X-HTTP-Method-Override", "PATCH");
         }
+
+        handleUploadHeader();
 
         connection.setDoOutput(true);
         connection.setChunkedStreamingMode(0);
@@ -303,6 +321,26 @@ public class TusUploader {
             return Long.parseLong(value);
         } catch(NumberFormatException e) {
             return -1;
+        }
+    }
+
+    private void handleUploadHeader() {
+        if (!client.isDeferLengthEnabled()) {
+            // do nothing as the Upload-Length Header was set during "POST" (creation)
+            // this is the backward compatible behaviour before adding the upload-defer-length feature
+            return;
+
+        }
+        if (client.getSizeStore().get(uploadURL) != null) {
+            //size has already been transmitted!
+            return;
+        }
+
+        if (uploadSize == null) {
+            connection.addRequestProperty("Upload-Defer-Length", "1");
+        } else {
+            connection.addRequestProperty("Upload-Length", Long.toString(uploadSize));
+            client.getSizeStore().set(uploadURL, uploadSize);
         }
     }
 }
