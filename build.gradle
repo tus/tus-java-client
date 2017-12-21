@@ -9,10 +9,15 @@ allprojects {
     }
 }
 
+// We compile the library using Java 1.6 compatibility
+// in order to ensure interoperability with older Android platforms.
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
 dependencies {
     compile 'org.jetbrains:annotations:13.0'
     testCompile 'junit:junit:4.12'
-    testCompile 'org.mock-server:mockserver-netty:3.9.17'
+    testCompile 'org.mock-server:mockserver-netty:5.2.2'
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -25,38 +30,40 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
-task createPom << {
-    pom {
-        project {
-            groupId 'io.tus.java.client'
-            artifactId 'tus-java-client'
-            name 'tus-java-client'
-            version project.getProperties().get('pomVersion')
-            packaging 'pom'
-            description 'Java client for tus, the resumable file uploading protocol.'
-            url 'http://tus.io'
+task createPom {
+    doLast {
+        pom {
+            project {
+                groupId 'io.tus.java.client'
+                artifactId 'tus-java-client'
+                name 'tus-java-client'
+                version project.getProperties().get('pomVersion')
+                packaging 'pom'
+                description 'Java client for tus, the resumable file uploading protocol.'
+                url 'http://tus.io'
 
-            scm {
-                url 'https://github.com/tus/tus-java-client'
-                connection 'https://github.com/tus/tus-java-client'
-                developerConnection 'https://github.com/tus/tus-java-client'
-            }
+                scm {
+                    url 'https://github.com/tus/tus-java-client'
+                    connection 'https://github.com/tus/tus-java-client'
+                    developerConnection 'https://github.com/tus/tus-java-client'
+                }
 
-            developers {
-                developer {
-                    id 'acconut'
-                    name 'Marius Kleidl'
-                    email 'maerious@gmail.com'
+                developers {
+                    developer {
+                        id 'acconut'
+                        name 'Marius Kleidl'
+                        email 'maerious@gmail.com'
+                    }
+                }
+
+                inceptionYear '2015'
+                licenses {
+                    license {
+                        name 'The MIT License (MIT)'
+                        url 'http://opensource.org/licenses/MIT'
+                    }
                 }
             }
-
-            inceptionYear '2015'
-            licenses {
-                license {
-                    name 'The MIT License (MIT)'
-                    url 'http://opensource.org/licenses/MIT'
-                }
-            }
-        }
-    }.writeTo("build/libs/pom.xml")
+        }.writeTo("build/libs/pom.xml")
+    }
 }

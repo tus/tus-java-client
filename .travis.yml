@@ -1,21 +1,25 @@
-sudo: false
+sudo: required
 language: java
 jdk:
 - oraclejdk8
-- oraclejdk7
-- openjdk6
+- oraclejdk9
 - openjdk7
+- openjdk8
+before_install:
+  # OpenJDK 7 does not support HTTPS using Elliptic Curves, but the Gradle
+  # server use them. Therefore, we manually disable them to enable communication.
+  - sudo sed -i 's/^jdk.certpath.disabledAlgorithms=.*/jdk.certpath.disabledAlgorithms=MD2, MD5, RSA keySize < 1024, ECDSA/' /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/security/java.security || true
 deploy:
   - provider: script
     script: ./deploy-gh-pages.sh
     on:
       branch: master
-      jdk: openjdk7
+      jdk: openjdk8
   - provider: script
     script: ./deploy-bintray.sh
     on:
       tags: true
-      jdk: openjdk6
+      jdk: openjdk8
 
 env:
   global:
