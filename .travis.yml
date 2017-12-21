@@ -1,4 +1,4 @@
-sudo: false
+sudo: required
 language: java
 jdk:
 - oraclejdk8
@@ -6,7 +6,7 @@ jdk:
 - openjdk7
 - openjdk8
 before_install:
-  - sed -i 's/^jdk.certpath.disabledAlgorithms=.*/jdk.certpath.disabledAlgorithms=MD2, MD5, RSA keySize < 1024, ECDSA/' /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/security/java.security || true
+  - sudo sed -i 's/^jdk.certpath.disabledAlgorithms=.*/jdk.certpath.disabledAlgorithms=MD2, MD5, RSA keySize < 1024, ECDSA/' /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/security/java.security || true
 deploy:
   - provider: script
     script: ./deploy-gh-pages.sh
