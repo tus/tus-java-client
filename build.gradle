@@ -9,6 +9,11 @@ allprojects {
     }
 }
 
+// We compile the library using Java 1.6 compatibility
+// in order to ensure interoperabity with older Android platforms.
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
 dependencies {
     compile 'org.jetbrains:annotations:13.0'
     testCompile 'junit:junit:4.12'

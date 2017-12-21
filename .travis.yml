@@ -1,13 +1,8 @@
 sudo: false
 language: java
-addons:
-  apt:
-    packages:
-    - openjdk-6-jdk
 jdk:
 - oraclejdk8
 - oraclejdk9
-- openjdk6
 - openjdk7
 - openjdk8
 before_install:
@@ -17,12 +12,12 @@ deploy:
     script: ./deploy-gh-pages.sh
     on:
       branch: master
-      jdk: openjdk7
+      jdk: openjdk8
   - provider: script
     script: ./deploy-bintray.sh
     on:
       tags: true
-      jdk: openjdk6
+      jdk: openjdk8
 
 env:
   global:
