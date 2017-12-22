@@ -127,7 +127,7 @@ public class TusUploader {
      * remote server. In general, try to set the payload size before invoking {@link #uploadChunk()}
      * the first time.
      *
-     * @see {@link #getRequestPayloadSize()}
+     * @see #getRequestPayloadSize()
      *
      * @param size Number of bytes for a single payload
      * @throws IllegalStateException Thrown if the uploader currently has a connection open
@@ -144,7 +144,7 @@ public class TusUploader {
     /**
      * Get the current maximum payload size for a single request.
      *
-     * @see {@link #setChunkSize(int)}
+     * @see #setChunkSize(int)
      *
      * @return Number of bytes for a single payload
      */

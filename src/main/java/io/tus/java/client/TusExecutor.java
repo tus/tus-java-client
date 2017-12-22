@@ -9,6 +9,7 @@ import java.io.IOException;
  *
  * This can be achieved by extending TusExecutor and implementing the abstract makeAttempt() method:
  * <pre>
+ * {@code
  *  TusExecutor executor = new TusExecutor() {
  *      {@literal @}Override
  *      protected void makeAttempt() throws ProtocolException, IOException {
@@ -18,6 +19,7 @@ import java.io.IOException;
  *      }
  *  };
  *  executor.makeAttempts();
+ * }
  * </pre>
  *
  * The retries are basically just calling the {@link #makeAttempt()} method which should then

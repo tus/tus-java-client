@@ -1,10 +1,14 @@
 #!/bin/sh
 
+set -e
+
 echo "Publishing javadocs to GitHub pages..."
 
 git clone --quiet --branch=gh-pages https://tus-bot:$GITHUB_TOKEN@github.com/tus/tus-java-client.git ../gh-pages
 commit=$(git rev-parse HEAD)
-javadoc io.tus.java.client -sourcepath ./src/main/java -d ../gh-pages/javadoc
+
+./gradlew javadoc
+cp -r ./build/docs/javadoc ../gh-pages/javadoc
 
 cd ../gh-pages
 
