@@ -18,11 +18,11 @@ public class TusClient {
      */
     public final static String TUS_VERSION = "1.0.0";
 
-    private URL uploadCreationURL;
-    private boolean resumingEnabled;
-    private TusURLStore urlStore;
-    private Map<String, String> headers;
-    private int connectTimeout = 5000;
+    protected URL uploadCreationURL;
+    protected boolean resumingEnabled;
+    protected TusURLStore urlStore;
+    protected Map<String, String> headers;
+    protected int connectTimeout = 5000;
 
     /**
      * Create a new tus client.
