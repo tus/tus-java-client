@@ -156,6 +156,8 @@ public class TusClient {
             throw new ProtocolException("missing upload URL in response for creating upload", connection);
         }
 
+        onConnectionOpened(connection);
+
         // The upload URL must be relative to the URL of the request by which is was returned,
         // not the upload creation URL. In most cases, there is no difference between those two
         // but there may be cases in which the POST request is redirected.
@@ -167,6 +169,13 @@ public class TusClient {
 
         return new TusUploader(this, uploadURL, upload.getTusInputStream(), 0);
     }
+
+    /**
+     * Hook for subclasses to do any post-open tasks
+     *
+     * @param urlConnection
+     */
+    protected void onConnectionOpened(HttpURLConnection urlConnection) {}
 
     /**
      * Try to resume an already started upload. Before call this function, resuming must be
@@ -211,6 +220,8 @@ public class TusClient {
             throw new ProtocolException("missing upload offset in response for resuming upload", connection);
         }
         long offset = Long.parseLong(offsetStr);
+
+        onConnectionOpened(connection);
 
         return new TusUploader(this, uploadURL, upload.getTusInputStream(), offset);
     }
