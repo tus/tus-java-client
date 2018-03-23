@@ -19,10 +19,13 @@ public class TusClient {
     public final static String TUS_VERSION = "1.0.0";
 
     private URL uploadCreationURL;
+    private URL uploadLocationURL;
     private boolean resumingEnabled;
     private TusURLStore urlStore;
     private Map<String, String> headers;
     private int connectTimeout = 5000;
+    private boolean useCreationExtension = false;
+
 
     /**
      * Create a new tus client.
@@ -32,14 +35,36 @@ public class TusClient {
     }
 
     /**
-     * Set the URL used for creating new uploads. This is required if you want to initiate new
+     * Set the URL used for creating new uploads. This or setUploadLocationURL is required if you want to initiate new
      * uploads using {@link #createUpload} or {@link #resumeOrCreateUpload} but is not used if you
-     * only resume existing uploads.
+     * only resume existing uploads. Will enable the use of the Creation Extension when creating uploader
      *
      * @param uploadCreationURL Absolute upload creation URL
      */
     public void setUploadCreationURL(URL uploadCreationURL) {
         this.uploadCreationURL = uploadCreationURL;
+        this.useCreationExtension = true;
+    }
+
+    /**
+     * Set the URL used for creating new uploads. This or setUploadLocationURL is required if you want to initiate new
+     * uploads using {@link #createUpload} or {@link #resumeOrCreateUpload} but is not used if you
+     * only resume existing uploads. Will disable the use of the Creation Extension when creating uploader
+     *
+     * @param uploadLocationURL Absolute upload creation URL
+     */
+    public void setUploadLocationURL(URL uploadLocationURL) {
+        this.uploadLocationURL = uploadLocationURL;
+        this.useCreationExtension = false;
+    }
+
+    /**
+     * Get the current upload Location URL
+     *
+     * @return Current upload Location URL
+     */
+    public URL getUploadLocationURL() {
+        return uploadLocationURL;
     }
 
     /**
@@ -134,6 +159,10 @@ public class TusClient {
      * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
      */
     public TusUploader createUpload(@NotNull TusUpload upload) throws ProtocolException, IOException {
+
+        if (!useCreationExtension){
+            return new TusUploader(this, uploadLocationURL, upload.getTusInputStream(), 0);
+        }
         HttpURLConnection connection = (HttpURLConnection) uploadCreationURL.openConnection();
         connection.setRequestMethod("POST");
         prepareConnection(connection);
