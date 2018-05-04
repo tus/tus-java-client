@@ -161,6 +161,9 @@ public class TusClient {
     public TusUploader createUpload(@NotNull TusUpload upload) throws ProtocolException, IOException {
 
         if (!useCreationExtension){
+            if(resumingEnabled) {
+                urlStore.set(upload.getFingerprint(), uploadLocationURL);
+            }
             return new TusUploader(this, uploadLocationURL, upload.getTusInputStream(), 0);
         }
         HttpURLConnection connection = (HttpURLConnection) uploadCreationURL.openConnection();
