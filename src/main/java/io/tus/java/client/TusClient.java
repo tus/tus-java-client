@@ -186,15 +186,36 @@ public class TusClient {
      * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
      */
     public TusUploader resumeUpload(@NotNull TusUpload upload) throws FingerprintNotFoundException, ResumingNotEnabledException, ProtocolException, IOException {
-        if(!resumingEnabled) {
+        if (!resumingEnabled) {
             throw new ResumingNotEnabledException();
         }
 
         URL uploadURL = urlStore.get(upload.getFingerprint());
-        if(uploadURL == null) {
+        if (uploadURL == null) {
             throw new FingerprintNotFoundException(upload.getFingerprint());
         }
 
+        return beginOrResumeUploadFromURL(upload, uploadURL);
+    }
+
+    /**
+     * Begin an upload or alternatively resume it if the upload has already been started before. In contrast to
+     * {@link #createUpload(TusUpload)} and {@link #resumeOrCreateUpload(TusUpload)} this method will not create a new
+     * upload. The user must obtain the upload location URL on their own as this method will not send the POST request
+     * which is normally used to create a new upload.
+     * Therefore, this method is only useful if you are uploading to a service which takes care of creating the tus
+     * upload for yourself. One example of such a service is the Vimeo API.
+     * When called a HEAD request will be issued to find the current offset without uploading the file, yet.
+     * The uploading can be started by using the returned {@link TusUploader} object.
+     *
+     * @param upload The file for which an upload will be resumed
+     * @param uploadURL The upload location URL at which has already been created and this file should be uploaded to.
+     * @return Use {@link TusUploader} to upload the remaining file's chunks.
+     * @throws ProtocolException Thrown if the remote server sent an unexpected response, e.g.
+     * wrong status codes or missing/invalid headers.
+     * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
+     */
+    public TusUploader beginOrResumeUploadFromURL(@NotNull TusUpload upload, @NotNull URL uploadURL) throws ProtocolException, IOException {
         HttpURLConnection connection = (HttpURLConnection) uploadURL.openConnection();
         connection.setRequestMethod("HEAD");
         prepareConnection(connection);

@@ -103,7 +103,7 @@ public class TestTusClient extends MockServerProvider {
     }
 
     @Test
-    public void testCreateUplaodWithRelativeLocation() throws Exception {
+    public void testCreateUploadWithRelativeLocation() throws Exception {
         // We need to enable strict following for POST requests first
         System.setProperty("http.strictPostRedirect", "true");
 
@@ -240,6 +240,30 @@ public class TestTusClient extends MockServerProvider {
         TusUploader uploader = client.resumeOrCreateUpload(upload);
 
         assertEquals(uploader.getUploadURL(), new URL(mockServerURL + "/foo"));
+    }
+
+    @Test
+    public void testBeginOrResumeUploadFromURL() throws IOException, ProtocolException {
+        mockServer.when(new HttpRequest()
+                .withMethod("HEAD")
+                .withPath("/files/fooFromURL")
+                .withHeader("Tus-Resumable", TusClient.TUS_VERSION))
+                .respond(new HttpResponse()
+                        .withStatusCode(204)
+                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                        .withHeader("Upload-Offset", "3"));
+
+        TusClient client = new TusClient();
+        URL uploadURL = new URL(mockServerURL.toString() + "/fooFromURL");
+
+        TusUpload upload = new TusUpload();
+        upload.setSize(10);
+        upload.setInputStream(new ByteArrayInputStream(new byte[10]));
+
+        TusUploader uploader = client.beginOrResumeUploadFromURL(upload, uploadURL);
+
+        assertEquals(uploader.getUploadURL(), uploadURL);
+        assertEquals(uploader.getOffset(), 3);
     }
 
     @Test
