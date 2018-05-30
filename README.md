@@ -18,7 +18,7 @@ TusClient client = new TusClient();
 
 // Configure tus HTTP endpoint. This URL will be used for creating new uploads
 // using the Creation extension
-client.setUploadCreationURL(new URL("http://master.tus.io/files"));
+client.setUploadCreationURL(new URL("https://master.tus.io/files"));
 
 // Enable resumable uploads by storing the upload URL in memory
 client.enableResuming(new TusURLMemoryStore());
@@ -42,6 +42,13 @@ TusExecutor executor = new TusExecutor() {
         // upload and get a TusUploader in return. This class is responsible for opening
         // a connection to the remote server and doing the uploading.
         TusUploader uploader = client.resumeOrCreateUpload(upload);
+        
+        // Alternatively, if your tus server does not support the Creation extension
+        // and you obtained an upload URL from another service, you can instruct
+        // tus-java-client to upload to a specific URL. Please note that this is usually
+        // _not_ necessary and only if the tus server does not support the Creation
+        // extension. The Vimeo API would be an example where this method is needed.
+        // TusUploader uploader = client.beginOrResumeUploadFromURL(upload, new URL("https://tus.server.net/files/my_file"));
 
         // Upload the file in chunks of 1KB sizes.
         uploader.setChunkSize(1024);
