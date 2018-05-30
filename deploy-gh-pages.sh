@@ -8,7 +8,7 @@ git clone --quiet --branch=gh-pages https://tus-bot:$GITHUB_TOKEN@github.com/tus
 commit=$(git rev-parse HEAD)
 
 ./gradlew javadoc
-cp -r ./build/docs/javadoc ../gh-pages/javadoc
+cp -r ./build/docs/javadoc ../gh-pages/
 
 cd ../gh-pages
 
