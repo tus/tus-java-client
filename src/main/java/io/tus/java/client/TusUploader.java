@@ -25,7 +25,7 @@ public class TusUploader {
     private long offset;
     private TusClient client;
     private byte[] buffer;
-    private int requestPayloadSize = 1024 * 1024 * 1024;
+    private int requestPayloadSize = 10 * 1024 * 1024;
     private int bytesRemainingForRequest;
 
     private HttpURLConnection connection;
@@ -116,12 +116,17 @@ public class TusUploader {
      * bigger uploads into multiple requests. For example, if you have a resource of 2MB and
      * the payload size set to 1MB, the upload will be transferred by two requests of 1MB each.
      *
-     * The default value for this setting is 1024 * 1024 * 1024 bytes (GiB).
+     * The default value for this setting is 10 * 1024 * 1024 bytes (10 MiB).
      *
-     * Be aware that setting a low maximum payload size (in the megabytes or even less range) will result in decreased
+     * Be aware that setting a low maximum payload size (in the low megabytes or even less range) will result in decreased
      * performance since more requests need to be used for an upload. Each request will come with its overhead in terms
-     * of longer upload times. Furthermore, changing this setting is rarely necessary and is only advised in a situation
-     * when a server cannot deal with streaming request bodies (e.g. some Python frameworks).
+     * of longer upload times.
+     *
+     * Be aware that setting a high maximum payload size may result in a high memory usage since
+     * tus-java-client usually allocates a buffer with the maximum payload size (this buffer is used
+     * to allow retransmission of lost data if necessary). If the client is running on a memory-
+     * constrained device (e.g. mobile app) and the maximum payload size is too high, it might
+     * result in an {@link OutOfMemoryError}.
      *
      * This method must not be called when the uploader has currently an open connection to the
      * remote server. In general, try to set the payload size before invoking {@link #uploadChunk()}

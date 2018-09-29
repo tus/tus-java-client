@@ -171,7 +171,7 @@ public class TestTusUploader extends MockServerProvider {
 
         TusUploader uploader = new TusUploader(client, uploadUrl, input, 0);
 
-        assertEquals(uploader.getRequestPayloadSize(), 1024 * 1024 * 1024);
+        assertEquals(uploader.getRequestPayloadSize(), 10 * 1024 * 1024);
         uploader.setRequestPayloadSize(5);
         assertEquals(uploader.getRequestPayloadSize(), 5);
 
