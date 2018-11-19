@@ -100,6 +100,24 @@ compile 'io.tus.java.client:tus-java-client:0.4.1'
 
 The documentation of the latest version (master branch of git repository) can be found online at [tus.github.io/tus-java-client/javadoc/](https://tus.github.io/tus-java-client/javadoc/).
 
+## FAQ
+
+### Can I use my own custom SSLSocketFactory?
+
+Yes, you can! Create a subclass of `TusClient` and override the `prepareConnection` method to attach your `SSLSocketFactory`. After this use your custom `TusClient` subclass as you would normally use it. Here is an example:
+
+```java
+@Override
+public void prepareConnection(@NotNull HttpURLConnection connection) {
+    super.prepareConnection(connection);
+    
+    if(connection instanceof HttpsURLConnection) {
+        HttpsURLConnection secureConnection = (HttpsURLConnection) connection;
+        secureConnection.setSSLSocketFactory(mySSLSocketFactory);
+    }
+}
+```
+
 ## License
 
 MIT
