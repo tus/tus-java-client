@@ -1,15 +1,14 @@
 package io.tus.java.client;
 
-import org.junit.Assume;
-import org.junit.Test;
-import org.mockserver.model.HttpRequest;
-import org.mockserver.model.HttpResponse;
-import org.mockserver.socket.PortFactory;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
@@ -18,7 +17,11 @@ import java.net.Socket;
 import java.net.URL;
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import org.junit.Assume;
+import org.junit.Test;
+import org.mockserver.model.HttpRequest;
+import org.mockserver.model.HttpResponse;
+import org.mockserver.socket.PortFactory;
 
 public class TestTusUploader extends MockServerProvider {
     private boolean isOpenJDK6 = System.getProperty("java.version").startsWith("1.6") &&
@@ -45,7 +48,9 @@ public class TestTusUploader extends MockServerProvider {
         TusInputStream input = new TusInputStream(new ByteArrayInputStream(content));
         long offset = 3;
 
-        TusUploader uploader = new TusUploader(client, uploadUrl, input, offset);
+        TusUpload upload = new TusUpload();
+        
+        TusUploader uploader = new TusUploader(client, upload, uploadUrl, input, offset);
 
         uploader.setChunkSize(5);
         assertEquals(uploader.getChunkSize(), 5);
@@ -56,6 +61,48 @@ public class TestTusUploader extends MockServerProvider {
         assertEquals(-1, uploader.uploadChunk(5));
         assertEquals(11, uploader.getOffset());
         uploader.finish();
+    }
+    
+    @Test
+    public void testTusUploaderClientUploadFinishedCalled() throws IOException, ProtocolException {
+        
+        TusClient client = mock(TusClient.class);
+        
+        byte[] content = "hello world".getBytes();
+        
+        URL uploadUrl = new URL("http://dummy-url/foo");
+        TusInputStream input = new TusInputStream(new ByteArrayInputStream(content));
+        long offset = 10;
+
+        TusUpload upload = new TusUpload();
+        upload.setSize(10);
+        
+        TusUploader uploader = new TusUploader(client, upload, uploadUrl, input, offset);
+        uploader.finish();
+        
+        // size and offset are the same, so uploadfinished() should be called 
+        verify(client).uploadFinished(upload);
+    }
+
+    @Test
+    public void testTusUploaderClientUploadFinishedNotCalled() throws IOException, ProtocolException {
+        
+        TusClient client = mock(TusClient.class);
+        
+        byte[] content = "hello world".getBytes();
+        
+        URL uploadUrl = new URL("http://dummy-url/foo");
+        TusInputStream input = new TusInputStream(new ByteArrayInputStream(content));
+        long offset = 0;
+
+        TusUpload upload = new TusUpload();
+        upload.setSize(10);
+        
+        TusUploader uploader = new TusUploader(client, upload, uploadUrl, input, offset);
+        uploader.finish();
+        
+        // size is greater than offset, so uploadfinished() should not be called
+        verify(client,times(0)).uploadFinished(upload);
     }
 
     @Test
@@ -71,9 +118,9 @@ public class TestTusUploader extends MockServerProvider {
         URL uploadUrl = new URL(server.getURL() + "/expect");
         TusInputStream input = new TusInputStream(new ByteArrayInputStream(content));
         long offset = 3;
-
+        TusUpload upload = new TusUpload();
         boolean exceptionThrown = false;
-        TusUploader uploader = new TusUploader(client, uploadUrl, input, offset);
+        TusUploader uploader = new TusUploader(client, upload, uploadUrl, input, offset);
         try {
             uploader.uploadChunk();
         } catch(ProtocolException e) {
@@ -168,8 +215,9 @@ public class TestTusUploader extends MockServerProvider {
         TusClient client = new TusClient();
         URL uploadUrl = new URL(mockServerURL + "/payload");
         TusInputStream input = new TusInputStream(new ByteArrayInputStream(content));
-
-        TusUploader uploader = new TusUploader(client, uploadUrl, input, 0);
+        TusUpload upload = new TusUpload();
+        
+        TusUploader uploader = new TusUploader(client, upload, uploadUrl, input, 0);
 
         assertEquals(uploader.getRequestPayloadSize(), 10 * 1024 * 1024);
         uploader.setRequestPayloadSize(5);
@@ -197,8 +245,9 @@ public class TestTusUploader extends MockServerProvider {
         TusClient client = new TusClient();
         URL uploadUrl = new URL(mockServerURL + "/payloadException");
         TusInputStream input = new TusInputStream(new ByteArrayInputStream(content));
-
-        TusUploader uploader = new TusUploader(client, uploadUrl, input, 0);
+        TusUpload upload = new TusUpload();
+        
+        TusUploader uploader = new TusUploader(client, upload, uploadUrl, input, 0);
 
         uploader.setChunkSize(4);
         uploader.uploadChunk();
@@ -220,8 +269,9 @@ public class TestTusUploader extends MockServerProvider {
         TusClient client = new TusClient();
         URL uploadUrl = new URL(mockServerURL + "/missingHeader");
         TusInputStream input = new TusInputStream(new ByteArrayInputStream(content));
-
-        TusUploader uploader = new TusUploader(client, uploadUrl, input, 0);
+        TusUpload upload = new TusUpload();
+        
+        TusUploader uploader = new TusUploader(client, upload, uploadUrl, input, 0);
 
         boolean exceptionThrown = false;
         try {
@@ -249,8 +299,9 @@ public class TestTusUploader extends MockServerProvider {
         TusClient client = new TusClient();
         URL uploadUrl = new URL(mockServerURL + "/unmatchingHeader");
         TusInputStream input = new TusInputStream(new ByteArrayInputStream(content));
-
-        TusUploader uploader = new TusUploader(client, uploadUrl, input, 0);
+        TusUpload upload = new TusUpload();
+        
+        TusUploader uploader = new TusUploader(client, upload, uploadUrl, input, 0);
 
         boolean exceptionThrown = false;
         try {

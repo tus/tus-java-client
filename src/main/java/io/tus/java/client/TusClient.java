@@ -20,6 +20,7 @@ public class TusClient {
 
     private URL uploadCreationURL;
     private boolean resumingEnabled;
+    private boolean removeFingerprintOnSuccessEnabled;
     private TusURLStore urlStore;
     private Map<String, String> headers;
     private int connectTimeout = 5000;
@@ -83,6 +84,37 @@ public class TusClient {
     public boolean resumingEnabled() {
         return resumingEnabled;
     }
+    
+    /**
+     * Enable removing fingerprints on success.
+     *
+     * @see #disableRemoveFingerprintOnSuccess()
+     */
+    public void enableRemoveFingerprintOnSuccess() {
+        removeFingerprintOnSuccessEnabled = true;
+    }
+    
+    /**
+     * Disable removing fingerprints on success.
+     *
+     * @see #enableRemoveFingerprintOnSuccess()
+     */
+    public void disableRemoveFingerprintOnSuccess() {
+        removeFingerprintOnSuccessEnabled = false;
+    }
+    
+    /**
+     * Get the current status if removing fingerprints on success.
+     *
+     * @see #enableRemoveFingerprintOnSuccess()
+     * @see #disableRemoveFingerprintOnSuccess()
+     *
+     * @return True if resuming has been enabled using {@link #enableResuming(TusURLStore)}
+     */
+    public boolean removeFingerprintOnSuccessEnabled() {
+        return removeFingerprintOnSuccessEnabled;
+    }
+    
 
     /**
      * Set headers which will be added to every HTTP requestes made by this TusClient instance.
@@ -165,7 +197,7 @@ public class TusClient {
             urlStore.set(upload.getFingerprint(), uploadURL);
         }
 
-        return new TusUploader(this, uploadURL, upload.getTusInputStream(), 0);
+        return new TusUploader(this, upload, uploadURL, upload.getTusInputStream(), 0);
     }
 
     /**
@@ -233,7 +265,7 @@ public class TusClient {
         }
         long offset = Long.parseLong(offsetStr);
 
-        return new TusUploader(this, uploadURL, upload.getTusInputStream(), offset);
+        return new TusUploader(this, upload, uploadURL, upload.getTusInputStream(), offset);
     }
 
     /**
@@ -284,6 +316,18 @@ public class TusClient {
             for (Map.Entry<String, String> entry : headers.entrySet()) {
                 connection.addRequestProperty(entry.getKey(), entry.getValue());
             }
+        }
+    }
+    
+    /**
+     * Actions to be performed after a successful upload completion. 
+     * Manages URL removal from the URL store if remove fingerprint on success is enabled
+     * 
+     * @param upload that has been finished
+     */
+    public void uploadFinished(@NotNull TusUpload upload) {
+        if (resumingEnabled && removeFingerprintOnSuccessEnabled) {
+            urlStore.remove(upload.getFingerprint());
         }
     }
 }

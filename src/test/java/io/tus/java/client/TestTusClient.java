@@ -1,5 +1,10 @@
 package io.tus.java.client;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -12,8 +17,6 @@ import java.util.Map;
 import org.junit.Test;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
-
-import static org.junit.Assert.*;
 
 
 public class TestTusClient extends MockServerProvider {
@@ -350,5 +353,48 @@ public class TestTusClient extends MockServerProvider {
         TusUploader uploader = client.createUpload(upload);
 
         assertEquals(uploader.getUploadURL(), new URL(mockServerURL + "/foo"));
+    }
+    
+    @Test
+    public void testRemoveFingerprintOnSuccessDisabled() throws IOException, ProtocolException {
+        
+        TusClient client = new TusClient();
+
+        TusURLStore store = new TusURLMemoryStore();
+        URL dummyURL = new URL("http://dummy-url/files/dummy");
+        store.set("fingerprint", dummyURL);
+        client.enableResuming(store);
+        
+        assertTrue(!client.removeFingerprintOnSuccessEnabled());
+
+        TusUpload upload = new TusUpload();
+        upload.setFingerprint("fingerprint");
+        
+        client.uploadFinished(upload);
+        
+        assertTrue(dummyURL.equals(store.get("fingerprint")));
+        
+    }
+    
+    @Test
+    public void testRemoveFingerprintOnSuccessEnabled() throws IOException, ProtocolException {
+        
+        TusClient client = new TusClient();
+
+        TusURLStore store = new TusURLMemoryStore();
+        URL dummyURL = new URL("http://dummy-url/files/dummy");
+        store.set("fingerprint", dummyURL);
+        client.enableResuming(store);
+        client.enableRemoveFingerprintOnSuccess();
+        
+        assertTrue(client.removeFingerprintOnSuccessEnabled());
+        
+        TusUpload upload = new TusUpload();
+        upload.setFingerprint("fingerprint");
+        
+        client.uploadFinished(upload);
+        
+        assertTrue(store.get("fingerprint") == null);
+        
     }
 }
