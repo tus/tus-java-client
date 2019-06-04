@@ -325,7 +325,7 @@ public class TusClient {
      * 
      * @param upload that has been finished
      */
-    public void uploadFinished(@NotNull TusUpload upload) {
+    protected void uploadFinished(@NotNull TusUpload upload) {
         if (resumingEnabled && removeFingerprintOnSuccessEnabled) {
             urlStore.remove(upload.getFingerprint());
         }
