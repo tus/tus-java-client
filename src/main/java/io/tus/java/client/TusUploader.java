@@ -24,6 +24,7 @@ public class TusUploader {
     private TusInputStream input;
     private long offset;
     private TusClient client;
+    private TusUpload upload;
     private byte[] buffer;
     private int requestPayloadSize = 10 * 1024 * 1024;
     private int bytesRemainingForRequest;
@@ -41,11 +42,12 @@ public class TusUploader {
      * @param offset Offset to read from
      * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
      */
-    public TusUploader(TusClient client, URL uploadURL, TusInputStream input, long offset) throws IOException {
+    public TusUploader(TusClient client, TusUpload upload, URL uploadURL, TusInputStream input, long offset) throws IOException {
         this.uploadURL = uploadURL;
         this.input = input;
         this.offset = offset;
         this.client = client;
+        this.upload = upload;
 
         input.seekTo(offset);
 
@@ -270,6 +272,10 @@ public class TusUploader {
      */
     public void finish() throws ProtocolException, IOException {
         finishConnection();
+        if (upload.getSize() == offset) {
+            client.uploadFinished(upload);
+        }
+
         // Close the TusInputStream after checking the response and closing the connection to ensure
         // that we will not need to read from it again in the future.
         input.close();
