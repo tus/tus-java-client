@@ -164,7 +164,7 @@ public class TusUploader {
      * it to the HTTP request's body. If the number of available bytes is lower than the chunk's
      * size, all available bytes will be uploaded and nothing more.
      * No new connection will be established when calling this method, instead the connection opened
-     * in the constructor will be used.
+     * in the previous calls will be used.
      * The size of the read chunk can be obtained using {@link #getChunkSize()} and changed
      * using {@link #setChunkSize(int)}.
      * In order to obtain the new offset, use {@link #getOffset()} after this method returns.
@@ -205,7 +205,7 @@ public class TusUploader {
      * it to the HTTP request's body. If the number of available bytes is lower than the chunk's
      * size, all available bytes will be uploaded and nothing more.
      * No new connection will be established when calling this method, instead the connection opened
-     * in the constructor will be used.
+     * in the previous calls will be used.
      * In order to obtain the new offset, use {@link #getOffset()} after this method returns.
      *
      * This method ignored the payload size per request, which may be set using
