@@ -64,6 +64,52 @@ public class TestTusUploader extends MockServerProvider {
     }
 
     @Test
+    public void testTusUploaderFixedLength() throws IOException, ProtocolException {
+        byte[] content = "hello world".getBytes();
+
+        mockServer.when(new HttpRequest()
+                .withPath("/files/fixed")
+                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                .withHeader("Upload-Offset", "5")
+                .withHeader("Content-Type", "application/offset+octet-stream")
+                .withHeader(isOpenJDK6 ? "": "Expect: 100-continue")
+                .withBody(Arrays.copyOfRange(content, 5, 10)))
+                .respond(new HttpResponse()
+                        .withStatusCode(204)
+                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                        .withHeader("Upload-Offset", "10"));
+        mockServer.when(new HttpRequest()
+                .withPath("/files/fixed")
+                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                .withHeader("Upload-Offset", "10")
+                .withHeader("Content-Type", "application/offset+octet-stream")
+                .withHeader(isOpenJDK6 ? "": "Expect: 100-continue")
+                .withBody(Arrays.copyOfRange(content, 10, 11)))
+                .respond(new HttpResponse()
+                        .withStatusCode(204)
+                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                        .withHeader("Upload-Offset", "11"));
+
+        TusClient client = new TusClient();
+        URL uploadUrl = new URL(mockServerURL + "/fixed");
+        TusInputStream input = new TusInputStream(new ByteArrayInputStream(content));
+        long offset = 5;
+
+        TusUpload upload = new TusUpload();
+
+        TusUploader uploader = new TusUploader(client, upload, uploadUrl, input, offset);
+
+        uploader.setRequestPayloadSize(5);
+        assertEquals(uploader.getRequestPayloadSize(), 5);
+
+        assertEquals(5, uploader.upload());
+        assertEquals(1, uploader.upload());
+        assertEquals(-1, uploader.upload());
+        assertEquals(11, uploader.getOffset());
+        uploader.finish();
+    }
+
+    @Test
     public void testTusUploaderClientUploadFinishedCalled() throws IOException, ProtocolException {
 
         TusClient client = mock(TusClient.class);
