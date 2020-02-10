@@ -183,8 +183,6 @@ public class TusUploader {
             return -1;
         }
 
-        // FIXME connection.setRequestProperty("Content-Length", Long.toString(bytesRead));
-
         // Do not write the entire buffer to the stream since the array will
         // be filled up with 0x00s if the number of read bytes is lower then
         // the chunk's size.
