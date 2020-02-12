@@ -54,7 +54,7 @@ public class TusUploader {
         setChunkSize(2 * 1024 * 1024);
     }
 
-    private void openConnection(boolean chunked) throws IOException, ProtocolException {
+    private void openConnection() throws IOException, ProtocolException {
         // Only open a connection, if we have none open.
         if(connection != null) {
             return;
@@ -77,8 +77,8 @@ public class TusUploader {
         }
 
         connection.setDoOutput(true);
-        if (chunked)
-          connection.setChunkedStreamingMode(0);
+        if (client.chunkedTransferEncoding())
+            connection.setChunkedStreamingMode(0);
         try {
             output = connection.getOutputStream();
         } catch(java.net.ProtocolException pe) {
@@ -164,45 +164,6 @@ public class TusUploader {
      * Upload a part of the file by reading a chunk from the InputStream and writing
      * it to the HTTP request's body. If the number of available bytes is lower than the chunk's
      * size, all available bytes will be uploaded and nothing more.
-     * The size of the read chunk can be obtained using {@link #getRequestPayloadSize()} and changed
-     * using {@link #setRequestPayloadSize(int)}.
-     * In order to obtain the new offset, use {@link #getOffset()} after this method returns.
-     *
-     * @return Number of bytes read and written.
-     * @throws IOException  Thrown if an exception occurs while reading from the source or writing
-     *                      to the HTTP request.
-     */
-    public int upload() throws IOException, ProtocolException {
-        openConnection(false);
-
-        setChunkSize(bytesRemainingForRequest);
-
-        int bytesRead = input.read(buffer, bytesRemainingForRequest);
-        if(bytesRead == -1) {
-            // No bytes were read since the input stream is empty
-            return -1;
-        }
-
-        // Do not write the entire buffer to the stream since the array will
-        // be filled up with 0x00s if the number of read bytes is lower then
-        // the chunk's size.
-        output.write(buffer, 0, bytesRead);
-        output.flush();
-
-        offset += bytesRead;
-        bytesRemainingForRequest -= bytesRead;
-
-        if(bytesRemainingForRequest <= 0) {
-            finishConnection();
-        }
-
-        return bytesRead;
-    }
-
-    /**
-     * Upload a part of the file by reading a chunk from the InputStream and writing
-     * it to the HTTP request's body. If the number of available bytes is lower than the chunk's
-     * size, all available bytes will be uploaded and nothing more.
      * No new connection will be established when calling this method, instead the connection opened
      * in the constructor will be used.
      * The size of the read chunk can be obtained using {@link #getChunkSize()} and changed
@@ -214,9 +175,17 @@ public class TusUploader {
      *                      to the HTTP request.
      */
     public int uploadChunk() throws IOException, ProtocolException {
-        openConnection(true);
+        openConnection();
 
-        int bytesToRead = Math.min(getChunkSize(), bytesRemainingForRequest);
+        final int bytesToRead;
+        if (client.chunkedTransferEncoding())
+            bytesToRead = Math.min(getChunkSize(), bytesRemainingForRequest);
+        else {
+            // No chunked tranfer encoding, so we upload a single chunk.
+            bytesToRead = getChunkSize();
+            // The connection should be closed after single write.
+            bytesRemainingForRequest = 0;
+        }
 
         int bytesRead = input.read(buffer, bytesToRead);
         if(bytesRead == -1) {
@@ -266,7 +235,7 @@ public class TusUploader {
      *                      to the HTTP request.
      */
     @Deprecated public int uploadChunk(int chunkSize) throws IOException, ProtocolException {
-        openConnection(true);
+        openConnection();
 
         byte[] buf = new byte[chunkSize];
         int bytesRead = input.read(buf, chunkSize);

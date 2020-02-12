@@ -91,6 +91,7 @@ public class TestTusUploader extends MockServerProvider {
                         .withHeader("Upload-Offset", "11"));
 
         TusClient client = new TusClient();
+        client.disableChunkedTransferEncoding();
         URL uploadUrl = new URL(mockServerURL + "/fixed");
         TusInputStream input = new TusInputStream(new ByteArrayInputStream(content));
         long offset = 5;
@@ -99,12 +100,12 @@ public class TestTusUploader extends MockServerProvider {
 
         TusUploader uploader = new TusUploader(client, upload, uploadUrl, input, offset);
 
-        uploader.setRequestPayloadSize(5);
-        assertEquals(uploader.getRequestPayloadSize(), 5);
+        uploader.setChunkSize(5);
+        assertEquals(uploader.getChunkSize(), 5);
 
-        assertEquals(5, uploader.upload());
-        assertEquals(1, uploader.upload());
-        assertEquals(-1, uploader.upload());
+        assertEquals(5, uploader.uploadChunk());
+        assertEquals(1, uploader.uploadChunk());
+        assertEquals(-1, uploader.uploadChunk());
         assertEquals(11, uploader.getOffset());
         uploader.finish();
     }

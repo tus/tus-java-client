@@ -21,6 +21,7 @@ public class TusClient {
     private URL uploadCreationURL;
     private boolean resumingEnabled;
     private boolean removeFingerprintOnSuccessEnabled;
+    private boolean chunkedTransferEncoding = true;
     private TusURLStore urlStore;
     private Map<String, String> headers;
     private int connectTimeout = 5000;
@@ -113,6 +114,39 @@ public class TusClient {
      */
     public boolean removeFingerprintOnSuccessEnabled() {
         return removeFingerprintOnSuccessEnabled;
+    }
+
+    /**
+     * Enable chunked transfer encoding.
+     *
+     * @see https://en.wikipedia.org/wiki/Chunked_transfer_encoding
+     * @see #disableChunkedTransferEncoding()
+     */
+    public void enableChunkedTransferEncoding() {
+        chunkedTransferEncoding = true;
+    }
+
+    /**
+     * Disable chunked transfer encoding.
+     *
+     * @see https://en.wikipedia.org/wiki/Chunked_transfer_encoding
+     * @see #enableChunkedTransferEncoding()
+     */
+    public void disableChunkedTransferEncoding() {
+        chunkedTransferEncoding = false;
+    }
+
+    /**
+     * Get the current status of chunked transfer encoding.
+     *
+     * @see https://en.wikipedia.org/wiki/Chunked_transfer_encoding
+     * @see #enableChunkedTransferEncoding()
+     * @see #disableChunkedTransferEncoding()
+     *
+     * @return True if chunked transfer encoding has been enabled.
+     */
+    public boolean chunkedTransferEncoding() {
+        return chunkedTransferEncoding;
     }
 
 
