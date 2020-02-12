@@ -89,6 +89,16 @@ public class TestTusUploader extends MockServerProvider {
                         .withStatusCode(204)
                         .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
                         .withHeader("Upload-Offset", "11"));
+        mockServer.when(new HttpRequest()
+                .withPath("/files/fixed")
+                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                .withHeader("Upload-Offset", "11")
+                .withHeader("Content-Type", "application/offset+octet-stream")
+                .withHeader(isOpenJDK6 ? "": "Expect: 100-continue"))
+                .respond(new HttpResponse()
+                        .withStatusCode(204)
+                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                        .withHeader("Upload-Offset", "11"));
 
         TusClient client = new TusClient();
         client.disableChunkedTransferEncoding();
