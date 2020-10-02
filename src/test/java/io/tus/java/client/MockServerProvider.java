@@ -16,7 +16,7 @@ public class MockServerProvider {
 
     @Before
     public void setUp() throws Exception {
-        creationUrl = new URL("http://master.tus.io");
+        creationUrl = new URL("http://tusd.tusdemo.net");
         int port = PortFactory.findFreePort();
         mockServerURL = new URL("http://localhost:" + port + "/files");
         mockServer = startClientAndServer(port);

@@ -36,8 +36,8 @@ public class TestTusClient extends MockServerProvider {
     @Test
     public void testSetUploadCreationURL() throws MalformedURLException {
         TusClient client = new TusClient();
-        client.setUploadCreationURL(new URL("http://master.tus.io"));
-        assertEquals(client.getUploadCreationURL(), new URL("http://master.tus.io"));
+        client.setUploadCreationURL(new URL("http://tusd.tusdemo.net"));
+        assertEquals(client.getUploadCreationURL(), new URL("http://tusd.tusdemo.net"));
     }
 
     @Test

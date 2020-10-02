@@ -12,7 +12,7 @@ public class TestTusURLMemoryStore {
     @Test
     public void test() throws MalformedURLException {
         TusURLStore store = new TusURLMemoryStore();
-        URL url = new URL("https://master.tus.io/files/hello");
+        URL url = new URL("https://tusd.tusdemo.net/files/hello");
         String fingerprint = "foo";
         store.set(fingerprint, url);
 
