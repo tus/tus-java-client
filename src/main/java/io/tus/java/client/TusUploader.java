@@ -260,6 +260,24 @@ public class TusUploader {
     public URL getUploadURL() {
         return uploadURL;
     }
+    
+     /**
+     * You can call this method even before the entire file has been uploaded.
+     * It pauses the upload properly to be resumed in future.
+     * Be aware it doesn't release local resources as it does not close the File's Input Stream.
+     * To be safe use {@link TusUploader#finish()}.
+     * @throws ProtocolException Thrown if the server sends an unexpected status
+     * code
+     * @throws IOException  Thrown if an exception occurs while cleaning up.
+     */
+    public void pause() throws ProtocolException, IOException {
+        finishConnection();
+        if (upload.getSize() == offset) {
+            client.uploadFinished(upload);
+        }
+       input.seekTo(0);
+    }
+
 
     /**
      * Finish the request by closing the HTTP connection and the InputStream.
