@@ -260,8 +260,6 @@ public class TusUploader {
     public URL getUploadURL() {
         return uploadURL;
     }
-    
-   
 
     /**
      * Finish the request by closing the HTTP connection and the InputStream.
@@ -288,7 +286,7 @@ public class TusUploader {
      * You can call this method even before the entire file has been uploaded.
      * It pauses the upload properly to be resumed in future.
      * Be aware it doesn't release local resources as it does not close the File's
-     * Input Stream if {@code closeStream = false}
+     * Input Stream if {@code closeStream == false}
      * To be safe use {@link TusUploader#finish()}.
      * @param closeInputStream Determines whether the InputStream is closed with the HTTP connection. Not closing the
      *                         Input Stream may be useful for future upload a future continuation of the upload.
