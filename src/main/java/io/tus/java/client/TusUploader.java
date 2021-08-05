@@ -271,6 +271,22 @@ public class TusUploader {
      * @throws IOException  Thrown if an exception occurs while cleaning up.
      */
     public void finish() throws ProtocolException, IOException {
+        finish(true);
+    }
+    
+    /**
+     * Finish the request by closing the HTTP connection. You can choose whether to close the Input Stream or not.
+     * You can call this method even before the entire file has been uploaded. Use this behavior to
+     * enable pausing uploads.
+     * Be aware it doesn't release local resources if you do not close the
+     * Input Stream: {@code closeStream == false}.
+     * To be safe use {@link TusUploader#finish()}.
+     * @param closeInputStream Determines whether the InputStream is closed with the HTTP connection. Not closing the
+     *                         Input Stream may be useful for future upload a future continuation of the upload.
+     * @throws ProtocolException Thrown if the server sends an unexpected status code
+     * @throws IOException  Thrown if an exception occurs while cleaning up.
+     */
+    public void finish(boolean closeInputStream) throws ProtocolException, IOException {   
         finishConnection();
         if (upload.getSize() == offset) {
             client.uploadFinished(upload);
@@ -278,30 +294,8 @@ public class TusUploader {
 
         // Close the TusInputStream after checking the response and closing the connection to ensure
         // that we will not need to read from it again in the future.
-        input.close();
-    }
-    
-    /**
-     * Finish the request by closing the HTTP connection. You can choose whether to close the Input Stream or not.
-     * You can call this method even before the entire file has been uploaded.
-     * It pauses the upload properly to be resumed in future.
-     * Be aware it doesn't release local resources as it does not close the File's
-     * Input Stream if {@code closeStream == false}
-     * To be safe use {@link TusUploader#finish()}.
-     * @param closeInputStream Determines whether the InputStream is closed with the HTTP connection. Not closing the
-     *                         Input Stream may be useful for future upload a future continuation of the upload.
-     * @throws ProtocolException Thrown if the server sends an unexpected status code
-     * @throws IOException  Thrown if an exception occurs while cleaning up.
-     */
-    public void finish(boolean closeInputStream) throws ProtocolException, IOException {
         if (closeInputStream){
-            finish();
-        } else {
-            finishConnection();
-            if (upload.getSize() == offset) {
-                client.uploadFinished(upload);
-            }
-            input.seekTo(0);
+        input.close();
         }
     }
 
