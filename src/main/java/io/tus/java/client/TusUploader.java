@@ -265,12 +265,30 @@ public class TusUploader {
      * Finish the request by closing the HTTP connection and the InputStream.
      * You can call this method even before the entire file has been uploaded. Use this behavior to
      * enable pausing uploads.
+     * This method is equivalent to calling {@code finish(false)}.
      *
      * @throws ProtocolException Thrown if the server sends an unexpected status
      * code
      * @throws IOException  Thrown if an exception occurs while cleaning up.
      */
     public void finish() throws ProtocolException, IOException {
+        finish(true);
+    }
+    
+    /**
+     * Finish the request by closing the HTTP connection. You can choose whether to close the InputStream or not.
+     * You can call this method even before the entire file has been uploaded. Use this behavior to
+     * enable pausing uploads.
+     * 
+     * Be aware that it doesn't automatically release local resources if {@code closeStream == false} and you do
+     * not close the InputStream on your own. To be safe use {@link TusUploader#finish()}.
+     *
+     * @param closeInputStream Determines whether the InputStream is closed with the HTTP connection. Not closing the
+     *                         Input Stream may be useful for future upload a future continuation of the upload.
+     * @throws ProtocolException Thrown if the server sends an unexpected status code
+     * @throws IOException  Thrown if an exception occurs while cleaning up.
+     */
+    public void finish(boolean closeInputStream) throws ProtocolException, IOException {   
         finishConnection();
         if (upload.getSize() == offset) {
             client.uploadFinished(upload);
@@ -278,7 +296,9 @@ public class TusUploader {
 
         // Close the TusInputStream after checking the response and closing the connection to ensure
         // that we will not need to read from it again in the future.
-        input.close();
+        if (closeInputStream) {
+            input.close();
+        }
     }
 
     private void finishConnection() throws ProtocolException, IOException {
