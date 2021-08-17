@@ -37,12 +37,14 @@ public class TusUploader {
      * method returns a connection will be ready and you can upload chunks of the file.
      *
      * @param client Used for preparing a request ({@link TusClient#prepareConnection(HttpURLConnection)}
+     * @param upload {@link TusUpload} to be uploaded.
      * @param uploadURL URL to send the request to
      * @param input Stream to read (and seek) from and upload to the remote server
      * @param offset Offset to read from
      * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
      */
-    public TusUploader(TusClient client, TusUpload upload, URL uploadURL, TusInputStream input, long offset) throws IOException {
+    public TusUploader(TusClient client, TusUpload upload, URL uploadURL, TusInputStream input, long offset)
+            throws IOException {
         this.uploadURL = uploadURL;
         this.input = input;
         this.offset = offset;
@@ -56,7 +58,7 @@ public class TusUploader {
 
     private void openConnection() throws IOException, ProtocolException {
         // Only open a connection, if we have none open.
-        if(connection != null) {
+        if (connection != null) {
             return;
         }
 
@@ -80,10 +82,10 @@ public class TusUploader {
         connection.setChunkedStreamingMode(0);
         try {
             output = connection.getOutputStream();
-        } catch(java.net.ProtocolException pe) {
+        } catch (java.net.ProtocolException pe) {
             // If we already have a response code available, our expectation using the "Expect: 100-
             // continue" header failed and we should handle this response.
-            if(connection.getResponseCode() != -1) {
+            if (connection.getResponseCode() != -1) {
                 finish();
             }
 
@@ -120,9 +122,9 @@ public class TusUploader {
      *
      * The default value for this setting is 10 * 1024 * 1024 bytes (10 MiB).
      *
-     * Be aware that setting a low maximum payload size (in the low megabytes or even less range) will result in decreased
-     * performance since more requests need to be used for an upload. Each request will come with its overhead in terms
-     * of longer upload times.
+     * Be aware that setting a low maximum payload size (in the low megabytes or even less range) will result in
+     * decreased performance since more requests need to be used for an upload. Each request will come with its overhead
+     * in terms of longer upload times.
      *
      * Be aware that setting a high maximum payload size may result in a high memory usage since
      * tus-java-client usually allocates a buffer with the maximum payload size (this buffer is used
@@ -140,9 +142,9 @@ public class TusUploader {
      * @throws IllegalStateException Thrown if the uploader currently has a connection open
      */
     public void setRequestPayloadSize(int size) throws IllegalStateException {
-        if(connection != null) {
-            throw new IllegalStateException("payload size for a single request must not be " +
-                    "modified as long as a request is in progress");
+        if (connection != null) {
+            throw new IllegalStateException("payload size for a single request must not be "
+                    + "modified as long as a request is in progress");
         }
 
         requestPayloadSize = size;
@@ -179,7 +181,7 @@ public class TusUploader {
         int bytesToRead = Math.min(getChunkSize(), bytesRemainingForRequest);
 
         int bytesRead = input.read(buffer, bytesToRead);
-        if(bytesRead == -1) {
+        if (bytesRead == -1) {
             // No bytes were read since the input stream is empty
             return -1;
         }
@@ -193,7 +195,7 @@ public class TusUploader {
         offset += bytesRead;
         bytesRemainingForRequest -= bytesRead;
 
-        if(bytesRemainingForRequest <= 0) {
+        if (bytesRemainingForRequest <= 0) {
             finishConnection();
         }
 
@@ -230,7 +232,7 @@ public class TusUploader {
 
         byte[] buf = new byte[chunkSize];
         int bytesRead = input.read(buf, chunkSize);
-        if(bytesRead == -1) {
+        if (bytesRead == -1) {
             // No bytes were read since the input stream is empty
             return -1;
         }
@@ -257,6 +259,10 @@ public class TusUploader {
         return offset;
     }
 
+    /**
+     * This methods returns the destination {@link URL} of the upload.
+     * @return The {@link URL} of the upload.
+     */
     public URL getUploadURL() {
         return uploadURL;
     }
@@ -274,21 +280,19 @@ public class TusUploader {
     public void finish() throws ProtocolException, IOException {
         finish(true);
     }
-    
+
     /**
      * Finish the request by closing the HTTP connection. You can choose whether to close the InputStream or not.
      * You can call this method even before the entire file has been uploaded. Use this behavior to
      * enable pausing uploads.
-     * 
      * Be aware that it doesn't automatically release local resources if {@code closeStream == false} and you do
      * not close the InputStream on your own. To be safe use {@link TusUploader#finish()}.
-     *
      * @param closeInputStream Determines whether the InputStream is closed with the HTTP connection. Not closing the
      *                         Input Stream may be useful for future upload a future continuation of the upload.
      * @throws ProtocolException Thrown if the server sends an unexpected status code
      * @throws IOException  Thrown if an exception occurs while cleaning up.
      */
-    public void finish(boolean closeInputStream) throws ProtocolException, IOException {   
+    public void finish(boolean closeInputStream) throws ProtocolException, IOException {
         finishConnection();
         if (upload.getSize() == offset) {
             client.uploadFinished(upload);
@@ -302,22 +306,26 @@ public class TusUploader {
     }
 
     private void finishConnection() throws ProtocolException, IOException {
-        if(output != null) output.close();
+        if (output != null) {
+            output.close();
+        }
 
-        if(connection != null) {
+        if (connection != null) {
             int responseCode = connection.getResponseCode();
             connection.disconnect();
 
             if (!(responseCode >= 200 && responseCode < 300)) {
-                throw new ProtocolException("unexpected status code (" + responseCode + ") while uploading chunk", connection);
+                throw new ProtocolException("unexpected status code (" + responseCode + ") while uploading chunk",
+                        connection);
             }
 
             // TODO detect changes and seek accordingly
             long serverOffset = getHeaderFieldLong(connection, "Upload-Offset");
-            if(serverOffset == -1) {
-                throw new ProtocolException("response to PATCH request contains no or invalid Upload-Offset header", connection);
+            if (serverOffset == -1) {
+                throw new ProtocolException("response to PATCH request contains no or invalid Upload-Offset header",
+                        connection);
             }
-            if(offset != serverOffset) {
+            if (offset != serverOffset) {
                 throw new ProtocolException(
                         String.format("response contains different Upload-Offset value (%d) than expected (%d)",
                                 serverOffset,
@@ -331,13 +339,13 @@ public class TusUploader {
 
     private long getHeaderFieldLong(URLConnection connection, String field) {
         String value = connection.getHeaderField(field);
-        if(value == null) {
+        if (value == null) {
             return -1;
         }
 
         try {
             return Long.parseLong(value);
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             return -1;
         }
     }

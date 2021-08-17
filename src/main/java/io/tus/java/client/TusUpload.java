@@ -45,6 +45,10 @@ public class TusUpload {
         metadata.put("filename", file.getName());
     }
 
+    /**
+     * Returns the File size of the upload.
+     * @return File size in Bytes
+     */
     public long getSize() {
         return size;
     }
@@ -58,18 +62,35 @@ public class TusUpload {
         this.size = size;
     }
 
+    /**
+     * Returns the file specific fingerprint.
+     * @return Fingerprint as String.
+     */
     public String getFingerprint() {
         return fingerprint;
     }
 
+    /**
+     * Sets a fingerprint for this upload. This fingerprint must be unique and file specific, because it is used
+     * for upload identification.
+     * @param fingerprint String of fingerprint information.
+     */
     public void setFingerprint(String fingerprint) {
         this.fingerprint = fingerprint;
     }
 
+    /**
+     * Returns the input stream of the file to upload.
+     * @return {@link InputStream}
+     */
     public InputStream getInputStream() {
         return input;
     }
 
+    /**
+     * This method returns the {@link TusInputStream}, which was derived from the file's {@link InputStream}.
+     * @return {@link TusInputStream}
+     */
     TusInputStream getTusInputStream() {
         return tusInputStream;
     }
@@ -84,10 +105,19 @@ public class TusUpload {
         tusInputStream = new TusInputStream(inputStream);
     }
 
+    /**
+     * This methods allows it to send Metadata alongside with the upload. The Metadata must be provided as
+     * a Map with Key - Value pairs of Type String.
+     * @param metadata Key-value pairs of Type String
+     */
     public void setMetadata(Map<String, String> metadata) {
         this.metadata = metadata;
     }
 
+    /**
+     * This method returns the upload's metadata as Map.
+     * @return {@link Map} of metadata Key - Value pairs.
+     */
     public Map<String, String> getMetadata() {
         return metadata;
     }
@@ -99,15 +129,15 @@ public class TusUpload {
      * @return Encoded metadata
      */
     public String getEncodedMetadata() {
-        if(metadata == null || metadata.size() == 0) {
+        if (metadata == null || metadata.size() == 0) {
             return "";
         }
 
         String encoded = "";
 
         boolean firstElement = true;
-        for(Map.Entry<String, String> entry : metadata.entrySet()) {
-            if(!firstElement) {
+        for (Map.Entry<String, String> entry : metadata.entrySet()) {
+            if (!firstElement) {
                 encoded += ",";
             }
             encoded += entry.getKey() + " " + base64Encode(entry.getValue().getBytes());
@@ -122,8 +152,10 @@ public class TusUpload {
      * Encode a byte-array using Base64. This is a sligtly modified version from an implementation
      * published on Wikipedia (https://en.wikipedia.org/wiki/Base64#Sample_Implementation_in_Java)
      * under the Creative Commons Attribution-ShareAlike License.
+     * @param in input Byte array for Base64 encoding.
+     * @return Base64 encoded String derived from input Bytes.
      */
-    static String base64Encode(byte[] in)       {
+    static String base64Encode(byte[] in) {
         StringBuilder out = new StringBuilder((in.length * 4) / 3);
         String codes = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 

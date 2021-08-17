@@ -19,8 +19,8 @@ class TusInputStream {
      *
      * @param stream The stream to read from
      */
-    public TusInputStream(InputStream stream) {
-        if(!stream.markSupported()) {
+    TusInputStream(InputStream stream) {
+        if (!stream.markSupported()) {
             stream = new BufferedInputStream(stream);
         }
 
@@ -50,7 +50,7 @@ class TusInputStream {
      * @throws IOException
      */
     public void seekTo(long position) throws IOException {
-        if(lastMark != -1) {
+        if (lastMark != -1) {
             stream.reset();
             stream.skip(position - lastMark);
             lastMark = -1;

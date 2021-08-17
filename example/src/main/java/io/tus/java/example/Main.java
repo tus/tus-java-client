@@ -11,7 +11,14 @@ import io.tus.java.client.TusURLMemoryStore;
 import io.tus.java.client.TusUpload;
 import io.tus.java.client.TusUploader;
 
-public class Main {
+/**
+ * A representative Example class to show an usual usecase.
+ */
+public final class Main {
+    /**
+     * Main method to run a standard upload task.
+     * @param args
+     */
     public static void main(String[] args) {
         try {
             // When Java's HTTP client follows a redirect for a POST request, it will change the
@@ -71,7 +78,7 @@ public class Main {
                         double progress = (double) bytesUploaded / totalBytes * 100;
 
                         System.out.printf("Upload at %06.2f%%.\n", progress);
-                    } while(uploader.uploadChunk() > -1);
+                    } while (uploader.uploadChunk() > -1);
 
                     // Allow the HTTP connection to be closed and cleaned up
                     uploader.finish();
@@ -81,9 +88,12 @@ public class Main {
                 }
             };
             executor.makeAttempts();
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
+    }
+    private Main() {
+        throw new IllegalStateException("Utility class");
     }
 }

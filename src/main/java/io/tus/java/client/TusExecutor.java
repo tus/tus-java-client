@@ -78,7 +78,7 @@ public abstract class TusExecutor {
      */
     public boolean makeAttempts() throws ProtocolException, IOException {
         int attempt = -1;
-        while(true) {
+        while (true) {
             attempt++;
 
             try {
@@ -86,19 +86,19 @@ public abstract class TusExecutor {
                 // Returning true is the signal that the makeAttempt() function exited without
                 // throwing an error.
                 return true;
-            } catch(ProtocolException e) {
+            } catch (ProtocolException e) {
                 // Do not attempt a retry, if the Exception suggests so.
-                if(!e.shouldRetry()) {
+                if (!e.shouldRetry()) {
                     throw e;
                 }
 
-                if(attempt >= delays.length) {
+                if (attempt >= delays.length) {
                     // We exceeds the number of maximum retries. In this case the latest exception
                     // is thrown.
                     throw e;
                 }
-            }  catch(IOException e) {
-                if(attempt >= delays.length) {
+            }  catch (IOException e) {
+                if (attempt >= delays.length) {
                     // We exceeds the number of maximum retries. In this case the latest exception
                     // is thrown.
                     throw e;
@@ -108,7 +108,7 @@ public abstract class TusExecutor {
             try {
                 // Sleep for the specified delay before attempting the next retry.
                 Thread.sleep(delays[attempt]);
-            } catch(InterruptedException e) {
+            } catch (InterruptedException e) {
                 // If we get interrupted while waiting for the next retry, the user has cancelled
                 // the upload willingly and we return false as a signal.
                 return false;
