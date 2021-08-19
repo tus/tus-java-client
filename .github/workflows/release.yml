@@ -1,0 +1,26 @@
+name: Publish to Maven Repository
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish_to_maven:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '8'
+          distribution: 'adopt'
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Publish package to Maven Repository
+        run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
+        env:
+          SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
+          SONATYPE_KEY: ${{ secrets.SONATYPE_KEY }}
+          SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+          SIGNING_KEY_AMORED: ${{ secrets.SIGNING_KEY_AMORED }}

@@ -1,3 +1,9 @@
+plugins {
+    id 'signing'
+    id('io.github.gradle-nexus.publish-plugin') version '1.1.0'
+    id 'maven-publish'
+}
+
 apply plugin: 'java'
 apply plugin: 'maven'
 
@@ -14,6 +20,10 @@ allprojects {
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
+// load version number from file
+def config = new ConfigSlurper().parse(new File("${projectDir}/src/main/resources/version.properties").toURI().toURL())
+version = config.versionNumber
+
 dependencies {
     compile 'org.jetbrains:annotations:13.0'
     testCompile 'junit:junit:4.12'
@@ -22,49 +32,78 @@ dependencies {
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
+    archiveClassifier.set('sources')
     from sourceSets.main.allSource
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    archiveClassifier.set('javadoc')
     from javadoc.destinationDir
 }
 
-task createPom {
-    doLast {
-        pom {
-            project {
-                groupId 'io.tus.java.client'
-                artifactId 'tus-java-client'
-                name 'tus-java-client'
-                version project.getProperties().get('pomVersion')
-                packaging 'pom'
-                description 'Java client for tus, the resumable file uploading protocol.'
-                url 'http://tus.io'
+artifacts {
+    archives sourcesJar, javadocJar
+}
 
-                scm {
-                    url 'https://github.com/tus/tus-java-client'
-                    connection 'https://github.com/tus/tus-java-client'
-                    developerConnection 'https://github.com/tus/tus-java-client'
-                }
 
-                developers {
-                    developer {
-                        id 'acconut'
-                        name 'Marius Kleidl'
-                        email 'maerious@gmail.com'
-                    }
-                }
+def pomConfig = {
+    name 'tus-java-client'
+    url 'https://tus.io'
 
-                inceptionYear '2015'
-                licenses {
-                    license {
-                        name 'The MIT License (MIT)'
-                        url 'http://opensource.org/licenses/MIT'
-                    }
-                }
+    scm {
+        url 'https://github.com/tus/tus-java-client'
+        connection 'https://github.com/tus/tus-java-client'
+        developerConnection 'https://github.com/tus/tus-java-client'
+    }
+
+    developers {
+        developer {
+            id 'acconut'
+            name 'Marius Kleidl'
+            email 'maerious@gmail.com'
+        }
+    }
+
+    inceptionYear '2015'
+    licenses {
+        license {
+            name 'The MIT License (MIT)'
+            url 'http://opensource.org/licenses/MIT'
+        }
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = 'io.tus.java.client'
+            artifactId = 'tus-java-client'
+            version
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', 'Java client for tus, the resumable file uploading protocol.')
+                root.children().last() + pomConfig
             }
-        }.writeTo("build/libs/pom.xml")
+        }
+    }
+}
+
+signing {
+    def signingKeyId = System.getenv("SIGNING_KEY_ID")
+    def signingPassword = System.getenv("SIGNING_KEY_PASSWORD")
+    def signingKey = System.getenv("SIGNING_KEY_AMORED")
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+    sign publishing.publications.mavenJava
+}
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            username = System.getenv("SONATYPE_USER")
+            password = System.getenv("SONATYPE_KEY")
+        }
     }
 }
