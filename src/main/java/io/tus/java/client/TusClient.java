@@ -146,7 +146,7 @@ public class TusClient {
 
     /**
      * Sets the timeout for a Connection.
-     * @param timeout in seconds //todo is this seconds?
+     * @param timeout in milliseconds
      */
     public void setConnectTimeout(int timeout) {
         connectTimeout = timeout;
@@ -154,7 +154,7 @@ public class TusClient {
 
     /**
      * Returns the Connection Timeout.
-     * @return Timeout in seconds.
+     * @return Timeout in milliseconds.
      */
     public int getConnectTimeout() {
         return connectTimeout;
@@ -319,8 +319,10 @@ public class TusClient {
     public void prepareConnection(@NotNull HttpURLConnection connection) {
         // Only follow redirects, if the POST methods is preserved. If http.strictPostRedirect is
         // disabled, a POST request will be transformed into a GET request which is not wanted by us.
-        // todo: Is this link necessary
-        // See:http://grepcode.com/file/repository.grepcode.com/java/root/jdk/openjdk/7u40-b43/sun/net/www/protocol/http/HttpURLConnection.java#2372
+        // CHECKSTYLE:OFF
+        // Necessary because of length of the link
+        // See:https://github.com/openjdk/jdk/blob/jdk7-b43/jdk/src/share/classes/sun/net/www/protocol/http/HttpURLConnection.java#L2020-L2035
+        // CHECKSTYLE:ON
         connection.setInstanceFollowRedirects(Boolean.getBoolean("http.strictPostRedirect"));
 
         connection.setConnectTimeout(connectTimeout);

@@ -29,7 +29,7 @@ public class TusUpload {
     }
 
     /**
-     * Create a new TusUpload object using the supplied File object. The corresponding {@link
+     * Create a new TusUpload object using the supplied file object. The corresponding {@link
      * InputStream}, size and fingerprint will be automatically set.
      *
      * @param file The file whose content should be later uploaded.
@@ -46,8 +46,8 @@ public class TusUpload {
     }
 
     /**
-     * Returns the File size of the upload.
-     * @return File size in Bytes
+     * Returns the file size of the upload.
+     * @return File size in bytes
      */
     public long getSize() {
         return size;
