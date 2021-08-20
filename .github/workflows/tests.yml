@@ -1,0 +1,48 @@
+# This workflow will build and test a Java project with Gradle
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+name: Tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - unlabeled
+jobs:
+    Java:
+      strategy:
+        matrix:
+         java: ['8','11']
+         
+      runs-on: ubuntu-latest
+
+      steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'adopt'
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Build with Gradle
+        run: ./gradlew assemble
+      - name: Run Tests
+        run: ./gradlew check
+
+    slack-on-failure:
+      needs: [Java]
+      if: failure() && github.ref == 'refs/heads/master'
+      runs-on: ubuntu-latest
+
+      steps:
+        - uses: 8398a7/action-slack@v3
+          with:
+            status: failure
+          env:
+            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
