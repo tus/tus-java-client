@@ -71,10 +71,10 @@
   <!-- Checks for Size Violations.                    -->
   <!-- See https://checkstyle.org/config_sizes.html -->
   <module name="FileLength"/>
-  <module name="LineLength">
+  <!--module name="LineLength">
     <property name="fileExtensions" value="java"/>
     <property name="max" value="120"/>
-  </module>
+  </module>                                       -->
 
   <!-- Checks for whitespace                               -->
   <!-- See https://checkstyle.org/config_whitespace.html -->
@@ -205,7 +205,6 @@
       <property name="optional" value="true"/>
     </module>
     <module name="SuppressionCommentFilter"/>
-
-  </module>
+    </module>
 
 </module>

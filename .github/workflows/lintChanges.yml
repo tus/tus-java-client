@@ -21,6 +21,7 @@ jobs:
         uses: github/super-linter@v3
         env:
           VALIDATE_ALL_CODEBASE: true # lint all files
+          FILTER_REGEX_EXCLUDE: /src/test/*
           VALIDATE_JAVA: true  # only lint Java files
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Enables better overview of runs

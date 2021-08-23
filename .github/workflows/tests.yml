@@ -34,15 +34,3 @@ jobs:
         run: ./gradlew assemble
       - name: Run Tests
         run: ./gradlew check
-
-    slack-on-failure:
-      needs: [Java]
-      if: failure() && github.ref == 'refs/heads/master'
-      runs-on: ubuntu-latest
-
-      steps:
-        - uses: 8398a7/action-slack@v3
-          with:
-            status: failure
-          env:
-            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
