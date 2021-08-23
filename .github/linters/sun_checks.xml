@@ -71,12 +71,12 @@
   <!-- Checks for Size Violations.                    -->
   <!-- See https://checkstyle.org/config_sizes.html -->
   <module name="FileLength"/>
-  <module name="LineLength">
+  <!--module name="LineLength">
     <property name="fileExtensions" value="java"/>
     <property name="max" value="120"/>
   </module>
 
-  <!-- Checks for whitespace                               -->
+  <!--Checks for whitespace                               -->
   <!-- See https://checkstyle.org/config_whitespace.html -->
   <module name="FileTabCharacter"/>
 
@@ -205,9 +205,6 @@
       <property name="optional" value="true"/>
     </module>
     <module name="SuppressionCommentFilter"/>
-      <property name="offCommentFormat" value="CHECKSTYLE.OFF\: ([\w\|]+)"/>
-      <property name="onCommentFormat" value="CHECKSTYLE.ON\: ([\w\|]+)"/>
-      <property name="checkFormat" value="$1"/>
     </module>
 
 </module>
