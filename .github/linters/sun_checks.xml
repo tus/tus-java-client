@@ -74,9 +74,9 @@
   <!--module name="LineLength">
     <property name="fileExtensions" value="java"/>
     <property name="max" value="120"/>
-  </module>
+  </module>                                       -->
 
-  <!--Checks for whitespace                               -->
+  <!-- Checks for whitespace                               -->
   <!-- See https://checkstyle.org/config_whitespace.html -->
   <module name="FileTabCharacter"/>
 
