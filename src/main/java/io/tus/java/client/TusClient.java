@@ -319,10 +319,9 @@ public class TusClient {
     public void prepareConnection(@NotNull HttpURLConnection connection) {
         // Only follow redirects, if the POST methods is preserved. If http.strictPostRedirect is
         // disabled, a POST request will be transformed into a GET request which is not wanted by us.
-        //CHECKSTYLE:OFF
-        // Necessary because of length of the link
+        //CHECKSTYLE.OFF: LineLength - Necessary because of length of the link
         // See:https://github.com/openjdk/jdk/blob/jdk7-b43/jdk/src/share/classes/sun/net/www/protocol/http/HttpURLConnection.java#L2020-L2035
-        //CHECKSTYLE:ON
+        //CHECKSTYLE.ON:
         connection.setInstanceFollowRedirects(Boolean.getBoolean("http.strictPostRedirect"));
 
         connection.setConnectTimeout(connectTimeout);
