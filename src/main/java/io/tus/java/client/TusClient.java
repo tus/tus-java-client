@@ -16,7 +16,7 @@ public class TusClient {
      * Version of the tus protocol used by the client. The remote server needs to support this
      * version, too.
      */
-    public final static String TUS_VERSION = "1.0.0";
+    public static final String TUS_VERSION = "1.0.0";
 
     private URL uploadCreationURL;
     private boolean resumingEnabled;
@@ -44,7 +44,7 @@ public class TusClient {
     }
 
     /**
-     * Get the current upload creation URL
+     * Get the current upload creation URL.
      *
      * @return Current upload creation URL
      */
@@ -144,10 +144,18 @@ public class TusClient {
         return headers;
     }
 
+    /**
+     * Sets the timeout for a Connection.
+     * @param timeout in milliseconds
+     */
     public void setConnectTimeout(int timeout) {
         connectTimeout = timeout;
     }
 
+    /**
+     * Returns the Connection Timeout.
+     * @return Timeout in milliseconds.
+     */
     public int getConnectTimeout() {
         return connectTimeout;
     }
@@ -171,7 +179,7 @@ public class TusClient {
         prepareConnection(connection);
 
         String encodedMetadata = upload.getEncodedMetadata();
-        if(encodedMetadata.length() > 0) {
+        if (encodedMetadata.length() > 0) {
             connection.setRequestProperty("Upload-Metadata", encodedMetadata);
         }
 
@@ -179,12 +187,13 @@ public class TusClient {
         connection.connect();
 
         int responseCode = connection.getResponseCode();
-        if(!(responseCode >= 200 && responseCode < 300)) {
-            throw new ProtocolException("unexpected status code (" + responseCode + ") while creating upload", connection);
+        if (!(responseCode >= 200 && responseCode < 300)) {
+            throw new ProtocolException(
+                    "unexpected status code (" + responseCode + ") while creating upload", connection);
         }
 
         String urlStr = connection.getHeaderField("Location");
-        if(urlStr == null || urlStr.length() == 0) {
+        if (urlStr == null || urlStr.length() == 0) {
             throw new ProtocolException("missing upload URL in response for creating upload", connection);
         }
 
@@ -193,7 +202,7 @@ public class TusClient {
         // but there may be cases in which the POST request is redirected.
         URL uploadURL = new URL(connection.getURL(), urlStr);
 
-        if(resumingEnabled) {
+        if (resumingEnabled) {
             urlStore.set(upload.getFingerprint(), uploadURL);
         }
 
@@ -217,7 +226,8 @@ public class TusClient {
      * wrong status codes or missing/invalid headers.
      * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
      */
-    public TusUploader resumeUpload(@NotNull TusUpload upload) throws FingerprintNotFoundException, ResumingNotEnabledException, ProtocolException, IOException {
+    public TusUploader resumeUpload(@NotNull TusUpload upload) throws
+            FingerprintNotFoundException, ResumingNotEnabledException, ProtocolException, IOException {
         if (!resumingEnabled) {
             throw new ResumingNotEnabledException();
         }
@@ -247,7 +257,8 @@ public class TusClient {
      * wrong status codes or missing/invalid headers.
      * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
      */
-    public TusUploader beginOrResumeUploadFromURL(@NotNull TusUpload upload, @NotNull URL uploadURL) throws ProtocolException, IOException {
+    public TusUploader beginOrResumeUploadFromURL(@NotNull TusUpload upload, @NotNull URL uploadURL) throws
+            ProtocolException, IOException {
         HttpURLConnection connection = (HttpURLConnection) uploadURL.openConnection();
         connection.setRequestMethod("HEAD");
         prepareConnection(connection);
@@ -255,12 +266,13 @@ public class TusClient {
         connection.connect();
 
         int responseCode = connection.getResponseCode();
-        if(!(responseCode >= 200 && responseCode < 300)) {
-            throw new ProtocolException("unexpected status code (" + responseCode + ") while resuming upload", connection);
+        if (!(responseCode >= 200 && responseCode < 300)) {
+            throw new ProtocolException(
+                    "unexpected status code (" + responseCode + ") while resuming upload", connection);
         }
 
         String offsetStr = connection.getHeaderField("Upload-Offset");
-        if(offsetStr == null || offsetStr.length() == 0) {
+        if (offsetStr == null || offsetStr.length() == 0) {
             throw new ProtocolException("missing upload offset in response for resuming upload", connection);
         }
         long offset = Long.parseLong(offsetStr);
@@ -277,19 +289,20 @@ public class TusClient {
      * @throws ProtocolException Thrown if the remote server sent an unexpected response, e.g.
      * wrong status codes or missing/invalid headers.
      * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
+     * @return {@link TusUploader} instance.
      */
     public TusUploader resumeOrCreateUpload(@NotNull TusUpload upload) throws ProtocolException, IOException {
         try {
             return resumeUpload(upload);
-        } catch(FingerprintNotFoundException e) {
+        } catch (FingerprintNotFoundException e) {
             return createUpload(upload);
-        } catch(ResumingNotEnabledException e) {
+        } catch (ResumingNotEnabledException e) {
             return createUpload(upload);
-        } catch(ProtocolException e) {
+        } catch (ProtocolException e) {
             // If the attempt to resume returned a 404 Not Found, we immediately try to create a new
             // one since TusExectuor would not retry this operation.
             HttpURLConnection connection = e.getCausingConnection();
-            if(connection != null && connection.getResponseCode() == 404) {
+            if (connection != null && connection.getResponseCode() == 404) {
                 return createUpload(upload);
             }
 
@@ -306,13 +319,16 @@ public class TusClient {
     public void prepareConnection(@NotNull HttpURLConnection connection) {
         // Only follow redirects, if the POST methods is preserved. If http.strictPostRedirect is
         // disabled, a POST request will be transformed into a GET request which is not wanted by us.
-        // See: http://grepcode.com/file/repository.grepcode.com/java/root/jdk/openjdk/7u40-b43/sun/net/www/protocol/http/HttpURLConnection.java#2372
+        // CHECKSTYLE:OFF
+        // Necessary because of length of the link
+        // See:https://github.com/openjdk/jdk/blob/jdk7-b43/jdk/src/share/classes/sun/net/www/protocol/http/HttpURLConnection.java#L2020-L2035
+        // CHECKSTYLE:ON
         connection.setInstanceFollowRedirects(Boolean.getBoolean("http.strictPostRedirect"));
 
         connection.setConnectTimeout(connectTimeout);
         connection.addRequestProperty("Tus-Resumable", TUS_VERSION);
 
-        if(headers != null) {
+        if (headers != null) {
             for (Map.Entry<String, String> entry : headers.entrySet()) {
                 connection.addRequestProperty(entry.getKey(), entry.getValue());
             }

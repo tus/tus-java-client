@@ -13,21 +13,34 @@ import java.util.Map;
  * keep the values after your application crashes or restarts.
  */
 public class TusURLMemoryStore implements TusURLStore {
+    private Map<String, URL> store = new HashMap<String, URL>();
 
-	private Map<String, URL> store = new HashMap<String, URL>();
+    /**
+     * Stores the upload's fingerprint and url.
+     * @param fingerprint An upload's fingerprint.
+     * @param url The corresponding upload URL.
+     */
+    @Override
+    public void set(String fingerprint, URL url) {
+        store.put(fingerprint, url);
+    }
 
-	@Override
-	public void set(String fingerprint, URL url) {
-		store.put(fingerprint, url);
-	}
+    /**
+     * Returns the corresponding Upload URL to a given fingerprint.
+     * @param fingerprint An upload's fingerprint.
+     * @return The corresponding upload URL.
+     */
+    @Override
+    public URL get(String fingerprint) {
+        return store.get(fingerprint);
+    }
 
-	@Override
-	public URL get(String fingerprint) {
-		return store.get(fingerprint);
-	}
-
-	@Override
-	public void remove(String fingerprint) {
-		store.remove(fingerprint);
-	}
+    /**
+     * Removes the corresponding entry to a fingerprint from the {@link TusURLMemoryStore}.
+     * @param fingerprint An upload's fingerprint.
+     */
+    @Override
+    public void remove(String fingerprint) {
+        store.remove(fingerprint);
+    }
 }
