@@ -2,7 +2,8 @@ package io.tus.java.client;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -11,7 +12,14 @@ import java.io.OutputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Test class for {@link TusUpload}.
+ */
 public class TestTusUpload {
+    /**
+     * Tests if uploading a file works.
+     * @throws IOException
+     */
     @Test
     public void testTusUploadFile() throws IOException {
         String content = "hello world";
