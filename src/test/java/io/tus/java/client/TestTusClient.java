@@ -181,7 +181,8 @@ public class TestTusClient extends MockServerProvider {
      * @throws ProtocolException
      */
     @Test
-    public void testResumeUpload() throws ResumingNotEnabledException, FingerprintNotFoundException, IOException, ProtocolException {
+    public void testResumeUpload() throws ResumingNotEnabledException, FingerprintNotFoundException, IOException,
+            ProtocolException {
         mockServer.when(new HttpRequest()
                 .withMethod("HEAD")
                 .withPath("/files/foo")
@@ -228,6 +229,11 @@ public class TestTusClient extends MockServerProvider {
         }
     }
 
+    /**
+     * Tests if an upload gets started if {@link TusClient#resumeOrCreateUpload(TusUpload)} gets called.
+     * @throws IOException
+     * @throws ProtocolException
+     */
     @Test
     public void testResumeOrCreateUpload() throws IOException, ProtocolException {
         mockServer.when(new HttpRequest()
@@ -249,6 +255,7 @@ public class TestTusClient extends MockServerProvider {
 
         assertEquals(uploader.getUploadURL(), new URL(mockServerURL + "/foo"));
     }
+
 
     @Test
     public void testResumeOrCreateUploadNotFound() throws IOException, ProtocolException {
