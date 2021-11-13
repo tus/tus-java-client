@@ -7,9 +7,19 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
+/**
+ * Test class for a {@link TusExecutor}.
+ */
 public class TestTusExecutor {
+
+    /**
+     * Tests if the delays for connection attempts are set in the right manner.
+     */
     @Test
     public void testSetDelays() {
         CountingExecutor exec = new CountingExecutor();
@@ -20,6 +30,10 @@ public class TestTusExecutor {
         assertEquals(exec.getCalls(), 0);
     }
 
+    /**
+     * Tests if a running execution is interuptable.
+     * @throws Exception
+     */
     @Test
     public void testInterrupting() throws Exception {
         TusExecutor exec = new TusExecutor() {
@@ -38,7 +52,7 @@ public class TestTusExecutor {
                 try {
                     Thread.sleep(100);
                     executorThread.interrupt();
-                } catch(InterruptedException e) {
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
@@ -49,6 +63,10 @@ public class TestTusExecutor {
     }
 
 
+    /**
+     * Tests if {@link TusExecutor#makeAttempts()} actually makes attempts.
+     * @throws Exception
+     */
     @Test
     public void testMakeAttempts() throws Exception {
         CountingExecutor exec = new CountingExecutor();
@@ -59,6 +77,10 @@ public class TestTusExecutor {
     }
 
 
+    /**
+     * Tests if every attempt can throw an IOException.
+     * @throws Exception
+     */
     @Test(expected = IOException.class)
     public void testMakeAllAttemptsThrowIOException() throws Exception {
         CountingExecutor exec = new CountingExecutor() {
@@ -77,6 +99,10 @@ public class TestTusExecutor {
         }
     }
 
+    /**
+     * Tests if every attempt can throw a {@link ProtocolException}.
+     * @throws Exception
+     */
     @Test(expected = ProtocolException.class)
     public void testMakeAllAttemptsThrowProtocolException() throws Exception {
         CountingExecutor exec = new CountingExecutor() {
@@ -95,6 +121,10 @@ public class TestTusExecutor {
         }
     }
 
+    /**
+     * Tests if an Exception can be thrown also at single attempts.
+     * @throws Exception
+     */
     @Test(expected = ProtocolException.class)
     public void testMakeOneAttempt() throws Exception {
         CountingExecutor exec = new CountingExecutor() {
@@ -119,7 +149,7 @@ public class TestTusExecutor {
     private class MockHttpURLConnection extends HttpURLConnection {
         private int statusCode;
 
-        public MockHttpURLConnection(int statusCode) throws MalformedURLException {
+        MockHttpURLConnection(int statusCode) throws MalformedURLException {
             super(new URL("http://localhost/"));
             this.statusCode = statusCode;
         }
@@ -135,10 +165,10 @@ public class TestTusExecutor {
         }
 
         @Override
-        public void disconnect() {}
+        public void disconnect() { }
 
         @Override
-        public void connect() {}
+        public void connect() { }
     }
 
     /**
