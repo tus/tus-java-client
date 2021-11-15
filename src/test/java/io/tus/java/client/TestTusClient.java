@@ -257,6 +257,11 @@ public class TestTusClient extends MockServerProvider {
     }
 
 
+    /**
+     * Checks if a new upload attempt is started in case of a serverside 404-error, without having an Exception thrown.
+     * @throws IOException
+     * @throws ProtocolException
+     */
     @Test
     public void testResumeOrCreateUploadNotFound() throws IOException, ProtocolException {
         mockServer.when(new HttpRequest()
