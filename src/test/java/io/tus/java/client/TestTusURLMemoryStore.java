@@ -5,10 +5,17 @@ import java.net.URL;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
+/**
+ * Test class for {@link TusURLMemoryStore}.
+ */
 public class TestTusURLMemoryStore {
 
+    /**
+     * Tests if setting and deleting of an url in the {@link TusURLMemoryStore} works.
+     * @throws MalformedURLException
+     */
     @Test
     public void test() throws MalformedURLException {
         TusURLStore store = new TusURLMemoryStore();

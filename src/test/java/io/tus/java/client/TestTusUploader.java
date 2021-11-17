@@ -23,10 +23,18 @@ import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 import org.mockserver.socket.PortFactory;
 
+/**
+ * Test class for {@link TusUploader}.
+ */
 public class TestTusUploader extends MockServerProvider {
-    private boolean isOpenJDK6 = System.getProperty("java.version").startsWith("1.6") &&
-            System.getProperty("java.vm.name").contains("OpenJDK");
+    private boolean isOpenJDK6 = System.getProperty("java.version").startsWith("1.6")
+            && System.getProperty("java.vm.name").contains("OpenJDK");
 
+    /**
+     * Tests if the {@link TusUploader} actually uploads files and fixed chunk sizes.
+     * @throws IOException
+     * @throws ProtocolException
+     */
     @Test
     public void testTusUploader() throws IOException, ProtocolException {
         byte[] content = "hello world".getBytes();
@@ -36,7 +44,7 @@ public class TestTusUploader extends MockServerProvider {
                 .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
                 .withHeader("Upload-Offset", "3")
                 .withHeader("Content-Type", "application/offset+octet-stream")
-                .withHeader(isOpenJDK6 ? "": "Expect: 100-continue")
+                .withHeader(isOpenJDK6 ? "" : "Expect: 100-continue")
                 .withBody(Arrays.copyOfRange(content, 3, 11)))
                 .respond(new HttpResponse()
                         .withStatusCode(204)
@@ -63,6 +71,11 @@ public class TestTusUploader extends MockServerProvider {
         uploader.finish();
     }
 
+    /**
+     * Verifies, that {@link TusClient#uploadFinished(TusUpload)} gets called after a proper upload has been finished.
+     * @throws IOException
+     * @throws ProtocolException
+     */
     @Test
     public void testTusUploaderClientUploadFinishedCalled() throws IOException, ProtocolException {
 
@@ -84,6 +97,12 @@ public class TestTusUploader extends MockServerProvider {
         verify(client).uploadFinished(upload);
     }
 
+    /**
+     * Verifies, that {@link TusClient#uploadFinished(TusUpload)} doesn't get called if the actual upload size is
+     * greater than the offset.
+     * @throws IOException
+     * @throws ProtocolException
+     */
     @Test
     public void testTusUploaderClientUploadFinishedNotCalled() throws IOException, ProtocolException {
 
@@ -102,9 +121,14 @@ public class TestTusUploader extends MockServerProvider {
         uploader.finish();
 
         // size is greater than offset, so uploadfinished() should not be called
-        verify(client,times(0)).uploadFinished(upload);
+        verify(client, times(0)).uploadFinished(upload);
     }
 
+    /**
+     * Verifies, that an Exception gets thrown, if the upload server isn't satisfied with the client's headers.
+     * @throws IOException
+     * @throws ProtocolException
+     */
     @Test
     public void testTusUploaderFailedExpectation() throws IOException, ProtocolException {
         Assume.assumeFalse(isOpenJDK6);
@@ -123,7 +147,7 @@ public class TestTusUploader extends MockServerProvider {
         TusUploader uploader = new TusUploader(client, upload, uploadUrl, input, offset);
         try {
             uploader.uploadChunk();
-        } catch(ProtocolException e) {
+        } catch (ProtocolException e) {
             assertTrue(e.getMessage().contains("500"));
             exceptionThrown = true;
         } finally {
@@ -134,15 +158,15 @@ public class TestTusUploader extends MockServerProvider {
     /**
      * FailingExpectationServer is a HTTP/1.1 server which will always respond with a 500 Internal
      * Error. This is meant to simulate failing expectations when the request contains the
-     * Expect header. The org.mockserver packages do not support this and will always send the
-     * 100 Continue status code. therefore we built our own stupid mocking server.
+     * expected header. The org.mockserver packages do not support this and will always send the
+     * 100 Continue status code. therefore, we built our own stupid mocking server.
      */
     private class FailingExpectationServer extends Thread {
         private final byte[] response = "HTTP/1.1 500 Internal Server Error\r\n\r\n".getBytes();
         private ServerSocket serverSocket;
         private int port;
 
-        public FailingExpectationServer() throws IOException {
+        FailingExpectationServer() throws IOException {
             port = PortFactory.findFreePort();
 
             serverSocket = new ServerSocket(port);
@@ -161,7 +185,7 @@ public class TestTusUploader extends MockServerProvider {
                 }
 
                 socket.close();
-            } catch(IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -169,12 +193,16 @@ public class TestTusUploader extends MockServerProvider {
         public URL getURL() {
             try {
                 return new URL("http://localhost:" + port);
-            } catch(MalformedURLException e) {
+            } catch (MalformedURLException e) {
                 return null;
             }
         }
     }
 
+    /**
+     * Verifies, that {@link TusUploader#setRequestPayloadSize(int)} effectively limits the size  a payload.
+     * @throws Exception
+     */
     @Test
     public void testSetRequestPayloadSize() throws Exception {
         byte[] content = "hello world".getBytes();
@@ -238,6 +266,12 @@ public class TestTusUploader extends MockServerProvider {
         uploader.finish();
     }
 
+
+    /**
+     * Verifies, that an exception is thrown if {@link TusUploader#setRequestPayloadSize(int)} is called while the
+     * client has already an upload connection opened.
+     * @throws Exception
+     */
     @Test(expected = IllegalStateException.class)
     public void testSetRequestPayloadSizeThrows() throws Exception {
         byte[] content = "hello world".getBytes();
@@ -256,6 +290,10 @@ public class TestTusUploader extends MockServerProvider {
         uploader.setRequestPayloadSize(100);
     }
 
+    /**
+     * Verifies, that an Exception is thrown if the UploadOffsetHeader is missing.
+     * @throws Exception
+     */
     @Test
     public void testMissingUploadOffsetHeader() throws Exception {
         byte[] content = "hello world".getBytes();
@@ -277,7 +315,7 @@ public class TestTusUploader extends MockServerProvider {
         try {
             assertEquals(11, uploader.uploadChunk());
             uploader.finish();
-        } catch(ProtocolException e) {
+        } catch (ProtocolException e) {
             assertTrue(e.getMessage().contains("no or invalid Upload-Offset header"));
             exceptionThrown = true;
         } finally {
@@ -285,6 +323,11 @@ public class TestTusUploader extends MockServerProvider {
         }
     }
 
+    /**
+     * Verifies, that an Exception is thrown if the UploadOffsetHeader of the server's response does not match the
+     * clients upload offset value.
+     * @throws Exception
+     */
     @Test
     public void testUnmatchingUploadOffsetHeader() throws Exception {
         byte[] content = "hello world".getBytes();
@@ -307,7 +350,7 @@ public class TestTusUploader extends MockServerProvider {
         try {
             assertEquals(11, uploader.uploadChunk());
             uploader.finish();
-        } catch(ProtocolException e) {
+        } catch (ProtocolException e) {
             assertTrue(e.getMessage().contains("different Upload-Offset value (44) than expected (11)"));
             exceptionThrown = true;
         } finally {
