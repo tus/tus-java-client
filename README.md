@@ -78,7 +78,7 @@ executor.makeAttempts();
 
 ## Installation
 
-The JARs can be downloaded manually from our [Bintray project](https://bintray.com/tus/maven/tus-java-client/view#files). tus-java-client is also available in JCenter (Maven Central is coming soon).
+The JARs can be downloaded manually from our [Maven Central Repo](https://search.maven.org/artifact/io.tus.java.client/tus-java-clients). 
 
 **Gradle:**
 
