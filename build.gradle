@@ -1,11 +1,10 @@
 plugins {
     id 'signing'
     id('io.github.gradle-nexus.publish-plugin') version '1.1.0'
-    id 'maven-publish'
 }
 
 apply plugin: 'java'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 group 'io.tus.java.client'
 
@@ -76,9 +75,10 @@ def pomConfig = {
 publishing {
     publications {
         mavenJava(MavenPublication) {
+            from components.java
             groupId = 'io.tus.java.client'
             artifactId = 'tus-java-client'
-            version
+            version project.getVersion()
             artifact sourcesJar
             artifact javadocJar
 

@@ -83,7 +83,7 @@ The JARs can be downloaded manually from our [Maven Central Repo](https://search
 **Gradle:**
 
 ```groovy
-compile 'io.tus.java.client:tus-java-client:0.4.4'
+implementation 'io.tus.java.client:tus-java-client:0.4.5'
 ```
 
 **Maven:**
@@ -92,7 +92,7 @@ compile 'io.tus.java.client:tus-java-client:0.4.4'
 <dependency>
   <groupId>io.tus.java.client</groupId>
   <artifactId>tus-java-client</artifactId>
-  <version>0.4.4</version>
+  <version>0.4.5</version>
 </dependency>
 ```
 
