@@ -21,7 +21,6 @@ import org.junit.Assume;
 import org.junit.Test;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
-import org.mockserver.model.LogEventRequestAndResponse;
 import org.mockserver.socket.PortFactory;
 
 /**
