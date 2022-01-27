@@ -14,20 +14,20 @@ allprojects {
     }
 }
 
-// We compile the library using Java 1.6 compatibility
+// We compile the library using Java 1.7 compatibility
 // in order to ensure interoperability with older Android platforms.
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
 // load version number from file
-def config = new ConfigSlurper().parse(new File("${projectDir}/src/main/resources/version.properties").toURI().toURL())
+def config = new ConfigSlurper().parse(new File("${projectDir}/src/main/resources/tusVersion/version.properties").toURI().toURL())
 version = config.versionNumber
 
 dependencies {
-    compile 'org.jetbrains:annotations:13.0'
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.mock-server:mockserver-netty:5.2.2'
-    testCompile 'org.mockito:mockito-core:2.28.2'
+    compile 'org.jetbrains:annotations:22.0.0'
+    testCompile 'junit:junit:4.13.2'
+    testCompile 'org.mock-server:mockserver-junit-rule:5.11.2'
+    testCompile 'org.mockito:mockito-core:4.2.0'
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {

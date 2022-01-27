@@ -2,7 +2,7 @@ package io.tus.java.client;
 
 import org.junit.After;
 import org.junit.Before;
-import org.mockserver.client.server.MockServerClient;
+import org.mockserver.client.MockServerClient;
 import org.mockserver.socket.PortFactory;
 
 import java.net.URL;

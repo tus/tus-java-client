@@ -21,6 +21,7 @@ import org.junit.Assume;
 import org.junit.Test;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
+import org.mockserver.model.LogEventRequestAndResponse;
 import org.mockserver.socket.PortFactory;
 
 /**
@@ -44,7 +45,6 @@ public class TestTusUploader extends MockServerProvider {
                 .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
                 .withHeader("Upload-Offset", "3")
                 .withHeader("Content-Type", "application/offset+octet-stream")
-                .withHeader(isOpenJDK6 ? "" : "Expect: 100-continue")
                 .withBody(Arrays.copyOfRange(content, 3, 11)))
                 .respond(new HttpResponse()
                         .withStatusCode(204)
@@ -69,6 +69,9 @@ public class TestTusUploader extends MockServerProvider {
         assertEquals(-1, uploader.uploadChunk(5));
         assertEquals(11, uploader.getOffset());
         uploader.finish();
+        String log = mockServer.retrieveLogMessages(new HttpRequest());
+        System.out.println("x");
+
     }
 
     /**
