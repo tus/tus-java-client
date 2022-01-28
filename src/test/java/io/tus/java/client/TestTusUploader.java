@@ -68,9 +68,6 @@ public class TestTusUploader extends MockServerProvider {
         assertEquals(-1, uploader.uploadChunk(5));
         assertEquals(11, uploader.getOffset());
         uploader.finish();
-        String log = mockServer.retrieveLogMessages(new HttpRequest());
-        System.out.println("x");
-
     }
 
     /**

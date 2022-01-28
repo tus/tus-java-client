@@ -20,7 +20,7 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 // load version number from file
-def config = new ConfigSlurper().parse(new File("${projectDir}/src/main/resources/tusVersion/version.properties").toURI().toURL())
+def config = new ConfigSlurper().parse(new File("${projectDir}/src/main/resources/tus-java-client-version/version.properties").toURI().toURL())
 version = config.versionNumber
 
 dependencies {
