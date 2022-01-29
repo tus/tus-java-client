@@ -70,6 +70,7 @@ public class TusUploader {
         connection.setRequestProperty("Upload-Offset", Long.toString(offset));
         connection.setRequestProperty("Content-Type", "application/offset+octet-stream");
         connection.setRequestProperty("Expect", "100-continue");
+
         try {
             connection.setRequestMethod("PATCH");
             // Check whether we are running on a buggy JRE

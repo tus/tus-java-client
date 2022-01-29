@@ -44,7 +44,6 @@ public class TestTusUploader extends MockServerProvider {
                 .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
                 .withHeader("Upload-Offset", "3")
                 .withHeader("Content-Type", "application/offset+octet-stream")
-                .withHeader(isOpenJDK6 ? "" : "Expect: 100-continue")
                 .withBody(Arrays.copyOfRange(content, 3, 11)))
                 .respond(new HttpResponse()
                         .withStatusCode(204)
