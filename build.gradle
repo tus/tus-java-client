@@ -27,7 +27,7 @@ dependencies {
     compile 'org.jetbrains:annotations:23.0.0'
     testCompile 'junit:junit:4.13.2'
     testCompile 'org.mock-server:mockserver-junit-rule:5.11.2'
-    testCompile 'org.mockito:mockito-core:4.5.1'
+    testCompile 'org.mockito:mockito-core:4.6.0'
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
