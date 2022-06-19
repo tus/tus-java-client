@@ -16,8 +16,8 @@ allprojects {
 
 // We compile the library using Java 1.7 compatibility
 // in order to ensure interoperability with older Android platforms.
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 // load version number from file
 def config = new ConfigSlurper().parse(new File("${projectDir}/src/main/resources/tus-java-client-version/version.properties").toURI().toURL())
@@ -26,7 +26,7 @@ version = config.versionNumber
 dependencies {
     compile 'org.jetbrains:annotations:23.0.0'
     testCompile 'junit:junit:4.13.2'
-    testCompile 'org.mock-server:mockserver-junit-rule:5.11.2'
+    testCompile 'org.mock-server:mockserver-junit-rule:5.13.2'
     testCompile 'org.mockito:mockito-core:4.6.1'
 }
 
