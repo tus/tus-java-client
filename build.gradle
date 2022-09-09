@@ -26,7 +26,7 @@ version = config.versionNumber
 dependencies {
     compile 'org.jetbrains:annotations:23.0.0'
     testCompile 'junit:junit:4.13.2'
-    testCompile 'org.mock-server:mockserver-junit-rule:5.13.2'
+    testCompile 'org.mock-server:mockserver-junit-rule:5.14.0'
     testCompile 'org.mockito:mockito-core:4.7.0'
 }
 
