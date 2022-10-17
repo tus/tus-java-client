@@ -156,12 +156,6 @@ public class TusURLPersistentStore implements TusURLStore {
 			
 		} catch (FileNotFoundException e)	{
 			filesWithFingerprints = new TusUploadFileSet();
-			/*
-			try {
-				FileUtils.touch(new File(pathOfPersistentXmlFiles));
-			} catch (IOException e1) {
-				throw new RuntimeException(e1);
-			}*/
 		}	
 	}
 	
