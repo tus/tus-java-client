@@ -2,7 +2,7 @@ name: Lint Java Code
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     types:
       - opened
@@ -22,5 +22,5 @@ jobs:
         env:
           VALIDATE_ALL_CODEBASE: true # lint all files
           VALIDATE_JAVA: true  # only lint Java files
-          DEFAULT_BRANCH: master
+          DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Enables better overview of runs

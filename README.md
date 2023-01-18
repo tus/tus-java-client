@@ -1,4 +1,4 @@
-# tus-java-client [![Tests](https://github.com/tus/tus-java-client/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/tus/tus-java-client/actions/workflows/tests.yml)
+# tus-java-client [![Tests](https://github.com/tus/tus-java-client/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/tus/tus-java-client/actions/workflows/tests.yml)
 
 > **tus** is a protocol based on HTTP for *resumable file uploads*. Resumable
 > means that an upload can be interrupted at any moment and can be resumed without
@@ -98,7 +98,7 @@ implementation 'io.tus.java.client:tus-java-client:0.4.5'
 
 ## Documentation
 
-The documentation of the latest version (master branch of git repository) can be found online at [tus.github.io/tus-java-client/javadoc/](https://tus.github.io/tus-java-client/javadoc/).
+The documentation of the latest version (main branch of git repository) can be found online at [tus.github.io/tus-java-client/javadoc/](https://tus.github.io/tus-java-client/javadoc/).
 
 ## FAQ
 
