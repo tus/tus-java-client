@@ -118,6 +118,15 @@ public void prepareConnection(@NotNull HttpURLConnection connection) {
 }
 ```
 
+### Can I use a proxy that will be used for uploading files?
+
+Yes, just add a proxy to the TusClient as shown below (1 line added to the above [usage](#usage)):
+
+```java
+TusClient client = new TusClient();
+client.setProxy(myProxy);
+```
+
 ## License
 
 MIT

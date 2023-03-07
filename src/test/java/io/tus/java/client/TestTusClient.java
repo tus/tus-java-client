@@ -8,7 +8,10 @@ import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
+import java.net.Proxy;
+import java.net.Proxy.Type;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -80,6 +83,7 @@ public class TestTusClient extends MockServerProvider {
         mockServer.when(new HttpRequest()
                 .withMethod("POST")
                 .withPath("/files")
+                .withHeader("Connection", "keep-alive")
                 .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
                 .withHeader("Upload-Metadata", "foo aGVsbG8=,bar d29ybGQ=")
                 .withHeader("Upload-Length", "10"))
@@ -97,6 +101,40 @@ public class TestTusClient extends MockServerProvider {
         TusUpload upload = new TusUpload();
         upload.setSize(10);
         upload.setInputStream(new ByteArrayInputStream(new byte[10]));
+        upload.setMetadata(metadata);
+        TusUploader uploader = client.createUpload(upload);
+
+        assertEquals(uploader.getUploadURL(), new URL(mockServerURL + "/foo"));
+    }
+    /**
+     * Verifies if uploads can be created with the tus client through a proxy.
+     * @throws IOException if upload data cannot be read.
+     * @throws ProtocolException if the upload cannot be constructed.
+     */
+    @Test
+    public void testCreateUploadWithProxy() throws IOException, ProtocolException {
+        mockServer.when(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files")
+                .withHeader("Proxy-Connection", "keep-alive")
+                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                .withHeader("Upload-Metadata", "foo aGVsbG8=,bar d29ybGQ=")
+                .withHeader("Upload-Length", "11"))
+                .respond(new HttpResponse()
+                        .withStatusCode(201)
+                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                        .withHeader("Location", mockServerURL + "/foo"));
+
+        Map<String, String> metadata = new LinkedHashMap<String, String>();
+        metadata.put("foo", "hello");
+        metadata.put("bar", "world");
+
+        TusClient client = new TusClient();
+        client.setUploadCreationURL(mockServerURL);
+        client.setProxy(new Proxy(Type.HTTP, new InetSocketAddress("localhost", mockServer.getPort())));
+        TusUpload upload = new TusUpload();
+        upload.setSize(11);
+        upload.setInputStream(new ByteArrayInputStream(new byte[11]));
         upload.setMetadata(metadata);
         TusUploader uploader = client.createUpload(upload);
 
@@ -239,6 +277,7 @@ public class TestTusClient extends MockServerProvider {
         mockServer.when(new HttpRequest()
                 .withMethod("POST")
                 .withPath("/files")
+                .withHeader("Connection", "keep-alive")
                 .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
                 .withHeader("Upload-Length", "10"))
                 .respond(new HttpResponse()
@@ -256,6 +295,37 @@ public class TestTusClient extends MockServerProvider {
         assertEquals(uploader.getUploadURL(), new URL(mockServerURL + "/foo"));
     }
 
+    /**
+     * Tests if an upload gets started when {@link TusClient#resumeOrCreateUpload(TusUpload)} gets called with
+     * a proxy set.
+     * @throws IOException
+     * @throws ProtocolException
+     */
+    @Test
+    public void testResumeOrCreateUploadWithProxy() throws IOException, ProtocolException {
+        mockServer.when(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files")
+                .withHeader("Proxy-Connection", "keep-alive")
+                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                .withHeader("Upload-Length", "11"))
+                .respond(new HttpResponse()
+                        .withStatusCode(201)
+                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                        .withHeader("Location", mockServerURL + "/foo"));
+
+        TusClient client = new TusClient();
+        client.setUploadCreationURL(mockServerURL);
+        Proxy proxy = new Proxy(Type.HTTP, new InetSocketAddress("localhost", mockServer.getPort()));
+        client.setProxy(proxy);
+        TusUpload upload = new TusUpload();
+        upload.setSize(11);
+        upload.setInputStream(new ByteArrayInputStream(new byte[11]));
+        TusUploader uploader = client.resumeOrCreateUpload(upload);
+
+        assertEquals(proxy, client.getProxy());
+        assertEquals(uploader.getUploadURL(), new URL(mockServerURL + "/foo"));
+    }
 
     /**
      * Checks if a new upload attempt is started in case of a serverside 404-error, without having an Exception thrown.

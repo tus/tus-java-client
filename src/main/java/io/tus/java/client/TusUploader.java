@@ -3,6 +3,7 @@ package io.tus.java.client;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -21,6 +22,7 @@ import java.net.URLConnection;
  */
 public class TusUploader {
     private URL uploadURL;
+    private Proxy proxy;
     private TusInputStream input;
     private long offset;
     private TusClient client;
@@ -44,7 +46,7 @@ public class TusUploader {
      * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
      */
     public TusUploader(TusClient client, TusUpload upload, URL uploadURL, TusInputStream input, long offset)
-            throws IOException {
+        throws IOException {
         this.uploadURL = uploadURL;
         this.input = input;
         this.offset = offset;
@@ -65,7 +67,11 @@ public class TusUploader {
         bytesRemainingForRequest = requestPayloadSize;
         input.mark(requestPayloadSize);
 
-        connection = (HttpURLConnection) uploadURL.openConnection();
+        if (proxy != null) {
+            connection = (HttpURLConnection) uploadURL.openConnection(proxy);
+        } else {
+            connection = (HttpURLConnection) uploadURL.openConnection();
+        }
         client.prepareConnection(connection);
         connection.setRequestProperty("Upload-Offset", Long.toString(offset));
         connection.setRequestProperty("Content-Type", "application/offset+octet-stream");
@@ -266,6 +272,18 @@ public class TusUploader {
      */
     public URL getUploadURL() {
         return uploadURL;
+    }
+
+    public void setProxy(Proxy proxy) {
+        this.proxy = proxy;
+    }
+
+    /**
+     * This methods returns the proxy used with the upload.
+     * @return The {@link Proxy} used for the upload or null when not set.
+     */
+    public Proxy getProxy() {
+        return proxy;
     }
 
     /**
