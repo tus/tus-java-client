@@ -124,6 +124,7 @@ Yes, just add a proxy to the TusClient as shown below (1 line added to the above
 
 ```java
 TusClient client = new TusClient();
+Proxy myProxy = new Proxy(...);
 client.setProxy(myProxy);
 ```
 

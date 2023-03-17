@@ -274,12 +274,18 @@ public class TusUploader {
         return uploadURL;
     }
 
+    /**
+     * Set the proxy that will be used when uploading.
+     *
+     * @param proxy Proxy to use
+     */
     public void setProxy(Proxy proxy) {
         this.proxy = proxy;
     }
 
     /**
-     * This methods returns the proxy used with the upload.
+     * This methods returns the proxy used when uploading.
+     *
      * @return The {@link Proxy} used for the upload or null when not set.
      */
     public Proxy getProxy() {
