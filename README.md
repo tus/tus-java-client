@@ -78,7 +78,7 @@ executor.makeAttempts();
 
 ## Installation
 
-The JARs can be downloaded manually from our [Maven Central Repo](https://search.maven.org/artifact/io.tus.java.client/tus-java-client/). 
+The JARs can be downloaded manually from our [Maven Central Repo](https://central.sonatype.com/namespace/io.tus.java.client) 
 
 **Gradle:**
 
