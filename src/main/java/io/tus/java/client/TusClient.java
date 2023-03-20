@@ -1,5 +1,6 @@
 package io.tus.java.client;
 
+import java.net.Proxy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,6 +20,7 @@ public class TusClient {
     public static final String TUS_VERSION = "1.0.0";
 
     private URL uploadCreationURL;
+    private Proxy proxy;
     private boolean resumingEnabled;
     private boolean removeFingerprintOnSuccessEnabled;
     private TusURLStore urlStore;
@@ -50,6 +52,24 @@ public class TusClient {
      */
     public URL getUploadCreationURL() {
         return uploadCreationURL;
+    }
+
+    /**
+     * Set the proxy that will be used for all requests.
+     *
+     * @param proxy Proxy to use
+     */
+    public void setProxy(Proxy proxy) {
+        this.proxy = proxy;
+    }
+
+    /**
+     * Get the current proxy used for all requests.
+     *
+     * @return Current proxy
+     */
+    public Proxy getProxy() {
+        return proxy;
     }
 
     /**
@@ -174,7 +194,7 @@ public class TusClient {
      * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
      */
     public TusUploader createUpload(@NotNull TusUpload upload) throws ProtocolException, IOException {
-        HttpURLConnection connection = (HttpURLConnection) uploadCreationURL.openConnection();
+        HttpURLConnection connection = openConnection(uploadCreationURL);
         connection.setRequestMethod("POST");
         prepareConnection(connection);
 
@@ -206,7 +226,23 @@ public class TusClient {
             urlStore.set(upload.getFingerprint(), uploadURL);
         }
 
-        return new TusUploader(this, upload, uploadURL, upload.getTusInputStream(), 0);
+        return createUploader(upload, uploadURL, 0L);
+    }
+
+    @NotNull
+    private HttpURLConnection openConnection(@NotNull URL uploadURL) throws IOException {
+        if (proxy != null) {
+            return (HttpURLConnection) uploadURL.openConnection(proxy);
+        }
+        return (HttpURLConnection) uploadURL.openConnection();
+    }
+
+    @NotNull
+    private TusUploader createUploader(@NotNull TusUpload upload, @NotNull URL uploadURL, long offset)
+        throws IOException {
+        TusUploader uploader = new TusUploader(this, upload, uploadURL, upload.getTusInputStream(), offset);
+        uploader.setProxy(proxy);
+        return uploader;
     }
 
     /**
@@ -259,7 +295,7 @@ public class TusClient {
      */
     public TusUploader beginOrResumeUploadFromURL(@NotNull TusUpload upload, @NotNull URL uploadURL) throws
             ProtocolException, IOException {
-        HttpURLConnection connection = (HttpURLConnection) uploadURL.openConnection();
+        HttpURLConnection connection = openConnection(uploadURL);
         connection.setRequestMethod("HEAD");
         prepareConnection(connection);
 
@@ -277,7 +313,7 @@ public class TusClient {
         }
         long offset = Long.parseLong(offsetStr);
 
-        return new TusUploader(this, upload, uploadURL, upload.getTusInputStream(), offset);
+        return createUploader(upload, uploadURL, offset);
     }
 
     /**

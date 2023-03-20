@@ -11,7 +11,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
+import java.net.Proxy;
+import java.net.Proxy.Type;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
@@ -44,6 +47,7 @@ public class TestTusUploader extends MockServerProvider {
                 .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
                 .withHeader("Upload-Offset", "3")
                 .withHeader("Content-Type", "application/offset+octet-stream")
+                .withHeader("Connection", "keep-alive")
                 .withBody(Arrays.copyOfRange(content, 3, 11)))
                 .respond(new HttpResponse()
                         .withStatusCode(204)
@@ -67,6 +71,43 @@ public class TestTusUploader extends MockServerProvider {
         assertEquals(-1, uploader.uploadChunk());
         assertEquals(-1, uploader.uploadChunk(5));
         assertEquals(11, uploader.getOffset());
+        uploader.finish();
+    }
+
+    /**
+     * Tests if the {@link TusUploader} actually uploads files through a proxy.
+     * @throws IOException
+     * @throws ProtocolException
+     */
+    @Test
+    public void testTusUploaderWithProxy() throws IOException, ProtocolException {
+        byte[] content = "hello world with proxy".getBytes();
+
+        mockServer.when(new HttpRequest()
+                .withPath("/files/foo")
+                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                .withHeader("Upload-Offset", "0")
+                .withHeader("Content-Type", "application/offset+octet-stream")
+                .withHeader("Proxy-Connection", "keep-alive")
+                .withBody(Arrays.copyOf(content, content.length)))
+            .respond(new HttpResponse()
+                .withStatusCode(204)
+                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                .withHeader("Upload-Offset", "22"));
+
+        TusClient client = new TusClient();
+        URL uploadUrl = new URL(mockServerURL + "/foo");
+        Proxy proxy = new Proxy(Type.HTTP, new InetSocketAddress("localhost", mockServer.getPort()));
+        TusInputStream input = new TusInputStream(new ByteArrayInputStream(content));
+        long offset = 0;
+
+        TusUpload upload = new TusUpload();
+
+        TusUploader uploader = new TusUploader(client, upload, uploadUrl, input, offset);
+        uploader.setProxy(proxy);
+
+        assertEquals(proxy, uploader.getProxy());
+        assertEquals(22, uploader.uploadChunk());
         uploader.finish();
     }
 
