@@ -78,7 +78,7 @@ executor.makeAttempts();
 
 ## Installation
 
-The JARs can be downloaded manually from our [Maven Central Repo](https://central.sonatype.com/namespace/io.tus.java.client) 
+The JARs can be downloaded manually from our [Maven Central Repo](https://central.sonatype.com/namespace/io.tus.java.client).
 
 **Gradle:**
 
@@ -99,6 +99,8 @@ implementation 'io.tus.java.client:tus-java-client:0.5.0'
 ## Documentation
 
 The documentation of the latest version (main branch of git repository) can be found online at [tus.github.io/tus-java-client/javadoc/](https://tus.github.io/tus-java-client/javadoc/).
+
+The documentation of the latest versions can be found online at [javadoc.io](https://javadoc.io/doc/io.tus.java.client/tus-java-client).
 
 ## FAQ
 
