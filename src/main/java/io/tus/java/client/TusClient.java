@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
@@ -208,8 +209,7 @@ public class TusClient {
 
         int responseCode = connection.getResponseCode();
         if (!(responseCode >= 200 && responseCode < 300)) {
-            throw new ProtocolException(
-                    "unexpected status code (" + responseCode + ") while creating upload", connection);
+            throw ProtocolException.unexpectedStatusCode(connection, "creating upload");
         }
 
         String urlStr = connection.getHeaderField("Location");
@@ -303,8 +303,7 @@ public class TusClient {
 
         int responseCode = connection.getResponseCode();
         if (!(responseCode >= 200 && responseCode < 300)) {
-            throw new ProtocolException(
-                    "unexpected status code (" + responseCode + ") while resuming upload", connection);
+            throw ProtocolException.unexpectedStatusCode(connection, "resuming upload");
         }
 
         String offsetStr = connection.getHeaderField("Upload-Offset");

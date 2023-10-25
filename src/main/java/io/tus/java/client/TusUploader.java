@@ -337,11 +337,8 @@ public class TusUploader {
 
         if (connection != null) {
             int responseCode = connection.getResponseCode();
-            connection.disconnect();
-
             if (!(responseCode >= 200 && responseCode < 300)) {
-                throw new ProtocolException("unexpected status code (" + responseCode + ") while uploading chunk",
-                        connection);
+                throw ProtocolException.unexpectedStatusCode(connection, "uploading chunk");
             }
 
             // TODO detect changes and seek accordingly
@@ -358,6 +355,7 @@ public class TusUploader {
                         connection);
             }
 
+            connection.disconnect();
             connection = null;
         }
     }
