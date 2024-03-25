@@ -86,7 +86,9 @@ public class TusUploader {
         }
 
         connection.setDoOutput(true);
-        connection.setChunkedStreamingMode(0);
+        if (client.chunkedTransferEncodingEnabled()) {
+            connection.setChunkedStreamingMode(0);
+        }
         try {
             output = connection.getOutputStream();
         } catch (java.net.ProtocolException pe) {
@@ -185,7 +187,15 @@ public class TusUploader {
     public int uploadChunk() throws IOException, ProtocolException {
         openConnection();
 
-        int bytesToRead = Math.min(getChunkSize(), bytesRemainingForRequest);
+        final int bytesToRead;
+        if (client.chunkedTransferEncodingEnabled()) {
+            bytesToRead = Math.min(getChunkSize(), bytesRemainingForRequest);
+        } else {
+            // No chunked tranfer encoding, so we upload a single chunk.
+            bytesToRead = getChunkSize();
+            // The connection should be closed after single write.
+            bytesRemainingForRequest = 0;
+        }
 
         int bytesRead = input.read(buffer, bytesToRead);
         if (bytesRead == -1) {
