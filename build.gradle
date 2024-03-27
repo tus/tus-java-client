@@ -63,6 +63,11 @@ def pomConfig = {
             name 'Marius Kleidl'
             email 'maerious@gmail.com'
         }
+        developer {
+            id 'cdr-chakotay'
+            name 'Florian Kunezig'
+            email 'florian@transloadit.com'
+        }
     }
 
     inceptionYear '2015'
