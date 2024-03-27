@@ -65,7 +65,7 @@ def pomConfig = {
         }
         developer {
             id 'cdr-chakotay'
-            name 'Florian Kunezig'
+            name 'Florian Kuenzig'
             email 'florian@transloadit.com'
         }
     }
