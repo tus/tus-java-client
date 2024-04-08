@@ -30,12 +30,14 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:5.11.0'
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
+tasks.register('sourcesJar', Jar) {
+    dependsOn classes
     archiveClassifier.set('sources')
     from sourceSets.main.allSource
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
+tasks.register('javadocJar', Jar) {
+    dependsOn javadoc
     archiveClassifier.set('javadoc')
     from javadoc.destinationDir
 }
@@ -60,6 +62,11 @@ def pomConfig = {
             id 'acconut'
             name 'Marius Kleidl'
             email 'maerious@gmail.com'
+        }
+        developer {
+            id 'cdr-chakotay'
+            name 'Florian Kuenzig'
+            email 'florian@transloadit.com'
         }
     }
 

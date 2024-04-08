@@ -16,7 +16,7 @@ jobs:
     Java:
       strategy:
         matrix:
-         java: ['11','19']
+         java: ['17','21']
          
       runs-on: ubuntu-latest
 
