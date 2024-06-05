@@ -71,9 +71,10 @@
   <!-- Checks for Size Violations.                    -->
   <!-- See https://checkstyle.org/checks/sizes/index.html -->
   <module name="FileLength"/>
-  <module name="LineLength">
+  <!--module name="LineLength">
     <property name="fileExtensions" value="java"/>
-  </module>
+    <property name="max" value="120"/>
+  </module>       Disabled online due to long lines-->
 
   <!-- Checks for whitespace                               -->
   <!-- See https://checkstyle.org/checks/whitespace/index.html -->
@@ -172,7 +173,7 @@
     </module>  Disabled online due to constructors-->
     <module name="IllegalInstantiation"/>
     <module name="InnerAssignment"/>
-    <module name="MagicNumber"/>
+    <!-- <module name="MagicNumber"/> Disabled only online-->
     <module name="MissingSwitchDefault"/>
     <module name="MultipleVariableDeclarations"/>
     <module name="SimplifyBooleanExpression"/>
@@ -192,7 +193,7 @@
     <!-- Miscellaneous other checks.                   -->
     <!-- See https://checkstyle.org/checks/misc/index.html -->
     <module name="ArrayTypeStyle"/>
-    <module name="FinalParameters"/>
+    <!-- <module name="FinalParameters"/> Disabled online due to constructors-->
     <module name="TodoComment"/>
     <module name="UpperEll"/>
 

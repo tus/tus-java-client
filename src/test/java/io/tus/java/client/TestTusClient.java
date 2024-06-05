@@ -249,7 +249,7 @@ public class TestTusClient extends MockServerProvider {
     /**
      * Test Implementation for a {@link TusURLStore}.
      */
-    private class TestResumeUploadStore implements TusURLStore {
+    private final class TestResumeUploadStore implements TusURLStore {
         public void set(String fingerprint, URL url) {
             fail("set method must not be called");
         }
