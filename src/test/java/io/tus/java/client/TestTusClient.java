@@ -1,10 +1,5 @@
 package io.tus.java.client;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -21,6 +16,12 @@ import org.junit.Test;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 /**
  * Class to test the tus-Client.
  */
@@ -32,7 +33,7 @@ public class TestTusClient extends MockServerProvider {
     @Test
     public void testTusClient() {
         TusClient client = new TusClient();
-        assertEquals(client.getUploadCreationURL(), null);
+        assertNull(client.getUploadCreationURL());
     }
 
     /**
@@ -63,14 +64,14 @@ public class TestTusClient extends MockServerProvider {
     @Test
     public void testEnableResuming() {
         TusClient client = new TusClient();
-        assertEquals(client.resumingEnabled(), false);
+        assertFalse(client.resumingEnabled());
 
         TusURLStore store = new TusURLMemoryStore();
         client.enableResuming(store);
-        assertEquals(client.resumingEnabled(), true);
+        assertTrue(client.resumingEnabled());
 
         client.disableResuming();
-        assertEquals(client.resumingEnabled(), false);
+        assertFalse(client.resumingEnabled());
     }
 
     /**
@@ -248,9 +249,9 @@ public class TestTusClient extends MockServerProvider {
     /**
      * Test Implementation for a {@link TusURLStore}.
      */
-    private class TestResumeUploadStore implements TusURLStore {
+    private final class TestResumeUploadStore implements TusURLStore {
         public void set(String fingerprint, URL url) {
-            assertTrue("set method must not be called", false);
+            fail("set method must not be called");
         }
 
         public URL get(String fingerprint) {
@@ -258,12 +259,12 @@ public class TestTusClient extends MockServerProvider {
 
             try {
                 return new URL(mockServerURL.toString() + "/foo");
-            } catch (Exception e) { }
+            } catch (Exception ignored) { }
             return null;
         }
 
         public void remove(String fingerprint) {
-            assertTrue("remove method must not be called", false);
+            fail("remove method must not be called");
         }
     }
 
@@ -513,14 +514,14 @@ public class TestTusClient extends MockServerProvider {
         store.set("fingerprint", dummyURL);
         client.enableResuming(store);
 
-        assertTrue(!client.removeFingerprintOnSuccessEnabled());
+        assertFalse(client.removeFingerprintOnSuccessEnabled());
 
         TusUpload upload = new TusUpload();
         upload.setFingerprint("fingerprint");
 
         client.uploadFinished(upload);
 
-        assertTrue(dummyURL.equals(store.get("fingerprint")));
+        assertEquals(dummyURL, store.get("fingerprint"));
 
     }
 
@@ -548,7 +549,7 @@ public class TestTusClient extends MockServerProvider {
 
         client.uploadFinished(upload);
 
-        assertTrue(store.get("fingerprint") == null);
+        assertNull(store.get("fingerprint"));
 
     }
 }
