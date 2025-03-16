@@ -16,8 +16,8 @@ allprojects {
 
 // We compile the library using Java 1.7 compatibility
 // in order to ensure interoperability with older Android platforms.
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 1.9
+targetCompatibility = 1.9
 
 // load version number from file
 def config = new ConfigSlurper().parse(new File("${projectDir}/src/main/resources/tus-java-client-version/version.properties").toURI().toURL())
