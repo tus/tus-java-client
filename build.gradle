@@ -112,6 +112,10 @@ nexusPublishing {
             username = System.getenv("SONATYPE_USER")
             password = System.getenv("SONATYPE_KEY")
             stagingProfileId = System.getenv('SONATYPE_STAGING_PROFILE')
+
+            // See https://central.sonatype.org/publish/publish-portal-ossrh-staging-api/#configuration
+            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
         }
     }
 }
