@@ -23,6 +23,7 @@ public class TusClient {
     private Proxy proxy;
     private boolean resumingEnabled;
     private boolean removeFingerprintOnSuccessEnabled;
+    private boolean chunkedTransferEncodingEnabled = true;
     private TusURLStore urlStore;
     private Map<String, String> headers;
     private int connectTimeout = 5000;
@@ -133,6 +134,39 @@ public class TusClient {
      */
     public boolean removeFingerprintOnSuccessEnabled() {
         return removeFingerprintOnSuccessEnabled;
+    }
+
+    /**
+     * Enable chunked transfer encoding.
+     *
+     * @see https://en.wikipedia.org/wiki/Chunked_transfer_encoding
+     * @see #disableChunkedTransferEncoding()
+     */
+    public void enableChunkedTransferEncoding() {
+        chunkedTransferEncodingEnabled = true;
+    }
+
+    /**
+     * Disable chunked transfer encoding.
+     *
+     * @see https://en.wikipedia.org/wiki/Chunked_transfer_encoding
+     * @see #enableChunkedTransferEncoding()
+     */
+    public void disableChunkedTransferEncoding() {
+        chunkedTransferEncodingEnabled = false;
+    }
+
+    /**
+     * Get the current status of chunked transfer encoding.
+     *
+     * @see https://en.wikipedia.org/wiki/Chunked_transfer_encoding
+     * @see #enableChunkedTransferEncoding()
+     * @see #disableChunkedTransferEncoding()
+     *
+     * @return True if chunked transfer encoding has been enabled.
+     */
+    public boolean chunkedTransferEncodingEnabled() {
+        return chunkedTransferEncodingEnabled;
     }
 
 
