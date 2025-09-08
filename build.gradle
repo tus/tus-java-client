@@ -24,7 +24,7 @@ def config = new ConfigSlurper().parse(new File("${projectDir}/src/main/resource
 version = config.versionNumber
 
 dependencies {
-    implementation 'org.jetbrains:annotations:26.0.2'
+    implementation 'org.jetbrains:annotations:26.0.2-1'
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mock-server:mockserver-junit-rule:5.15.0'
     testImplementation 'org.mockito:mockito-core:5.18.0'
