@@ -17,7 +17,7 @@ public class TusClient {
      * Version of the tus protocol used by the client. The remote server needs to support this
      * version, too.
      */
-    public static final String TUS_VERSION = "1.0.0";
+    public static final String TUS_VERSION = TusProtocol.DEFAULT_PROTOCOL_VERSION;
 
     private URL uploadCreationURL;
     private Proxy proxy;
