@@ -43,11 +43,17 @@ public class TestGeneratedTusProtocolContract {
 
         assertEquals("POST", operation.method);
         assertEquals("/resumable/files/", operation.path);
-        assertEquals(2, operation.request.headerVariants.length);
-        assertTrue(hasRequiredHeader(operation.request.headerVariants[0], "tus-resumable"));
-        assertTrue(hasRequiredHeader(operation.request.headerVariants[0], "upload-length"));
-        assertTrue(hasRequiredHeader(operation.request.headerVariants[1], "tus-resumable"));
-        assertTrue(hasRequiredHeader(operation.request.headerVariants[1], "upload-defer-length"));
+        assertRequiredHeaderVariant(
+                operation.request.headerVariants, "tus-resumable", "upload-length");
+        assertRequiredHeaderVariant(
+                operation.request.headerVariants, "tus-resumable", "upload-defer-length");
+        assertRequiredHeaderVariant(
+                operation.request.headerVariants,
+                "tus-resumable",
+                "upload-concat",
+                "upload-length");
+        assertRequiredHeaderVariant(
+                operation.request.headerVariants, "tus-resumable", "upload-concat");
     }
 
     /**
@@ -101,6 +107,26 @@ public class TestGeneratedTusProtocolContract {
         }
 
         return false;
+    }
+
+    private static void assertRequiredHeaderVariant(
+            GeneratedTusProtocolContract.GeneratedTusHeaderVariant[] variants,
+            String... headerNames) {
+        for (GeneratedTusProtocolContract.GeneratedTusHeaderVariant variant : variants) {
+            boolean hasAllHeaders = true;
+            for (String headerName : headerNames) {
+                if (!hasRequiredHeader(variant, headerName)) {
+                    hasAllHeaders = false;
+                    break;
+                }
+            }
+
+            if (hasAllHeaders) {
+                return;
+            }
+        }
+
+        throw new AssertionError("Missing generated header variant");
     }
 
     private static void assertContains(String[] values, String expected) {

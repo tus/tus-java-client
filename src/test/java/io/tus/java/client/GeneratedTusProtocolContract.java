@@ -108,6 +108,49 @@ final class GeneratedTusProtocolContract {
                                 ),
                             }
                         ),
+                        new GeneratedTusHeaderVariant(
+                                new GeneratedTusHeaderField[] {
+                                new GeneratedTusHeaderField(
+                                        "Tus-Resumable",
+                                        "tus-resumable",
+                                        true
+                                ),
+                                new GeneratedTusHeaderField(
+                                        "Upload-Concat",
+                                        "upload-concat",
+                                        true
+                                ),
+                                new GeneratedTusHeaderField(
+                                        "Upload-Length",
+                                        "upload-length",
+                                        true
+                                ),
+                                new GeneratedTusHeaderField(
+                                        "Upload-Metadata",
+                                        "upload-metadata",
+                                        false
+                                ),
+                            }
+                        ),
+                        new GeneratedTusHeaderVariant(
+                                new GeneratedTusHeaderField[] {
+                                new GeneratedTusHeaderField(
+                                        "Tus-Resumable",
+                                        "tus-resumable",
+                                        true
+                                ),
+                                new GeneratedTusHeaderField(
+                                        "Upload-Concat",
+                                        "upload-concat",
+                                        true
+                                ),
+                                new GeneratedTusHeaderField(
+                                        "Upload-Metadata",
+                                        "upload-metadata",
+                                        false
+                                ),
+                            }
+                        ),
                     }
                 ),
                 new GeneratedTusResponseContract[] {
@@ -329,11 +372,78 @@ final class GeneratedTusProtocolContract {
             }
         ),
         new GeneratedTusClientFeature(
+                "resumeUpload",
+                new String[] {
+                "getTusUploadOffset",
+                "patchTusUpload",
+            },
+                new String[] {
+                "fingerprint-input",
+                "resume-from-previous-upload",
+                "store-resume-url",
+            }
+        ),
+        new GeneratedTusClientFeature(
+                "deferredLengthUpload",
+                new String[] {
+                "createTusUpload",
+                "patchTusUpload",
+            },
+                new String[] {
+                "defer-upload-length",
+                "emit-progress",
+            }
+        ),
+        new GeneratedTusClientFeature(
+                "creationWithUpload",
+                new String[] {
+                "createTusUpload",
+            },
+                new String[] {
+                "upload-during-creation",
+                "emit-progress",
+            }
+        ),
+        new GeneratedTusClientFeature(
+                "overridePatchMethod",
+                new String[] {
+                "getTusUploadOffset",
+                "patchTusUpload",
+            },
+                new String[] {
+                "override-patch-method",
+            }
+        ),
+        new GeneratedTusClientFeature(
+                "parallelUploadConcat",
+                new String[] {
+                "createTusUpload",
+                "patchTusUpload",
+            },
+                new String[] {
+                "concatenate-partial-uploads",
+                "emit-progress",
+            }
+        ),
+        new GeneratedTusClientFeature(
+                "retryOffsetRecovery",
+                new String[] {
+                "createTusUpload",
+                "getTusUploadOffset",
+                "patchTusUpload",
+            },
+                new String[] {
+                "retry-with-backoff",
+                "recover-offset-after-error",
+            }
+        ),
+        new GeneratedTusClientFeature(
                 "terminateUpload",
                 new String[] {
                 "terminateTusUpload",
             },
                 new String[] {
+                "terminate-upload",
                 "retry-with-backoff",
             }
         ),
