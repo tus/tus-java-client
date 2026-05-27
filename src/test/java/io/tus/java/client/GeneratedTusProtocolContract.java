@@ -520,6 +520,39 @@ final class GeneratedTusProtocolContract {
         new GeneratedTusClientFeature(
                 new GeneratedTusClientFeatureConformance(
                         new String[] {
+                        "uploadBodyHeaders",
+                    },
+                        "covered-by-generated-scenario"
+                ),
+                "Send protocol-specific upload body headers whenever the client transmits file bytes.",
+                "uploadBodyHeaders",
+                new GeneratedTusClientFeatureFlowStep[] {
+                new GeneratedTusClientFeatureFlowStep(
+                        "primitive",
+                        "",
+                        "send-upload-body-headers",
+                        "",
+                        "Attach the protocol-specific upload body content type when a request has bytes."
+                ),
+                new GeneratedTusClientFeatureFlowStep(
+                        "operation",
+                        "patchTusUpload",
+                        "",
+                        "",
+                        "Upload bytes with the protocol-specific body headers."
+                ),
+            },
+                new String[] {
+                "createTusUpload",
+                "patchTusUpload",
+            },
+                new String[] {
+                "send-upload-body-headers",
+            }
+        ),
+        new GeneratedTusClientFeature(
+                new GeneratedTusClientFeatureConformance(
+                        new String[] {
                         "overridePatchMethod",
                     },
                         "covered-by-generated-scenario"
