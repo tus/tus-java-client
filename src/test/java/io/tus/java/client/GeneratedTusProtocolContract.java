@@ -730,8 +730,12 @@ final class GeneratedTusProtocolContract {
         ),
         new GeneratedTusClientFeature(
                 new GeneratedTusClientFeatureConformance(
-                        new String[0],
-                        "needs-generated-scenario"
+                        new String[] {
+                        "singleUploadLifecycle",
+                        "creationWithUpload",
+                        "resumeFromPreviousUpload",
+                    },
+                        "covered-by-generated-scenario"
                 ),
                 "Expose progress and accepted-chunk callbacks from runtime upload activity.",
                 "uploadCallbacks",
