@@ -771,8 +771,11 @@ final class GeneratedTusProtocolContract {
         ),
         new GeneratedTusClientFeature(
                 new GeneratedTusClientFeatureConformance(
-                        new String[0],
-                        "needs-generated-scenario"
+                        new String[] {
+                        "requestLifecycleHooks",
+                        "retryPatchAfterOffsetRecovery",
+                    },
+                        "covered-by-generated-scenario"
                 ),
                 "Run before-request, after-response, and custom retry hooks around transport.",
                 "requestLifecycleHooks",
