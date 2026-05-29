@@ -1016,8 +1016,18 @@ final class GeneratedTusProtocolContract {
         ),
         new GeneratedTusClientFeature(
                 new GeneratedTusClientFeatureConformance(
-                        new String[0],
-                        "needs-generated-scenario"
+                        new String[] {
+                        "startValidationMissingInput",
+                        "startValidationMissingEndpointOrUploadUrl",
+                        "startValidationUnsupportedProtocol",
+                        "startValidationRetryDelaysNotArray",
+                        "startValidationParallelUploadsWithUploadUrl",
+                        "startValidationParallelUploadsWithUploadSize",
+                        "startValidationParallelUploadsWithDeferredLength",
+                        "startValidationParallelBoundariesWithoutParallelUploads",
+                        "startValidationParallelBoundariesLengthMismatch",
+                    },
+                        "covered-by-generated-scenario"
                 ),
                 "Validate option combinations before starting runtime work.",
                 "startOptionValidation",
