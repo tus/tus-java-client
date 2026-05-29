@@ -845,8 +845,14 @@ final class GeneratedTusProtocolContract {
         ),
         new GeneratedTusClientFeature(
                 new GeneratedTusClientFeatureConformance(
-                        new String[0],
-                        "needs-generated-scenario"
+                        new String[] {
+                        "arrayBufferInput",
+                        "arrayBufferViewInput",
+                        "webReadableStreamInput",
+                        "nodeReadableStreamInput",
+                        "nodePathInput",
+                    },
+                        "covered-by-generated-scenario"
                 ),
                 "Support the reference client input/source families across runtimes.",
                 "inputSources",
