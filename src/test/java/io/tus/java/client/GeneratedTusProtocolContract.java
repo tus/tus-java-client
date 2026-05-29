@@ -805,8 +805,11 @@ final class GeneratedTusProtocolContract {
         ),
         new GeneratedTusClientFeature(
                 new GeneratedTusClientFeatureConformance(
-                        new String[0],
-                        "needs-generated-scenario"
+                        new String[] {
+                        "singleUploadLifecycle",
+                        "resumeFromPreviousUpload",
+                    },
+                        "covered-by-generated-scenario"
                 ),
                 "Persist, find, resume, and optionally remove upload URLs by fingerprint.",
                 "resumeUrlStorage",
