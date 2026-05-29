@@ -677,6 +677,41 @@ final class GeneratedTusProtocolContract {
         new GeneratedTusClientFeature(
                 new GeneratedTusClientFeatureConformance(
                         new String[] {
+                        "retryPatchAfterOffsetRecovery",
+                    },
+                        "covered-by-generated-scenario"
+                ),
+                "Schedule retry timers and reset retry attempts after accepted progress.",
+                "retryStateTransitions",
+                new GeneratedTusClientFeatureFlowStep[] {
+                new GeneratedTusClientFeatureFlowStep(
+                        "primitive",
+                        "",
+                        "schedule-retry-timer",
+                        "",
+                        "Consume the current retry delay and restart the upload after that timer fires."
+                ),
+                new GeneratedTusClientFeatureFlowStep(
+                        "primitive",
+                        "",
+                        "reset-retry-attempt-after-progress",
+                        "",
+                        "Reset retry attempts once a later retry observes server-side offset progress."
+                ),
+            },
+                new String[] {
+                "getTusUploadOffset",
+                "patchTusUpload",
+            },
+                new String[] {
+                "retry-with-backoff",
+                "schedule-retry-timer",
+                "reset-retry-attempt-after-progress",
+            }
+        ),
+        new GeneratedTusClientFeature(
+                new GeneratedTusClientFeatureConformance(
+                        new String[] {
                         "terminateWithRetry",
                     },
                         "covered-by-generated-scenario"
