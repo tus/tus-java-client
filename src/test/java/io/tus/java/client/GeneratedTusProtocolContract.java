@@ -1047,8 +1047,11 @@ final class GeneratedTusProtocolContract {
         ),
         new GeneratedTusClientFeature(
                 new GeneratedTusClientFeatureConformance(
-                        new String[0],
-                        "needs-generated-scenario"
+                        new String[] {
+                        "detailedCreateResponseError",
+                        "detailedCreateRequestError",
+                    },
+                        "covered-by-generated-scenario"
                 ),
                 "Attach request, response, status, body, and request ID context to errors.",
                 "detailedErrors",
