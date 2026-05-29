@@ -709,8 +709,10 @@ final class GeneratedTusProtocolContract {
         ),
         new GeneratedTusClientFeature(
                 new GeneratedTusClientFeatureConformance(
-                        new String[0],
-                        "needs-generated-scenario"
+                        new String[] {
+                        "abortUpload",
+                    },
+                        "covered-by-generated-scenario"
                 ),
                 "Abort the active request, pending retry timer, and any partial uploads.",
                 "abortUpload",
