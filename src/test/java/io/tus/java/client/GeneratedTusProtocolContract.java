@@ -931,8 +931,11 @@ final class GeneratedTusProtocolContract {
         ),
         new GeneratedTusClientFeature(
                 new GeneratedTusClientFeatureConformance(
-                        new String[0],
-                        "needs-generated-scenario"
+                        new String[] {
+                        "webStorageUrlStorageBackend",
+                        "fileUrlStorageBackend",
+                    },
+                        "covered-by-generated-scenario"
                 ),
                 "Support browser and file-backed URL storage implementations.",
                 "urlStorageBackends",
