@@ -963,8 +963,11 @@ final class GeneratedTusProtocolContract {
         ),
         new GeneratedTusClientFeature(
                 new GeneratedTusClientFeatureConformance(
-                        new String[0],
-                        "needs-generated-scenario"
+                        new String[] {
+                        "ietfDraft05CreationWithUpload",
+                        "ietfDraft03ResumeWithoutKnownLength",
+                    },
+                        "covered-by-generated-scenario"
                 ),
                 "Select between tus v1 and supported IETF draft client protocol modes.",
                 "protocolVersionSelection",
