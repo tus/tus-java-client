@@ -944,8 +944,10 @@ final class GeneratedTusProtocolContract {
         ),
         new GeneratedTusClientFeature(
                 new GeneratedTusClientFeatureConformance(
-                        new String[0],
-                        "needs-generated-scenario"
+                        new String[] {
+                        "relativeLocationResolution",
+                    },
+                        "covered-by-generated-scenario"
                 ),
                 "Normalize relative Location headers against the request endpoint.",
                 "relativeLocationResolution",
