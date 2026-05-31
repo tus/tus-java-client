@@ -37,7 +37,6 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                         false,
                         11,
                         null,
-                        false,
                         new GeneratedTusRuntimeEventMetadata[] {
                         new GeneratedTusRuntimeEventMetadata(
                                 "filename",
@@ -83,8 +82,10 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                         "stored",
                         false,
                         6,
-                        "contract-resume-fingerprint",
-                        true,
+                        new GeneratedTusRuntimeEventStoredUpload(
+                                "contract-resume-fingerprint",
+                                true
+                        ),
                         new GeneratedTusRuntimeEventMetadata[0]
                 ),
                 new GeneratedTusRuntimeEventRequest[] {
@@ -130,7 +131,6 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                         true,
                         11,
                         null,
-                        false,
                         new GeneratedTusRuntimeEventMetadata[] {
                         new GeneratedTusRuntimeEventMetadata(
                                 "filename",
@@ -185,7 +185,9 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
             if (urlStore != null) {
                 client.enableResuming(urlStore);
             }
-            if (testCase.input.removeFingerprintOnSuccess) {
+            if (
+                    testCase.input.storedUpload != null
+                    && testCase.input.storedUpload.removeFingerprintOnSuccess) {
                 client.enableRemoveFingerprintOnSuccess();
             }
 
@@ -207,6 +209,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
             });
 
             while (uploader.uploadChunk() > -1) {
+                continue;
             }
             uploader.finish();
 
@@ -220,7 +223,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
 
     private TusUploader uploaderFor(TusClient client, GeneratedTusRuntimeEventCase testCase)
             throws Exception {
-        if (testCase.input.fingerprint != null) {
+        if (testCase.input.storedUpload != null) {
             return client.resumeUpload(uploadFor(testCase));
         }
 
@@ -233,8 +236,8 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         upload.setSize(content.length);
         upload.setInputStream(new ByteArrayInputStream(content));
         upload.setMetadata(metadataFor(testCase.input.metadata));
-        if (testCase.input.fingerprint != null) {
-            upload.setFingerprint(testCase.input.fingerprint);
+        if (testCase.input.storedUpload != null) {
+            upload.setFingerprint(testCase.input.storedUpload.fingerprint);
         }
         return upload;
     }
@@ -307,12 +310,12 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
 
     private GeneratedTusRuntimeEventUrlStore urlStoreFor(
             GeneratedTusRuntimeEventCase testCase) throws Exception {
-        if (testCase.input.fingerprint == null) {
+        if (testCase.input.storedUpload == null) {
             return null;
         }
 
         GeneratedTusRuntimeEventUrlStore store = new GeneratedTusRuntimeEventUrlStore();
-        store.set(testCase.input.fingerprint, uploadUrlFor(testCase));
+        store.set(testCase.input.storedUpload.fingerprint, uploadUrlFor(testCase));
         return store;
     }
 
@@ -323,8 +326,8 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
             return;
         }
 
-        URL storedUrl = urlStore.get(testCase.input.fingerprint);
-        if (testCase.input.removeFingerprintOnSuccess) {
+        URL storedUrl = urlStore.get(testCase.input.storedUpload.fingerprint);
+        if (testCase.input.storedUpload.removeFingerprintOnSuccess) {
             assertNull(testCase.scenarioId, storedUrl);
             return;
         }
@@ -364,8 +367,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         final String locationHeaderKind;
         final boolean endpointHasTrailingSlash;
         final int chunkSize;
-        final String fingerprint;
-        final boolean removeFingerprintOnSuccess;
+        final GeneratedTusRuntimeEventStoredUpload storedUpload;
         final GeneratedTusRuntimeEventMetadata[] metadata;
 
         GeneratedTusRuntimeEventInput(
@@ -374,17 +376,27 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                 String locationHeaderKind,
                 boolean endpointHasTrailingSlash,
                 int chunkSize,
-                String fingerprint,
-                boolean removeFingerprintOnSuccess,
+                GeneratedTusRuntimeEventStoredUpload storedUpload,
                 GeneratedTusRuntimeEventMetadata[] metadata) {
             this.content = content;
             this.uploadPath = uploadPath;
             this.locationHeaderKind = locationHeaderKind;
             this.endpointHasTrailingSlash = endpointHasTrailingSlash;
             this.chunkSize = chunkSize;
+            this.storedUpload = storedUpload;
+            this.metadata = metadata;
+        }
+    }
+
+    private static final class GeneratedTusRuntimeEventStoredUpload {
+        final String fingerprint;
+        final boolean removeFingerprintOnSuccess;
+
+        GeneratedTusRuntimeEventStoredUpload(
+                String fingerprint,
+                boolean removeFingerprintOnSuccess) {
             this.fingerprint = fingerprint;
             this.removeFingerprintOnSuccess = removeFingerprintOnSuccess;
-            this.metadata = metadata;
         }
     }
 
