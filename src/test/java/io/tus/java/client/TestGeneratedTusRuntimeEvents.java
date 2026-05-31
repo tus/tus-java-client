@@ -19,6 +19,8 @@ import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Tests generated TUS client runtime event fixtures against the real uploader.
@@ -34,6 +36,8 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                         "absolute",
                         false,
                         11,
+                        null,
+                        false,
                         new GeneratedTusRuntimeEventMetadata[] {
                         new GeneratedTusRuntimeEventMetadata(
                                 "filename",
@@ -72,6 +76,52 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
             }
         ),
         new GeneratedTusRuntimeEventCase(
+                "resumeFromPreviousUpload",
+                new GeneratedTusRuntimeEventInput(
+                        "hello world",
+                        "resume-contract",
+                        "stored",
+                        false,
+                        6,
+                        "contract-resume-fingerprint",
+                        true,
+                        new GeneratedTusRuntimeEventMetadata[0]
+                ),
+                new GeneratedTusRuntimeEventRequest[] {
+                        new GeneratedTusRuntimeEventRequest(
+                                "HEAD",
+                                "upload",
+                                200,
+                                new GeneratedTusRuntimeEventHeader[] {
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Length",
+                                        "11"
+                                ),
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Offset",
+                                        "5"
+                                ),
+                            }
+                        ),
+                        new GeneratedTusRuntimeEventRequest(
+                                "PATCH",
+                                "upload",
+                                204,
+                                new GeneratedTusRuntimeEventHeader[] {
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Offset",
+                                        "11"
+                                ),
+                            }
+                        ),
+                },
+                new String[] {
+                "progress:5:11",
+                "progress:11:11",
+                "chunk-complete:6:11:11",
+            }
+        ),
+        new GeneratedTusRuntimeEventCase(
                 "relativeLocationResolution",
                 new GeneratedTusRuntimeEventInput(
                         "hello world",
@@ -79,6 +129,8 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                         "relative",
                         true,
                         11,
+                        null,
+                        false,
                         new GeneratedTusRuntimeEventMetadata[] {
                         new GeneratedTusRuntimeEventMetadata(
                                 "filename",
@@ -129,10 +181,17 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
             final List<String> events = new ArrayList<String>();
             TusClient client = new TusClient();
             client.setUploadCreationURL(endpointUrlFor(testCase));
+            GeneratedTusRuntimeEventUrlStore urlStore = urlStoreFor(testCase);
+            if (urlStore != null) {
+                client.enableResuming(urlStore);
+            }
+            if (testCase.input.removeFingerprintOnSuccess) {
+                client.enableRemoveFingerprintOnSuccess();
+            }
 
             registerResponses(testCase);
 
-            TusUploader uploader = client.createUpload(uploadFor(testCase));
+            TusUploader uploader = uploaderFor(client, testCase);
             uploader.setChunkSize(testCase.input.chunkSize);
             uploader.setProgressListener(new TusUploader.ProgressListener() {
                 @Override
@@ -155,7 +214,17 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                     testCase.scenarioId,
                     testCase.eventKeys,
                     events.toArray(new String[events.size()]));
+            assertStoredUploadState(testCase, urlStore);
         }
+    }
+
+    private TusUploader uploaderFor(TusClient client, GeneratedTusRuntimeEventCase testCase)
+            throws Exception {
+        if (testCase.input.fingerprint != null) {
+            return client.resumeUpload(uploadFor(testCase));
+        }
+
+        return client.createUpload(uploadFor(testCase));
     }
 
     private TusUpload uploadFor(GeneratedTusRuntimeEventCase testCase) {
@@ -164,6 +233,9 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         upload.setSize(content.length);
         upload.setInputStream(new ByteArrayInputStream(content));
         upload.setMetadata(metadataFor(testCase.input.metadata));
+        if (testCase.input.fingerprint != null) {
+            upload.setFingerprint(testCase.input.fingerprint);
+        }
         return upload;
     }
 
@@ -179,7 +251,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         for (GeneratedTusRuntimeEventRequest request : testCase.requests) {
             HttpRequest httpRequest = new HttpRequest()
                     .withPath(pathFor(testCase, request));
-            if (!"upload".equals(request.url)) {
+            if (!"upload".equals(request.url) || "HEAD".equals(request.method)) {
                 httpRequest.withMethod(request.method);
             }
 
@@ -233,6 +305,41 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         return mockServerURL;
     }
 
+    private GeneratedTusRuntimeEventUrlStore urlStoreFor(
+            GeneratedTusRuntimeEventCase testCase) throws Exception {
+        if (testCase.input.fingerprint == null) {
+            return null;
+        }
+
+        GeneratedTusRuntimeEventUrlStore store = new GeneratedTusRuntimeEventUrlStore();
+        store.set(testCase.input.fingerprint, uploadUrlFor(testCase));
+        return store;
+    }
+
+    private void assertStoredUploadState(
+            GeneratedTusRuntimeEventCase testCase,
+            GeneratedTusRuntimeEventUrlStore urlStore) {
+        if (urlStore == null) {
+            return;
+        }
+
+        URL storedUrl = urlStore.get(testCase.input.fingerprint);
+        if (testCase.input.removeFingerprintOnSuccess) {
+            assertNull(testCase.scenarioId, storedUrl);
+            return;
+        }
+
+        assertEquals(testCase.scenarioId, uploadUrlForUnchecked(testCase), storedUrl);
+    }
+
+    private URL uploadUrlForUnchecked(GeneratedTusRuntimeEventCase testCase) {
+        try {
+            return uploadUrlFor(testCase);
+        } catch (Exception error) {
+            throw new AssertionError(error);
+        }
+    }
+
     private static final class GeneratedTusRuntimeEventCase {
         final String scenarioId;
         final GeneratedTusRuntimeEventInput input;
@@ -257,6 +364,8 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         final String locationHeaderKind;
         final boolean endpointHasTrailingSlash;
         final int chunkSize;
+        final String fingerprint;
+        final boolean removeFingerprintOnSuccess;
         final GeneratedTusRuntimeEventMetadata[] metadata;
 
         GeneratedTusRuntimeEventInput(
@@ -265,12 +374,16 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                 String locationHeaderKind,
                 boolean endpointHasTrailingSlash,
                 int chunkSize,
+                String fingerprint,
+                boolean removeFingerprintOnSuccess,
                 GeneratedTusRuntimeEventMetadata[] metadata) {
             this.content = content;
             this.uploadPath = uploadPath;
             this.locationHeaderKind = locationHeaderKind;
             this.endpointHasTrailingSlash = endpointHasTrailingSlash;
             this.chunkSize = chunkSize;
+            this.fingerprint = fingerprint;
+            this.removeFingerprintOnSuccess = removeFingerprintOnSuccess;
             this.metadata = metadata;
         }
     }
@@ -310,6 +423,25 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         GeneratedTusRuntimeEventMetadata(String name, String value) {
             this.name = name;
             this.value = value;
+        }
+    }
+
+    private static final class GeneratedTusRuntimeEventUrlStore implements TusURLStore {
+        private final Map<String, URL> values = new LinkedHashMap<String, URL>();
+
+        @Override
+        public URL get(String fingerprint) {
+            return values.get(fingerprint);
+        }
+
+        @Override
+        public void set(String fingerprint, URL url) {
+            values.put(fingerprint, url);
+        }
+
+        @Override
+        public void remove(String fingerprint) {
+            values.remove(fingerprint);
         }
     }
 }
