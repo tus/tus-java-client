@@ -21,6 +21,7 @@ public class TusUpload {
     private TusInputStream tusInputStream;
     private String fingerprint;
     private Map<String, String> metadata;
+    private boolean uploadLengthDeferred;
 
     /**
      * Create a new TusUpload object.
@@ -60,6 +61,26 @@ public class TusUpload {
      */
     public void setSize(long size) {
         this.size = size;
+    }
+
+    /**
+     * Returns whether upload creation should defer declaring the upload length.
+     * @return True if the Upload-Defer-Length creation header should be used.
+     */
+    public boolean isUploadLengthDeferred() {
+        return uploadLengthDeferred;
+    }
+
+    /**
+     * Set whether upload creation should defer declaring the upload length.
+     *
+     * When enabled, the upload is created with Upload-Defer-Length and the uploader declares
+     * Upload-Length on the first PATCH request.
+     *
+     * @param uploadLengthDeferred True to use deferred upload length creation.
+     */
+    public void setUploadLengthDeferred(boolean uploadLengthDeferred) {
+        this.uploadLengthDeferred = uploadLengthDeferred;
     }
 
     /**

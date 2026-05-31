@@ -670,6 +670,7 @@ final class GeneratedTusProtocolContract {
                 "patchTusUpload",
             },
                 new String[] {
+                "abort-current-request",
                 "concatenate-partial-uploads",
                 "emit-progress",
                 "split-parallel-upload-boundaries",

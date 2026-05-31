@@ -107,6 +107,40 @@ public class TestTusClient extends MockServerProvider {
 
         assertEquals(uploader.getUploadURL(), new URL(mockServerURL + "/foo"));
     }
+
+    /**
+     * Verifies if uploads can be created with deferred upload length.
+     * @throws IOException if upload data cannot be read.
+     * @throws ProtocolException if the upload cannot be constructed.
+     */
+    @Test
+    public void testCreateUploadWithDeferredLength() throws IOException, ProtocolException {
+        mockServer.when(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files")
+                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                .withHeader("Upload-Defer-Length", "1"))
+                .respond(new HttpResponse()
+                        .withStatusCode(201)
+                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                        .withHeader("Location", mockServerURL + "/foo"));
+
+        TusClient client = new TusClient();
+        client.setUploadCreationURL(mockServerURL);
+        TusUpload upload = new TusUpload();
+        upload.setSize(10);
+        upload.setUploadLengthDeferred(true);
+        upload.setInputStream(new ByteArrayInputStream(new byte[10]));
+        TusUploader uploader = client.createUpload(upload);
+        HttpRequest[] requests = mockServer.retrieveRecordedRequests(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files"));
+
+        assertEquals(uploader.getUploadURL(), new URL(mockServerURL + "/foo"));
+        assertEquals(1, requests.length);
+        assertFalse(requests[0].containsHeader("Upload-Length"));
+    }
+
     /**
      * Verifies if uploads can be created with the tus client through a proxy.
      * @throws IOException if upload data cannot be read.

@@ -75,6 +75,42 @@ public class TestTusUploader extends MockServerProvider {
     }
 
     /**
+     * Tests if deferred-length uploads declare the upload length on the first PATCH request.
+     * @throws IOException
+     * @throws ProtocolException
+     */
+    @Test
+    public void testTusUploaderDeclaresDeferredLength() throws IOException, ProtocolException {
+        byte[] content = "hello world".getBytes();
+
+        mockServer.when(new HttpRequest()
+                .withPath("/files/deferred")
+                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                .withHeader("Upload-Length", "11")
+                .withHeader("Upload-Offset", "0")
+                .withHeader("Content-Type", "application/offset+octet-stream")
+                .withBody(content))
+                .respond(new HttpResponse()
+                        .withStatusCode(204)
+                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
+                        .withHeader("Upload-Offset", "11"));
+
+        TusClient client = new TusClient();
+        URL uploadUrl = new URL(mockServerURL + "/deferred");
+        TusInputStream input = new TusInputStream(new ByteArrayInputStream(content));
+        TusUpload upload = new TusUpload();
+        upload.setSize(11);
+        upload.setUploadLengthDeferred(true);
+
+        TusUploader uploader = new TusUploader(client, upload, uploadUrl, input, 0);
+
+        uploader.setChunkSize(100);
+        assertEquals(11, uploader.uploadChunk());
+        assertEquals(-1, uploader.uploadChunk());
+        uploader.finish();
+    }
+
+    /**
      * Tests if the {@link TusUploader} actually uploads files through a proxy.
      * @throws IOException
      * @throws ProtocolException

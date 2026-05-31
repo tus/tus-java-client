@@ -203,7 +203,11 @@ public class TusClient {
             connection.setRequestProperty("Upload-Metadata", encodedMetadata);
         }
 
-        connection.addRequestProperty("Upload-Length", Long.toString(upload.getSize()));
+        if (upload.isUploadLengthDeferred()) {
+            connection.addRequestProperty("Upload-Defer-Length", "1");
+        } else {
+            connection.addRequestProperty("Upload-Length", Long.toString(upload.getSize()));
+        }
         connection.connect();
 
         int responseCode = connection.getResponseCode();

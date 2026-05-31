@@ -30,6 +30,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
             new GeneratedTusRuntimeEventCase[] {
         new GeneratedTusRuntimeEventCase(
                 "singleUploadLifecycle",
+                false,
                 new GeneratedTusRuntimeEventInput(
                         "hello world",
                         "generated-contract",
@@ -51,6 +52,12 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 201,
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Length",
+                                        "11"
+                                ),
+                            },
+                                new GeneratedTusRuntimeEventHeader[] {
+                                new GeneratedTusRuntimeEventHeader(
                                         "Location",
                                         "https://tus.io/uploads/generated-contract"
                                 ),
@@ -60,6 +67,12 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 "PATCH",
                                 "upload",
                                 204,
+                                new GeneratedTusRuntimeEventHeader[] {
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Offset",
+                                        "0"
+                                ),
+                            },
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
                                         "Upload-Offset",
@@ -76,6 +89,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         ),
         new GeneratedTusRuntimeEventCase(
                 "resumeFromPreviousUpload",
+                false,
                 new GeneratedTusRuntimeEventInput(
                         "hello world",
                         "resume-contract",
@@ -93,6 +107,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 "HEAD",
                                 "upload",
                                 200,
+                                new GeneratedTusRuntimeEventHeader[0],
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
                                         "Upload-Length",
@@ -111,6 +126,12 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
                                         "Upload-Offset",
+                                        "5"
+                                ),
+                            },
+                                new GeneratedTusRuntimeEventHeader[] {
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Offset",
                                         "11"
                                 ),
                             }
@@ -124,6 +145,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         ),
         new GeneratedTusRuntimeEventCase(
                 "relativeLocationResolution",
+                false,
                 new GeneratedTusRuntimeEventInput(
                         "hello world",
                         "relative-contract",
@@ -145,6 +167,12 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 201,
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Length",
+                                        "11"
+                                ),
+                            },
+                                new GeneratedTusRuntimeEventHeader[] {
+                                new GeneratedTusRuntimeEventHeader(
                                         "Location",
                                         "relative-contract"
                                 ),
@@ -154,6 +182,75 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 "PATCH",
                                 "upload",
                                 204,
+                                new GeneratedTusRuntimeEventHeader[] {
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Offset",
+                                        "0"
+                                ),
+                            },
+                                new GeneratedTusRuntimeEventHeader[] {
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Offset",
+                                        "11"
+                                ),
+                            }
+                        ),
+                },
+                new String[] {
+                "progress:0:11",
+                "progress:11:11",
+                "chunk-complete:11:11:11",
+            }
+        ),
+        new GeneratedTusRuntimeEventCase(
+                "deferredLengthUpload",
+                true,
+                new GeneratedTusRuntimeEventInput(
+                        "hello world",
+                        "deferred-contract",
+                        "absolute",
+                        false,
+                        100,
+                        null,
+                        new GeneratedTusRuntimeEventMetadata[] {
+                        new GeneratedTusRuntimeEventMetadata(
+                                "filename",
+                                "hello.txt"
+                        ),
+                    }
+                ),
+                new GeneratedTusRuntimeEventRequest[] {
+                        new GeneratedTusRuntimeEventRequest(
+                                "POST",
+                                "endpoint",
+                                201,
+                                new GeneratedTusRuntimeEventHeader[] {
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Defer-Length",
+                                        "1"
+                                ),
+                            },
+                                new GeneratedTusRuntimeEventHeader[] {
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Location",
+                                        "https://tus.io/uploads/deferred-contract"
+                                ),
+                            }
+                        ),
+                        new GeneratedTusRuntimeEventRequest(
+                                "PATCH",
+                                "upload",
+                                204,
+                                new GeneratedTusRuntimeEventHeader[] {
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Length",
+                                        "11"
+                                ),
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Offset",
+                                        "0"
+                                ),
+                            },
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
                                         "Upload-Offset",
@@ -239,6 +336,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         if (testCase.input.storedUpload != null) {
             upload.setFingerprint(testCase.input.storedUpload.fingerprint);
         }
+        upload.setUploadLengthDeferred(testCase.uploadLengthDeferred);
         return upload;
     }
 
@@ -256,6 +354,9 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                     .withPath(pathFor(testCase, request));
             if (!"upload".equals(request.url) || "HEAD".equals(request.method)) {
                 httpRequest.withMethod(request.method);
+            }
+            for (GeneratedTusRuntimeEventHeader header : request.requestHeaders) {
+                httpRequest.withHeader(header.name, header.value);
             }
 
             mockServer.when(httpRequest).respond(responseFor(testCase, request));
@@ -276,7 +377,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
             GeneratedTusRuntimeEventCase testCase,
             GeneratedTusRuntimeEventRequest request) throws Exception {
         HttpResponse response = new HttpResponse().withStatusCode(request.statusCode);
-        for (GeneratedTusRuntimeEventHeader header : request.headers) {
+        for (GeneratedTusRuntimeEventHeader header : request.responseHeaders) {
             response.withHeader(header.name, headerValueFor(testCase, header));
         }
         return response;
@@ -345,16 +446,19 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
 
     private static final class GeneratedTusRuntimeEventCase {
         final String scenarioId;
+        final boolean uploadLengthDeferred;
         final GeneratedTusRuntimeEventInput input;
         final GeneratedTusRuntimeEventRequest[] requests;
         final String[] eventKeys;
 
         GeneratedTusRuntimeEventCase(
                 String scenarioId,
+                boolean uploadLengthDeferred,
                 GeneratedTusRuntimeEventInput input,
                 GeneratedTusRuntimeEventRequest[] requests,
                 String[] eventKeys) {
             this.scenarioId = scenarioId;
+            this.uploadLengthDeferred = uploadLengthDeferred;
             this.input = input;
             this.requests = requests;
             this.eventKeys = eventKeys;
@@ -404,17 +508,20 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         final String method;
         final String url;
         final int statusCode;
-        final GeneratedTusRuntimeEventHeader[] headers;
+        final GeneratedTusRuntimeEventHeader[] requestHeaders;
+        final GeneratedTusRuntimeEventHeader[] responseHeaders;
 
         GeneratedTusRuntimeEventRequest(
                 String method,
                 String url,
                 int statusCode,
-                GeneratedTusRuntimeEventHeader[] headers) {
+                GeneratedTusRuntimeEventHeader[] requestHeaders,
+                GeneratedTusRuntimeEventHeader[] responseHeaders) {
             this.method = method;
             this.url = url;
             this.statusCode = statusCode;
-            this.headers = headers;
+            this.requestHeaders = requestHeaders;
+            this.responseHeaders = responseHeaders;
         }
     }
 

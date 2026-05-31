@@ -56,7 +56,9 @@ public class TusUploader {
     private int requestPayloadSize = 10 * 1024 * 1024;
     private int bytesRemainingForRequest;
     private long requestStartOffset;
+    private boolean requestDeclaresUploadLength;
     private boolean requestProgressStarted;
+    private boolean uploadLengthDeclared;
     private ProgressListener progressListener;
     private ChunkCompleteListener chunkCompleteListener;
 
@@ -81,6 +83,7 @@ public class TusUploader {
         this.offset = offset;
         this.client = client;
         this.upload = upload;
+        uploadLengthDeclared = !upload.isUploadLengthDeferred();
 
         input.seekTo(offset);
 
@@ -94,6 +97,7 @@ public class TusUploader {
         }
 
         bytesRemainingForRequest = requestPayloadSize;
+        requestDeclaresUploadLength = false;
         requestStartOffset = offset;
         requestProgressStarted = false;
         input.mark(requestPayloadSize);
@@ -105,6 +109,10 @@ public class TusUploader {
         }
         client.prepareConnection(connection);
         connection.setRequestProperty("Upload-Offset", Long.toString(offset));
+        if (!uploadLengthDeclared) {
+            connection.setRequestProperty("Upload-Length", Long.toString(upload.getSize()));
+            requestDeclaresUploadLength = true;
+        }
         connection.setRequestProperty("Content-Type", "application/offset+octet-stream");
         connection.setRequestProperty("Expect", "100-continue");
 
@@ -409,8 +417,12 @@ public class TusUploader {
                         connection);
             }
 
+            if (requestDeclaresUploadLength) {
+                uploadLengthDeclared = true;
+            }
             notifyChunkComplete(serverOffset - requestStartOffset, serverOffset);
             connection = null;
+            requestDeclaresUploadLength = false;
             requestProgressStarted = false;
         }
     }
