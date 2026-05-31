@@ -70,6 +70,26 @@ public class TestGeneratedTusProtocolContract {
         assertContains(feature.primitives, "emit-progress");
     }
 
+    /**
+     * Verifies generated high-level conformance scenarios expose projected event keys.
+     */
+    @Test
+    public void testConformanceScenarioCarriesProjectedEventKeys() {
+        GeneratedTusProtocolContract.GeneratedTusClientFeature feature =
+                findFeature("creationWithUpload");
+        GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario scenario =
+                findScenario("creationWithUploadPartialChunk");
+
+        assertContains(feature.conformance.scenarioIds, scenario.scenarioId);
+        assertEquals("creation-with-upload-partial-chunk", scenario.behavior);
+        assertEquals("success", scenario.completionKind);
+        assertContains(scenario.operationIds, "createTusUpload");
+        assertContains(scenario.operationIds, "patchTusUpload");
+        assertContains(scenario.primitives, "upload-during-creation");
+        assertContains(scenario.eventKeys, "chunk-complete:5:10:11");
+        assertContains(scenario.eventKeys, "chunk-complete:1:11:11");
+    }
+
     private static GeneratedTusProtocolContract.GeneratedTusProtocolOperation findOperation(
             String operationId) {
         for (GeneratedTusProtocolContract.GeneratedTusProtocolOperation operation
@@ -92,6 +112,18 @@ public class TestGeneratedTusProtocolContract {
         }
 
         throw new AssertionError("Missing generated TUS client feature: " + featureId);
+    }
+
+    private static GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario findScenario(
+            String scenarioId) {
+        for (GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario scenario
+                : GeneratedTusProtocolContract.CLIENT_CONFORMANCE_SCENARIOS) {
+            if (scenario.scenarioId.equals(scenarioId)) {
+                return scenario;
+            }
+        }
+
+        throw new AssertionError("Missing generated TUS client scenario: " + scenarioId);
     }
 
     private static boolean hasRequiredHeader(
