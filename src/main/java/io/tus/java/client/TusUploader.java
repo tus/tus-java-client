@@ -21,6 +21,31 @@ import java.net.URLConnection;
  * </ol>
  */
 public class TusUploader {
+    /**
+     * Callback for upload progress events.
+     */
+    public interface ProgressListener {
+        /**
+         * Called when upload progress changes.
+         * @param bytesSent Bytes accepted locally for the upload.
+         * @param bytesTotal Total upload size.
+         */
+        void onProgress(long bytesSent, long bytesTotal);
+    }
+
+    /**
+     * Callback for accepted chunk events.
+     */
+    public interface ChunkCompleteListener {
+        /**
+         * Called after the server accepts an upload request.
+         * @param chunkSize Bytes accepted by the completed request.
+         * @param bytesAccepted Total bytes accepted by the server.
+         * @param bytesTotal Total upload size.
+         */
+        void onChunkComplete(long chunkSize, long bytesAccepted, long bytesTotal);
+    }
+
     private URL uploadURL;
     private Proxy proxy;
     private TusInputStream input;
@@ -30,6 +55,10 @@ public class TusUploader {
     private byte[] buffer;
     private int requestPayloadSize = 10 * 1024 * 1024;
     private int bytesRemainingForRequest;
+    private long requestStartOffset;
+    private boolean requestProgressStarted;
+    private ProgressListener progressListener;
+    private ChunkCompleteListener chunkCompleteListener;
 
     private HttpURLConnection connection;
     private OutputStream output;
@@ -65,6 +94,8 @@ public class TusUploader {
         }
 
         bytesRemainingForRequest = requestPayloadSize;
+        requestStartOffset = offset;
+        requestProgressStarted = false;
         input.mark(requestPayloadSize);
 
         if (proxy != null) {
@@ -169,6 +200,24 @@ public class TusUploader {
     }
 
     /**
+     * Set the listener used for upload progress events.
+     *
+     * @param listener Progress listener or null to disable events.
+     */
+    public void setProgressListener(ProgressListener listener) {
+        progressListener = listener;
+    }
+
+    /**
+     * Set the listener used for accepted chunk events.
+     *
+     * @param listener Chunk-complete listener or null to disable events.
+     */
+    public void setChunkCompleteListener(ChunkCompleteListener listener) {
+        chunkCompleteListener = listener;
+    }
+
+    /**
      * Upload a part of the file by reading a chunk from the InputStream and writing
      * it to the HTTP request's body. If the number of available bytes is lower than the chunk's
      * size, all available bytes will be uploaded and nothing more.
@@ -184,6 +233,7 @@ public class TusUploader {
      */
     public int uploadChunk() throws IOException, ProtocolException {
         openConnection();
+        notifyProgressAtRequestStart();
 
         int bytesToRead = Math.min(getChunkSize(), bytesRemainingForRequest);
 
@@ -201,6 +251,7 @@ public class TusUploader {
 
         offset += bytesRead;
         bytesRemainingForRequest -= bytesRead;
+        notifyProgress(offset);
 
         if (bytesRemainingForRequest <= 0) {
             finishConnection();
@@ -358,7 +409,28 @@ public class TusUploader {
                         connection);
             }
 
+            notifyChunkComplete(serverOffset - requestStartOffset, serverOffset);
             connection = null;
+            requestProgressStarted = false;
+        }
+    }
+
+    private void notifyProgressAtRequestStart() {
+        if (!requestProgressStarted) {
+            notifyProgress(offset);
+            requestProgressStarted = true;
+        }
+    }
+
+    private void notifyProgress(long bytesSent) {
+        if (progressListener != null) {
+            progressListener.onProgress(bytesSent, upload.getSize());
+        }
+    }
+
+    private void notifyChunkComplete(long chunkSize, long bytesAccepted) {
+        if (chunkCompleteListener != null) {
+            chunkCompleteListener.onChunkComplete(chunkSize, bytesAccepted, upload.getSize());
         }
     }
 
