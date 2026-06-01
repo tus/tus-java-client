@@ -448,6 +448,31 @@ public class TestGeneratedTusConformanceEvents {
         }
     }
 
+    /**
+     * Verifies managed-upload proof scenarios stay wired to protocol features and primitives.
+     */
+    @Test
+    public void testGeneratedManagedUploadProofScenarios() {
+        for (GeneratedTusProtocolContract.GeneratedTusManagedUploadProofCase testCase
+                : GeneratedTusProtocolContract.MANAGED_UPLOAD_PROOF_CASES) {
+            assertEquals("managedUpload", testCase.featureId);
+            assertEquals("feature-over-protocol", testCase.layer);
+            assertContains(
+                    GeneratedTusProtocolContract.MANAGED_UPLOAD_SCENARIO_IDS,
+                    testCase.scenarioId);
+            assertArrayEquals(
+                    GeneratedTusProtocolContract.MANAGED_UPLOAD_RUNTIME_PROFILES,
+                    testCase.runtimeProfiles);
+
+            for (String primitive : testCase.requiredPrimitives) {
+                assertContains(GeneratedTusProtocolContract.MANAGED_UPLOAD_PRIMITIVES, primitive);
+            }
+            for (String featureId : testCase.protocolFeatureIds) {
+                findFeature(featureId);
+            }
+        }
+    }
+
     private static GeneratedTusProtocolContract.GeneratedTusClientFeature findFeature(
             String featureId) {
         for (GeneratedTusProtocolContract.GeneratedTusClientFeature feature
