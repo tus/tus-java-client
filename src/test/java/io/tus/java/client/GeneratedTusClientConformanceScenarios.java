@@ -950,7 +950,10 @@ final class GeneratedTusClientConformanceScenarios {
                                 null,
                                 null
                         ),
-                        new String[0]
+                        new String[] {
+                        "should-retry:0:true",
+                        "retry-schedule:0",
+                    }
                 )
         ),
     };

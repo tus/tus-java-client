@@ -314,6 +314,19 @@ public class TestGeneratedTusConformanceEvents {
                 "request-abort:1",
             }
         ),
+        new GeneratedTusEventCanaryCase(
+                "terminateUpload",
+                "terminateWithRetry",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
+                new String[] {
+                "should-retry:0:true",
+                "retry-schedule:0",
+            }
+        ),
     };
 
     /**
