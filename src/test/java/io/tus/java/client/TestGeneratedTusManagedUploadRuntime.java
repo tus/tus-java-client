@@ -44,13 +44,20 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         "process-lifetime-worker-pool",
                         "copy-to-owned-storage",
                         "available",
-                        "filesystem"
+                        "filesystem",
+                        new GeneratedTusManagedUploadNetwork(
+                                "any-network",
+                                "unmetered-network",
+                                "start-upload-work"
+                        )
                 ),
                 new GeneratedTusManagedUploadTransport(
                         "Location"
                 ),
-                new GeneratedTusManagedUploadTerminal(
+                new GeneratedTusManagedUploadOutcome(
+                        "terminal",
                         "succeeded",
+                        "",
                         ""
                 ),
                 new GeneratedTusManagedUploadCleanup(
@@ -180,14 +187,21 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         "process-lifetime-worker-pool",
                         "copy-to-owned-storage",
                         "available",
-                        "filesystem"
+                        "filesystem",
+                        new GeneratedTusManagedUploadNetwork(
+                                "any-network",
+                                "unmetered-network",
+                                "start-upload-work"
+                        )
                 ),
                 new GeneratedTusManagedUploadTransport(
                         "Location"
                 ),
-                new GeneratedTusManagedUploadTerminal(
+                new GeneratedTusManagedUploadOutcome(
+                        "terminal",
                         "failed",
-                        "unretryable-protocol-error"
+                        "unretryable-protocol-error",
+                        ""
                 ),
                 new GeneratedTusManagedUploadCleanup(
                         "retain-owned-source-after-permanent-failure",
@@ -247,14 +261,21 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         "process-lifetime-worker-pool",
                         "copy-to-owned-storage",
                         "available",
-                        "filesystem"
+                        "filesystem",
+                        new GeneratedTusManagedUploadNetwork(
+                                "any-network",
+                                "unmetered-network",
+                                "start-upload-work"
+                        )
                 ),
                 new GeneratedTusManagedUploadTransport(
                         "Location"
                 ),
-                new GeneratedTusManagedUploadTerminal(
+                new GeneratedTusManagedUploadOutcome(
+                        "terminal",
                         "failed",
-                        "retry-policy-exhausted"
+                        "retry-policy-exhausted",
+                        ""
                 ),
                 new GeneratedTusManagedUploadCleanup(
                         "retain-owned-source-after-permanent-failure",
@@ -369,14 +390,21 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         "process-lifetime-worker-pool",
                         "copy-to-owned-storage",
                         "missing-before-durable-copy",
-                        "filesystem"
+                        "filesystem",
+                        new GeneratedTusManagedUploadNetwork(
+                                "any-network",
+                                "unmetered-network",
+                                "start-upload-work"
+                        )
                 ),
                 new GeneratedTusManagedUploadTransport(
                         "Location"
                 ),
-                new GeneratedTusManagedUploadTerminal(
+                new GeneratedTusManagedUploadOutcome(
+                        "terminal",
                         "failed",
-                        "source-unavailable"
+                        "source-unavailable",
+                        ""
                 ),
                 new GeneratedTusManagedUploadCleanup(
                         "absent-after-source-unavailable",
@@ -451,18 +479,23 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
 
             try {
                 prepareSourceBeforeProtocol(testCase, source, ownedSource, states, stateFile);
-                TusExecutor executor = managedExecutorFor(testCase, client, ownedSource, states, stateFile);
-                ExecutorService worker = Executors.newSingleThreadExecutor();
-                try {
-                    Future<Boolean> future = worker.submit(new Callable<Boolean>() {
-                        @Override
-                        public Boolean call() throws Exception {
-                            return executor.makeAttempts();
-                        }
-                    });
-                    assertTerminalResult(testCase, future);
-                } finally {
-                    worker.shutdownNow();
+                if (shouldDeferBeforeProtocol(testCase)) {
+                    assertDeferredResult(testCase);
+                } else {
+                    TusExecutor executor =
+                            managedExecutorFor(testCase, client, ownedSource, states, stateFile);
+                    ExecutorService worker = Executors.newSingleThreadExecutor();
+                    try {
+                        Future<Boolean> future = worker.submit(new Callable<Boolean>() {
+                            @Override
+                            public Boolean call() throws Exception {
+                                return executor.makeAttempts();
+                            }
+                        });
+                        assertTerminalResult(testCase, future);
+                    } finally {
+                        worker.shutdownNow();
+                    }
                 }
             } catch (IOException error) {
                 if (!isSourceUnavailableBeforeProtocol(testCase)) {
@@ -493,14 +526,18 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
     private void assertTerminalResult(
             GeneratedTusManagedUploadRuntimeCase testCase,
             Future<Boolean> future) throws Exception {
+        if (!"terminal".equals(testCase.outcomeKind)) {
+            throw new AssertionError(testCase.scenarioId + " expected deferred outcome");
+        }
+
         try {
             boolean result = future.get();
-            if (!"succeeded".equals(testCase.terminalState)) {
+            if (!"succeeded".equals(testCase.outcomeState)) {
                 throw new AssertionError(testCase.scenarioId + " expected terminal failure");
             }
             assertTrue(testCase.scenarioId, result);
         } catch (ExecutionException error) {
-            if (!"failed".equals(testCase.terminalState)) {
+            if (!"failed".equals(testCase.outcomeState)) {
                 throw error;
             }
             assertTerminalFailure(testCase, error.getCause());
@@ -510,15 +547,15 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
     private void assertTerminalFailure(
             GeneratedTusManagedUploadRuntimeCase testCase,
             Throwable error) {
-        if ("unretryable-protocol-error".equals(testCase.terminalFailure)) {
+        if ("unretryable-protocol-error".equals(testCase.outcomeFailure)) {
             assertTrue(testCase.scenarioId, error instanceof ProtocolException);
             return;
         }
-        if ("source-unavailable".equals(testCase.terminalFailure)) {
+        if ("source-unavailable".equals(testCase.outcomeFailure)) {
             assertTrue(testCase.scenarioId, error instanceof IOException);
             return;
         }
-        if ("retry-policy-exhausted".equals(testCase.terminalFailure)) {
+        if ("retry-policy-exhausted".equals(testCase.outcomeFailure)) {
             assertTrue(
                     testCase.scenarioId,
                     error instanceof ProtocolException || error instanceof IOException);
@@ -528,7 +565,36 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
         throw new AssertionError(
                 testCase.scenarioId
                         + " uses unsupported generated terminal failure "
-                        + testCase.terminalFailure);
+                        + testCase.outcomeFailure);
+    }
+
+    private void assertDeferredResult(GeneratedTusManagedUploadRuntimeCase testCase) {
+        if (
+                !"deferred".equals(testCase.outcomeKind)
+                || !"pending".equals(testCase.outcomeState)
+                || !"network-constraint-unsatisfied".equals(testCase.outcomeReason)
+                || !"defer-until-network-constraint-satisfied".equals(testCase.networkDecision)
+                || networkConstraintSatisfied(testCase)) {
+            throw new AssertionError(testCase.scenarioId + " expected deferred network outcome");
+        }
+    }
+
+    private boolean networkConstraintSatisfied(GeneratedTusManagedUploadRuntimeCase testCase) {
+        if ("offline".equals(testCase.currentNetwork)) {
+            return false;
+        }
+        if ("any-network".equals(testCase.networkRequired)) {
+            return "metered-network".equals(testCase.currentNetwork)
+                    || "unmetered-network".equals(testCase.currentNetwork);
+        }
+        if ("unmetered-network".equals(testCase.networkRequired)) {
+            return "unmetered-network".equals(testCase.currentNetwork);
+        }
+
+        throw new AssertionError(
+                testCase.scenarioId
+                        + " uses unsupported generated network requirement "
+                        + testCase.networkRequired);
     }
 
     private TusExecutor managedExecutorFor(
@@ -657,8 +723,12 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
     }
 
     private boolean isSourceUnavailableBeforeProtocol(GeneratedTusManagedUploadRuntimeCase testCase) {
-        return "source-unavailable".equals(testCase.terminalFailure)
+        return "source-unavailable".equals(testCase.outcomeFailure)
                 && "missing-before-durable-copy".equals(testCase.sourceAvailability);
+    }
+
+    private boolean shouldDeferBeforeProtocol(GeneratedTusManagedUploadRuntimeCase testCase) {
+        return "defer-until-network-constraint-satisfied".equals(testCase.networkDecision);
     }
 
     private void cleanupAfterTerminalState(
@@ -679,6 +749,11 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
             return;
         }
         if ("retain-owned-source-after-permanent-failure".equals(testCase.ownedSourceCleanup)) {
+            assertTrue(testCase.scenarioId, ownedSource.exists());
+            ownedSource.delete();
+            return;
+        }
+        if ("retain-owned-source-while-deferred".equals(testCase.ownedSourceCleanup)) {
             assertTrue(testCase.scenarioId, ownedSource.exists());
             ownedSource.delete();
             return;
@@ -711,7 +786,8 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
             GeneratedTusManagedUploadUrlStore urlStore) {
         if (
                 "remove-after-success".equals(testCase.resumeUrlCleanup)
-                || "absent-after-permanent-failure".equals(testCase.resumeUrlCleanup)) {
+                || "absent-after-permanent-failure".equals(testCase.resumeUrlCleanup)
+                || "absent-while-deferred".equals(testCase.resumeUrlCleanup)) {
             assertNull(testCase.scenarioId, urlStore.get(testCase.input.fingerprint));
             return;
         }
@@ -866,9 +942,14 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
         final String sourceDurability;
         final String sourceAvailability;
         final String stateBackend;
+        final String networkRequired;
+        final String currentNetwork;
+        final String networkDecision;
         final String locationHeaderName;
-        final String terminalState;
-        final String terminalFailure;
+        final String outcomeKind;
+        final String outcomeState;
+        final String outcomeFailure;
+        final String outcomeReason;
         final String ownedSourceCleanup;
         final String resumeUrlCleanup;
         final String[] expectedStates;
@@ -880,7 +961,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
         GeneratedTusManagedUploadRuntimeCase(
                 GeneratedTusManagedUploadRuntimeProfile profile,
                 GeneratedTusManagedUploadTransport transport,
-                GeneratedTusManagedUploadTerminal terminal,
+                GeneratedTusManagedUploadOutcome outcome,
                 GeneratedTusManagedUploadCleanup cleanup,
                 GeneratedTusManagedUploadRetryPlan retryPlan,
                 GeneratedTusManagedUploadInput input,
@@ -891,9 +972,14 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
             this.sourceDurability = profile.sourceDurability;
             this.sourceAvailability = profile.sourceAvailability;
             this.stateBackend = profile.stateBackend;
+            this.networkRequired = profile.networkRequired;
+            this.currentNetwork = profile.currentNetwork;
+            this.networkDecision = profile.networkDecision;
             this.locationHeaderName = transport.locationHeaderName;
-            this.terminalState = terminal.state;
-            this.terminalFailure = terminal.failure;
+            this.outcomeKind = outcome.kind;
+            this.outcomeState = outcome.state;
+            this.outcomeFailure = outcome.failure;
+            this.outcomeReason = outcome.reason;
             this.ownedSourceCleanup = cleanup.ownedSource;
             this.resumeUrlCleanup = cleanup.resumeUrl;
             this.expectedStates = retryPlan.expectedStates;
@@ -904,13 +990,17 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
         }
     }
 
-    private static final class GeneratedTusManagedUploadTerminal {
+    private static final class GeneratedTusManagedUploadOutcome {
+        final String kind;
         final String state;
         final String failure;
+        final String reason;
 
-        GeneratedTusManagedUploadTerminal(String state, String failure) {
+        GeneratedTusManagedUploadOutcome(String kind, String state, String failure, String reason) {
+            this.kind = kind;
             this.state = state;
             this.failure = failure;
+            this.reason = reason;
         }
     }
 
@@ -921,6 +1011,9 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
         final String sourceDurability;
         final String sourceAvailability;
         final String stateBackend;
+        final String networkRequired;
+        final String currentNetwork;
+        final String networkDecision;
 
         GeneratedTusManagedUploadRuntimeProfile(
                 String scenarioId,
@@ -928,13 +1021,29 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                 String scheduler,
                 String sourceDurability,
                 String sourceAvailability,
-                String stateBackend) {
+                String stateBackend,
+                GeneratedTusManagedUploadNetwork network) {
             this.scenarioId = scenarioId;
             this.runtime = runtime;
             this.scheduler = scheduler;
             this.sourceDurability = sourceDurability;
             this.sourceAvailability = sourceAvailability;
             this.stateBackend = stateBackend;
+            this.networkRequired = network.required;
+            this.currentNetwork = network.current;
+            this.networkDecision = network.decision;
+        }
+    }
+
+    private static final class GeneratedTusManagedUploadNetwork {
+        final String required;
+        final String current;
+        final String decision;
+
+        GeneratedTusManagedUploadNetwork(String required, String current, String decision) {
+            this.required = required;
+            this.current = current;
+            this.decision = decision;
         }
     }
 
