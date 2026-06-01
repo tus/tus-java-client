@@ -1304,6 +1304,7 @@ final class GeneratedTusProtocolContract {
         final String scenarioId;
         final String[] operationIds;
         final String[] primitives;
+        final GeneratedTusClientConformanceEventPolicy eventPolicy;
         final String[] eventKeys;
 
         GeneratedTusClientConformanceScenario(
@@ -1313,6 +1314,7 @@ final class GeneratedTusProtocolContract {
                 String scenarioId,
                 String[] operationIds,
                 String[] primitives,
+                GeneratedTusClientConformanceEventPolicy eventPolicy,
                 String[] eventKeys) {
             this.behavior = behavior;
             this.completionKind = completion.kind;
@@ -1321,7 +1323,26 @@ final class GeneratedTusProtocolContract {
             this.scenarioId = scenarioId;
             this.operationIds = operationIds;
             this.primitives = primitives;
+            this.eventPolicy = eventPolicy;
             this.eventKeys = eventKeys;
+        }
+    }
+
+    /**
+     * Generated client conformance event policy fixture.
+     */
+    static final class GeneratedTusClientConformanceEventPolicy {
+        final String matching;
+        final String progress;
+        final String transportProgress;
+
+        GeneratedTusClientConformanceEventPolicy(
+                String matching,
+                String progress,
+                String transportProgress) {
+            this.matching = matching;
+            this.progress = progress;
+            this.transportProgress = transportProgress;
         }
     }
 

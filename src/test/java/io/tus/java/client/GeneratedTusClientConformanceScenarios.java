@@ -32,6 +32,11 @@ final class GeneratedTusClientConformanceScenarios {
                 "emit-progress",
                 "abort-current-request",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact-except-extra-progress",
+                        "milestone",
+                        "may-emit-extra-samples"
+                ),
                 new String[] {
                 "fingerprint:contract-single-fingerprint",
                 "upload-url-available",
@@ -58,6 +63,11 @@ final class GeneratedTusClientConformanceScenarios {
                 "upload-during-creation",
                 "emit-progress",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact-except-extra-progress",
+                        "milestone",
+                        "may-emit-extra-samples"
+                ),
                 new String[] {
                 "progress:0:11",
                 "progress:11:11",
@@ -82,6 +92,11 @@ final class GeneratedTusClientConformanceScenarios {
                 "upload-during-creation",
                 "emit-progress",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact-except-extra-progress",
+                        "milestone",
+                        "may-emit-extra-samples"
+                ),
                 new String[] {
                 "progress:0:11",
                 "progress:5:11",
@@ -111,6 +126,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "select-client-protocol",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact-except-extra-progress",
+                        "milestone",
+                        "may-emit-extra-samples"
+                ),
                 new String[] {
                 "progress:0:11",
                 "progress:11:11",
@@ -134,6 +154,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "select-client-protocol",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact-except-extra-progress",
+                        "milestone",
+                        "may-emit-extra-samples"
+                ),
                 new String[] {
                 "upload-url-available",
                 "progress:5:11",
@@ -155,6 +180,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "validate-start-options",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[0]
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -169,6 +199,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "validate-start-options",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[0]
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -183,6 +218,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "validate-start-options",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[0]
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -197,6 +237,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "validate-start-options",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[0]
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -211,6 +256,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "validate-start-options",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[0]
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -225,6 +275,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "validate-start-options",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[0]
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -239,6 +294,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "validate-start-options",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[0]
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -253,6 +313,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "validate-start-options",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[0]
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -267,6 +332,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "validate-start-options",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[0]
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -281,6 +351,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "validate-start-options",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[0]
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -297,6 +372,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "report-detailed-errors",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[0]
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -313,6 +393,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "report-detailed-errors",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[0]
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -330,6 +415,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "send-upload-body-headers",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[0]
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -347,6 +437,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "apply-custom-request-headers",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[0]
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -366,6 +461,11 @@ final class GeneratedTusClientConformanceScenarios {
                 "resume-from-previous-upload",
                 "store-resume-url",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact-except-extra-progress",
+                        "milestone",
+                        "may-emit-extra-samples"
+                ),
                 new String[] {
                 "fingerprint:contract-resume-fingerprint",
                 "url-storage-find:contract-resume-fingerprint:1",
@@ -394,6 +494,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "resolve-relative-location",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact-except-extra-progress",
+                        "milestone",
+                        "may-emit-extra-samples"
+                ),
                 new String[] {
                 "upload-url-available",
                 "progress:0:11",
@@ -418,6 +523,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "read-browser-file",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[] {
                 "source-open:array-buffer:11",
                 "success",
@@ -439,6 +549,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "read-browser-file",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[] {
                 "source-open:array-buffer-view:11",
                 "success",
@@ -460,6 +575,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "read-web-stream",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[] {
                 "source-open:web-readable-stream:null",
                 "success",
@@ -481,6 +601,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "read-node-stream",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[] {
                 "source-open:node-readable-stream:null",
                 "success",
@@ -502,6 +627,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "read-node-file",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[] {
                 "source-open:node-path-reference:11",
                 "success",
@@ -524,6 +654,11 @@ final class GeneratedTusClientConformanceScenarios {
                 "defer-upload-length",
                 "emit-progress",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact-except-extra-progress",
+                        "milestone",
+                        "may-emit-extra-samples"
+                ),
                 new String[] {
                 "upload-url-available",
                 "progress:0:11",
@@ -548,6 +683,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "override-patch-method",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[0]
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -569,6 +709,11 @@ final class GeneratedTusClientConformanceScenarios {
                 "concatenate-partial-uploads",
                 "emit-progress",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact-except-extra-progress",
+                        "milestone",
+                        "may-emit-extra-samples"
+                ),
                 new String[] {
                 "progress:5:11",
                 "chunk-complete:5:5:11",
@@ -597,6 +742,11 @@ final class GeneratedTusClientConformanceScenarios {
                 "terminate-upload",
                 "concatenate-partial-uploads",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[] {
                 "request-abort:3",
             }
@@ -621,6 +771,11 @@ final class GeneratedTusClientConformanceScenarios {
                 "retry-with-backoff",
                 "recover-offset-after-error",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[] {
                 "should-retry:0:true",
                 "retry-schedule:0",
@@ -642,6 +797,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "run-request-hooks",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[] {
                 "before-request:0",
                 "after-response:0",
@@ -663,6 +823,11 @@ final class GeneratedTusClientConformanceScenarios {
                 new String[] {
                 "abort-current-request",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[] {
                 "request-abort:0",
             }
@@ -684,6 +849,11 @@ final class GeneratedTusClientConformanceScenarios {
                 "abort-current-request",
                 "terminate-upload",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[] {
                 "request-abort:1",
             }
@@ -706,6 +876,11 @@ final class GeneratedTusClientConformanceScenarios {
                 "terminate-upload",
                 "retry-with-backoff",
             },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[0]
         ),
     };

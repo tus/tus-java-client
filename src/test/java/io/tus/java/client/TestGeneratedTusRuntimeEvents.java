@@ -30,6 +30,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
             new GeneratedTusRuntimeEventCase[] {
         new GeneratedTusRuntimeEventCase(
                 "singleUploadLifecycle",
+                "exact-except-extra-progress",
                 false,
                 new GeneratedTusRuntimeEventInput(
                         "hello world",
@@ -89,6 +90,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         ),
         new GeneratedTusRuntimeEventCase(
                 "resumeFromPreviousUpload",
+                "exact-except-extra-progress",
                 false,
                 new GeneratedTusRuntimeEventInput(
                         "hello world",
@@ -145,6 +147,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         ),
         new GeneratedTusRuntimeEventCase(
                 "relativeLocationResolution",
+                "exact-except-extra-progress",
                 false,
                 new GeneratedTusRuntimeEventInput(
                         "hello world",
@@ -204,6 +207,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         ),
         new GeneratedTusRuntimeEventCase(
                 "deferredLengthUpload",
+                "exact-except-extra-progress",
                 true,
                 new GeneratedTusRuntimeEventInput(
                         "hello world",
@@ -310,10 +314,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
             }
             uploader.finish();
 
-            assertArrayEquals(
-                    testCase.scenarioId,
-                    testCase.eventKeys,
-                    events.toArray(new String[events.size()]));
+            assertEvents(testCase, events);
             assertStoredUploadState(testCase, urlStore);
         }
     }
@@ -444,8 +445,66 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         }
     }
 
+    private void assertEvents(GeneratedTusRuntimeEventCase testCase, List<String> events) {
+        if ("exact".equals(testCase.eventPolicyMatching)) {
+            assertArrayEquals(
+                    testCase.scenarioId,
+                    testCase.eventKeys,
+                    events.toArray(new String[events.size()]));
+            return;
+        }
+
+        if ("exact-except-extra-progress".equals(testCase.eventPolicyMatching)) {
+            assertEventsExactExceptExtraProgress(testCase, events);
+            return;
+        }
+
+        throw new AssertionError(
+                "Unsupported generated event policy "
+                        + testCase.eventPolicyMatching
+                        + " for "
+                        + testCase.scenarioId);
+    }
+
+    private void assertEventsExactExceptExtraProgress(
+            GeneratedTusRuntimeEventCase testCase,
+            List<String> events) {
+        int expectedIndex = 0;
+        for (String event : events) {
+            if (
+                    expectedIndex < testCase.eventKeys.length
+                    && event.equals(testCase.eventKeys[expectedIndex])) {
+                expectedIndex += 1;
+                continue;
+            }
+
+            if (event.startsWith("progress:")) {
+                continue;
+            }
+
+            throw new AssertionError(
+                    testCase.scenarioId
+                            + " emitted unexpected non-progress event "
+                            + event
+                            + "; expected "
+                            + java.util.Arrays.toString(testCase.eventKeys));
+        }
+
+        if (expectedIndex == testCase.eventKeys.length) {
+            return;
+        }
+
+        throw new AssertionError(
+                testCase.scenarioId
+                        + " did not emit every expected non-extra event; observed "
+                        + events
+                        + "; expected "
+                        + java.util.Arrays.toString(testCase.eventKeys));
+    }
+
     private static final class GeneratedTusRuntimeEventCase {
         final String scenarioId;
+        final String eventPolicyMatching;
         final boolean uploadLengthDeferred;
         final GeneratedTusRuntimeEventInput input;
         final GeneratedTusRuntimeEventRequest[] requests;
@@ -453,11 +512,13 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
 
         GeneratedTusRuntimeEventCase(
                 String scenarioId,
+                String eventPolicyMatching,
                 boolean uploadLengthDeferred,
                 GeneratedTusRuntimeEventInput input,
                 GeneratedTusRuntimeEventRequest[] requests,
                 String[] eventKeys) {
             this.scenarioId = scenarioId;
+            this.eventPolicyMatching = eventPolicyMatching;
             this.uploadLengthDeferred = uploadLengthDeferred;
             this.input = input;
             this.requests = requests;

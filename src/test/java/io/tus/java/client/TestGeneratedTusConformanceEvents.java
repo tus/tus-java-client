@@ -20,6 +20,11 @@ public class TestGeneratedTusConformanceEvents {
         new GeneratedTusEventCanaryCase(
                 "singleUploadLifecycle",
                 "singleUploadLifecycle",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact-except-extra-progress",
+                        "milestone",
+                        "may-emit-extra-samples"
+                ),
                 new String[] {
                 "fingerprint:contract-single-fingerprint",
                 "upload-url-available",
@@ -34,6 +39,11 @@ public class TestGeneratedTusConformanceEvents {
         new GeneratedTusEventCanaryCase(
                 "creationWithUpload",
                 "creationWithUpload",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact-except-extra-progress",
+                        "milestone",
+                        "may-emit-extra-samples"
+                ),
                 new String[] {
                 "progress:0:11",
                 "progress:11:11",
@@ -45,6 +55,11 @@ public class TestGeneratedTusConformanceEvents {
         new GeneratedTusEventCanaryCase(
                 "creationWithUpload",
                 "creationWithUploadPartialChunk",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact-except-extra-progress",
+                        "milestone",
+                        "may-emit-extra-samples"
+                ),
                 new String[] {
                 "progress:0:11",
                 "progress:5:11",
@@ -63,6 +78,11 @@ public class TestGeneratedTusConformanceEvents {
         new GeneratedTusEventCanaryCase(
                 "protocolVersionSelection",
                 "ietfDraft05CreationWithUpload",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact-except-extra-progress",
+                        "milestone",
+                        "may-emit-extra-samples"
+                ),
                 new String[] {
                 "progress:0:11",
                 "progress:11:11",
@@ -74,6 +94,11 @@ public class TestGeneratedTusConformanceEvents {
         new GeneratedTusEventCanaryCase(
                 "protocolVersionSelection",
                 "ietfDraft03ResumeWithoutKnownLength",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact-except-extra-progress",
+                        "milestone",
+                        "may-emit-extra-samples"
+                ),
                 new String[] {
                 "upload-url-available",
                 "progress:5:11",
@@ -86,6 +111,11 @@ public class TestGeneratedTusConformanceEvents {
         new GeneratedTusEventCanaryCase(
                 "resumeUpload",
                 "resumeFromPreviousUpload",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact-except-extra-progress",
+                        "milestone",
+                        "may-emit-extra-samples"
+                ),
                 new String[] {
                 "fingerprint:contract-resume-fingerprint",
                 "url-storage-find:contract-resume-fingerprint:1",
@@ -102,6 +132,11 @@ public class TestGeneratedTusConformanceEvents {
         new GeneratedTusEventCanaryCase(
                 "relativeLocationResolution",
                 "relativeLocationResolution",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact-except-extra-progress",
+                        "milestone",
+                        "may-emit-extra-samples"
+                ),
                 new String[] {
                 "upload-url-available",
                 "progress:0:11",
@@ -114,6 +149,11 @@ public class TestGeneratedTusConformanceEvents {
         new GeneratedTusEventCanaryCase(
                 "inputSources",
                 "arrayBufferInput",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[] {
                 "source-open:array-buffer:11",
                 "success",
@@ -123,6 +163,11 @@ public class TestGeneratedTusConformanceEvents {
         new GeneratedTusEventCanaryCase(
                 "inputSources",
                 "arrayBufferViewInput",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[] {
                 "source-open:array-buffer-view:11",
                 "success",
@@ -132,6 +177,11 @@ public class TestGeneratedTusConformanceEvents {
         new GeneratedTusEventCanaryCase(
                 "inputSources",
                 "webReadableStreamInput",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[] {
                 "source-open:web-readable-stream:null",
                 "success",
@@ -141,6 +191,11 @@ public class TestGeneratedTusConformanceEvents {
         new GeneratedTusEventCanaryCase(
                 "inputSources",
                 "nodeReadableStreamInput",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[] {
                 "source-open:node-readable-stream:null",
                 "success",
@@ -150,6 +205,11 @@ public class TestGeneratedTusConformanceEvents {
         new GeneratedTusEventCanaryCase(
                 "inputSources",
                 "nodePathInput",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[] {
                 "source-open:node-path-reference:11",
                 "success",
@@ -159,6 +219,11 @@ public class TestGeneratedTusConformanceEvents {
         new GeneratedTusEventCanaryCase(
                 "deferredLengthUpload",
                 "deferredLengthUpload",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact-except-extra-progress",
+                        "milestone",
+                        "may-emit-extra-samples"
+                ),
                 new String[] {
                 "upload-url-available",
                 "progress:0:11",
@@ -171,6 +236,11 @@ public class TestGeneratedTusConformanceEvents {
         new GeneratedTusEventCanaryCase(
                 "parallelUploadConcat",
                 "parallelUploadConcat",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact-except-extra-progress",
+                        "milestone",
+                        "may-emit-extra-samples"
+                ),
                 new String[] {
                 "progress:5:11",
                 "chunk-complete:5:5:11",
@@ -181,6 +251,11 @@ public class TestGeneratedTusConformanceEvents {
         new GeneratedTusEventCanaryCase(
                 "parallelUploadConcat",
                 "parallelUploadAbortCleanup",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[] {
                 "request-abort:3",
             }
@@ -188,6 +263,11 @@ public class TestGeneratedTusConformanceEvents {
         new GeneratedTusEventCanaryCase(
                 "retryOffsetRecovery",
                 "retryPatchAfterOffsetRecovery",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[] {
                 "should-retry:0:true",
                 "retry-schedule:0",
@@ -198,6 +278,11 @@ public class TestGeneratedTusConformanceEvents {
         new GeneratedTusEventCanaryCase(
                 "requestLifecycleHooks",
                 "requestLifecycleHooks",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[] {
                 "before-request:0",
                 "after-response:0",
@@ -208,6 +293,11 @@ public class TestGeneratedTusConformanceEvents {
         new GeneratedTusEventCanaryCase(
                 "abortUpload",
                 "abortUpload",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[] {
                 "request-abort:0",
             }
@@ -215,6 +305,11 @@ public class TestGeneratedTusConformanceEvents {
         new GeneratedTusEventCanaryCase(
                 "abortUpload",
                 "abortUploadAfterStoredUrl",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact",
+                        null,
+                        null
+                ),
                 new String[] {
                 "request-abort:1",
             }
@@ -234,6 +329,7 @@ public class TestGeneratedTusConformanceEvents {
 
             assertEquals(testCase.featureId, scenario.featureId);
             assertContains(feature.conformance.scenarioIds, scenario.scenarioId);
+            assertEventPolicyEquals(testCase.eventPolicy, scenario.eventPolicy);
             assertArrayEquals(testCase.eventKeys, scenario.eventKeys);
         }
     }
@@ -272,14 +368,28 @@ public class TestGeneratedTusConformanceEvents {
         throw new AssertionError("Missing generated value: " + expected);
     }
 
+    private static void assertEventPolicyEquals(
+            GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy expected,
+            GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy actual) {
+        assertEquals(expected.matching, actual.matching);
+        assertEquals(expected.progress, actual.progress);
+        assertEquals(expected.transportProgress, actual.transportProgress);
+    }
+
     private static final class GeneratedTusEventCanaryCase {
         final String featureId;
         final String scenarioId;
+        final GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy eventPolicy;
         final String[] eventKeys;
 
-        GeneratedTusEventCanaryCase(String featureId, String scenarioId, String[] eventKeys) {
+        GeneratedTusEventCanaryCase(
+                String featureId,
+                String scenarioId,
+                GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy eventPolicy,
+                String[] eventKeys) {
             this.featureId = featureId;
             this.scenarioId = scenarioId;
+            this.eventPolicy = eventPolicy;
             this.eventKeys = eventKeys;
         }
     }
