@@ -9,4 +9,5 @@ dependencies {
 tasks.register('api2DevdockTusUpload', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'io.tus.java.example.Api2DevdockTusUpload'
+    workingDir = rootProject.projectDir
 }
