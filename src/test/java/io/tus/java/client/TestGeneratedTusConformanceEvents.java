@@ -329,6 +329,87 @@ public class TestGeneratedTusConformanceEvents {
         ),
     };
 
+    private static final GeneratedTusProofProfileCase[] PROOF_CASES =
+            new GeneratedTusProofProfileCase[] {
+        new GeneratedTusProofProfileCase(
+                "urlStorageCreateFlow",
+                "single-upload-lifecycle",
+                "success",
+                "singleUploadLifecycle",
+                "singleUploadLifecycle",
+                new String[] {
+                "createTusUpload",
+                "patchTusUpload",
+            },
+                new String[] {
+                "open-input-source",
+                "fingerprint-input",
+                "store-resume-url",
+                "retry-with-backoff",
+                "emit-progress",
+                "abort-current-request",
+            }
+        ),
+        new GeneratedTusProofProfileCase(
+                "customRequestHeaders",
+                "custom-request-headers",
+                "success",
+                "customRequestHeaders",
+                "customRequestHeaders",
+                new String[] {
+                "createTusUpload",
+                "patchTusUpload",
+            },
+                new String[] {
+                "apply-custom-request-headers",
+            }
+        ),
+        new GeneratedTusProofProfileCase(
+                "overridePatchMethod",
+                "override-patch-method",
+                "success",
+                "overridePatchMethod",
+                "overridePatchMethod",
+                new String[] {
+                "getTusUploadOffset",
+                "patchTusUpload",
+            },
+                new String[] {
+                "override-patch-method",
+            }
+        ),
+        new GeneratedTusProofProfileCase(
+                "nodePathFileUpload",
+                "node-path-input",
+                "success",
+                "inputSources",
+                "nodePathInput",
+                new String[] {
+                "createTusUpload",
+                "patchTusUpload",
+            },
+                new String[] {
+                "read-node-file",
+            }
+        ),
+        new GeneratedTusProofProfileCase(
+                "resumeFromPreviousUpload",
+                "resume-from-previous-upload",
+                "success",
+                "resumeUpload",
+                "resumeFromPreviousUpload",
+                new String[] {
+                "getTusUploadOffset",
+                "patchTusUpload",
+            },
+                new String[] {
+                "fingerprint-input",
+                "resume-from-previous-upload",
+                "store-resume-url",
+            }
+        ),
+    };
+
     /**
      * Verifies generated feature-level event keys survive in the Java fixture.
      */
@@ -344,6 +425,26 @@ public class TestGeneratedTusConformanceEvents {
             assertContains(feature.conformance.scenarioIds, scenario.scenarioId);
             assertEventPolicyEquals(testCase.eventPolicy, scenario.eventPolicy);
             assertArrayEquals(testCase.eventKeys, scenario.eventKeys);
+        }
+    }
+
+    /**
+     * Verifies generated named proof-profile scenarios survive in the Java fixture.
+     */
+    @Test
+    public void testGeneratedProofProfileScenarios() {
+        for (GeneratedTusProofProfileCase testCase : PROOF_CASES) {
+            GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario scenario =
+                    findScenario(testCase.scenarioId);
+            GeneratedTusProtocolContract.GeneratedTusClientFeature feature =
+                    findFeature(testCase.featureId);
+
+            assertEquals(testCase.behavior, scenario.behavior);
+            assertEquals(testCase.completionKind, scenario.completionKind);
+            assertEquals(testCase.featureId, scenario.featureId);
+            assertContains(feature.conformance.scenarioIds, scenario.scenarioId);
+            assertArrayEquals(testCase.operationIds, scenario.operationIds);
+            assertArrayEquals(testCase.primitives, scenario.primitives);
         }
     }
 
@@ -404,6 +505,33 @@ public class TestGeneratedTusConformanceEvents {
             this.scenarioId = scenarioId;
             this.eventPolicy = eventPolicy;
             this.eventKeys = eventKeys;
+        }
+    }
+
+    private static final class GeneratedTusProofProfileCase {
+        final String profile;
+        final String behavior;
+        final String completionKind;
+        final String featureId;
+        final String scenarioId;
+        final String[] operationIds;
+        final String[] primitives;
+
+        GeneratedTusProofProfileCase(
+                String profile,
+                String behavior,
+                String completionKind,
+                String featureId,
+                String scenarioId,
+                String[] operationIds,
+                String[] primitives) {
+            this.profile = profile;
+            this.behavior = behavior;
+            this.completionKind = completionKind;
+            this.featureId = featureId;
+            this.scenarioId = scenarioId;
+            this.operationIds = operationIds;
+            this.primitives = primitives;
         }
     }
 }
