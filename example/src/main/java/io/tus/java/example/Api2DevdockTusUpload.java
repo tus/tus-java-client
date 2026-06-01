@@ -30,6 +30,7 @@ public final class Api2DevdockTusUpload {
             final JSONObject scenario = loadScenario();
             final JSONObject createResponse = scenario.getJSONObject("prepared").getJSONObject("createResponse");
             final String uploadUrl = uploadWithTus(scenario, createResponse);
+            writeResult(uploadUrl);
 
             System.out.println(
                     "Java TUS SDK devdock scenario "
@@ -51,6 +52,20 @@ public final class Api2DevdockTusUpload {
 
         final byte[] contents = Files.readAllBytes(Paths.get(scenarioPath));
         return new JSONObject(new String(contents, StandardCharsets.UTF_8));
+    }
+
+    private static void writeResult(String uploadUrl) throws IOException {
+        final String resultPath = System.getenv("API2_SDK_EXAMPLE_RESULT");
+        if (resultPath == null || resultPath.isEmpty()) {
+            return;
+        }
+
+        final JSONObject result = new JSONObject();
+        result.put("uploadUrl", uploadUrl);
+        Files.write(
+                Paths.get(resultPath),
+                (result.toString(2) + "\n").getBytes(StandardCharsets.UTF_8)
+        );
     }
 
     private static String uploadWithTus(
