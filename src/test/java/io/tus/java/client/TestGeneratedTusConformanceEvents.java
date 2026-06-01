@@ -49,6 +49,7 @@ public class TestGeneratedTusConformanceEvents {
                 "progress:0:11",
                 "progress:5:11",
                 "upload-url-available",
+                "chunk-complete:5:5:11",
                 "progress:5:11",
                 "progress:10:11",
                 "chunk-complete:5:10:11",
