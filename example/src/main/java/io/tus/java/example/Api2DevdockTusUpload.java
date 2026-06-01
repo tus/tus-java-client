@@ -18,6 +18,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public final class Api2DevdockTusUpload {
+    /**
+     * Run the API2 devdock TUS upload example.
+     *
+     * @param args ignored
+     */
     public static void main(String[] args) {
         try {
             System.setProperty("http.strictPostRedirect", "true");
@@ -68,9 +73,10 @@ public final class Api2DevdockTusUpload {
 
         final TusUploader uploader = client.resumeOrCreateUpload(upload);
         uploader.setChunkSize(content.length);
-        while (uploader.uploadChunk() > -1) {
-            // Continue until the client reports that the source is fully uploaded.
-        }
+        int uploadedChunkSize;
+        do {
+            uploadedChunkSize = uploader.uploadChunk();
+        } while (uploadedChunkSize > -1);
         uploader.finish();
 
         if (uploader.getOffset() != content.length) {
