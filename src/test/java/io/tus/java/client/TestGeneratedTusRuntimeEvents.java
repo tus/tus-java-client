@@ -32,6 +32,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                 "singleUploadLifecycle",
                 "exact-except-extra-progress",
                 false,
+                new GeneratedTusRuntimeBeforeStartAction[0],
                 new GeneratedTusRuntimeEventInput(
                         "hello world",
                         "generated-contract",
@@ -92,6 +93,13 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                 "resumeFromPreviousUpload",
                 "exact-except-extra-progress",
                 false,
+                new GeneratedTusRuntimeBeforeStartAction[] {
+                new GeneratedTusRuntimeBeforeStartAction(
+                        "resume-from-previous-upload",
+                        1,
+                        0
+                ),
+            },
                 new GeneratedTusRuntimeEventInput(
                         "hello world",
                         "resume-contract",
@@ -149,6 +157,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                 "relativeLocationResolution",
                 "exact-except-extra-progress",
                 false,
+                new GeneratedTusRuntimeBeforeStartAction[0],
                 new GeneratedTusRuntimeEventInput(
                         "hello world",
                         "relative-contract",
@@ -209,6 +218,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                 "deferredLengthUpload",
                 "exact-except-extra-progress",
                 true,
+                new GeneratedTusRuntimeBeforeStartAction[0],
                 new GeneratedTusRuntimeEventInput(
                         "hello world",
                         "deferred-contract",
@@ -283,7 +293,11 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
             TusClient client = new TusClient();
             client.setUploadCreationURL(endpointUrlFor(testCase));
             GeneratedTusRuntimeEventUrlStore urlStore = urlStoreFor(testCase);
-            if (urlStore != null) {
+            if (hasResumeBeforeStartAction(testCase)) {
+                if (urlStore == null) {
+                    throw new AssertionError(
+                            testCase.scenarioId + " cannot resume without generated URL storage");
+                }
                 client.enableResuming(urlStore);
             }
             if (
@@ -321,11 +335,50 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
 
     private TusUploader uploaderFor(TusClient client, GeneratedTusRuntimeEventCase testCase)
             throws Exception {
-        if (testCase.input.storedUpload != null) {
+        GeneratedTusRuntimeBeforeStartAction resumeAction = resumeBeforeStartAction(testCase);
+        if (resumeAction != null) {
+            assertStoredUploadAvailableForResume(testCase, resumeAction);
             return client.resumeUpload(uploadFor(testCase));
         }
 
         return client.createUpload(uploadFor(testCase));
+    }
+
+    private boolean hasResumeBeforeStartAction(GeneratedTusRuntimeEventCase testCase) {
+        return resumeBeforeStartAction(testCase) != null;
+    }
+
+    private GeneratedTusRuntimeBeforeStartAction resumeBeforeStartAction(
+            GeneratedTusRuntimeEventCase testCase) {
+        GeneratedTusRuntimeBeforeStartAction action = null;
+        for (GeneratedTusRuntimeBeforeStartAction candidate : testCase.beforeStartActions) {
+            if (!"resume-from-previous-upload".equals(candidate.kind)) {
+                throw new AssertionError(
+                        testCase.scenarioId
+                                + " uses unsupported generated beforeStart action "
+                                + candidate.kind);
+            }
+
+            if (action != null) {
+                throw new AssertionError(
+                        testCase.scenarioId + " defines more than one resume beforeStart action");
+            }
+
+            action = candidate;
+        }
+
+        return action;
+    }
+
+    private void assertStoredUploadAvailableForResume(
+            GeneratedTusRuntimeEventCase testCase,
+            GeneratedTusRuntimeBeforeStartAction action) {
+        if (testCase.input.storedUpload == null) {
+            throw new AssertionError(
+                    testCase.scenarioId + " cannot resume without a generated stored upload");
+        }
+        assertEquals(testCase.scenarioId, 0, action.selectedPreviousUploadIndex);
+        assertEquals(testCase.scenarioId, 1, action.expectedPreviousUploadCount);
     }
 
     private TusUpload uploadFor(GeneratedTusRuntimeEventCase testCase) {
@@ -506,6 +559,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         final String scenarioId;
         final String eventPolicyMatching;
         final boolean uploadLengthDeferred;
+        final GeneratedTusRuntimeBeforeStartAction[] beforeStartActions;
         final GeneratedTusRuntimeEventInput input;
         final GeneratedTusRuntimeEventRequest[] requests;
         final String[] eventKeys;
@@ -514,15 +568,32 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                 String scenarioId,
                 String eventPolicyMatching,
                 boolean uploadLengthDeferred,
+                GeneratedTusRuntimeBeforeStartAction[] beforeStartActions,
                 GeneratedTusRuntimeEventInput input,
                 GeneratedTusRuntimeEventRequest[] requests,
                 String[] eventKeys) {
             this.scenarioId = scenarioId;
             this.eventPolicyMatching = eventPolicyMatching;
             this.uploadLengthDeferred = uploadLengthDeferred;
+            this.beforeStartActions = beforeStartActions;
             this.input = input;
             this.requests = requests;
             this.eventKeys = eventKeys;
+        }
+    }
+
+    private static final class GeneratedTusRuntimeBeforeStartAction {
+        final String kind;
+        final int expectedPreviousUploadCount;
+        final int selectedPreviousUploadIndex;
+
+        GeneratedTusRuntimeBeforeStartAction(
+                String kind,
+                int expectedPreviousUploadCount,
+                int selectedPreviousUploadIndex) {
+            this.kind = kind;
+            this.expectedPreviousUploadCount = expectedPreviousUploadCount;
+            this.selectedPreviousUploadIndex = selectedPreviousUploadIndex;
         }
     }
 
