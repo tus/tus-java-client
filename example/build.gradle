@@ -2,5 +2,11 @@ apply plugin: 'java'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'org.json:json:20240303'
     implementation rootProject
+}
+
+tasks.register('api2DevdockTusUpload', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusUpload'
 }
