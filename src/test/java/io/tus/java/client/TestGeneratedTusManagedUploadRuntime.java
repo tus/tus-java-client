@@ -17,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -46,6 +47,10 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                 ),
                 new GeneratedTusManagedUploadTransport(
                         "Location"
+                ),
+                new GeneratedTusManagedUploadTerminal(
+                        "succeeded",
+                        ""
                 ),
                 new GeneratedTusManagedUploadCleanup(
                         "remove-owned-source-after-success",
@@ -80,6 +85,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                                 0,
                                 "failed",
                                 new GeneratedTusManagedUploadFailure(
+                                        "after-accepted-offset",
                                         "io-error",
                                         7
                                 ),
@@ -166,6 +172,72 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         ),
                 }
         ),
+        new GeneratedTusManagedUploadRuntimeCase(
+                "managedUploadPermanentFailure",
+                new GeneratedTusManagedUploadRuntimeProfile(
+                        "java",
+                        "process-lifetime-worker-pool",
+                        "copy-to-owned-storage",
+                        "filesystem"
+                ),
+                new GeneratedTusManagedUploadTransport(
+                        "Location"
+                ),
+                new GeneratedTusManagedUploadTerminal(
+                        "failed",
+                        "unretryable-protocol-error"
+                ),
+                new GeneratedTusManagedUploadCleanup(
+                        "retain-owned-source-after-permanent-failure",
+                        "absent-after-permanent-failure"
+                ),
+                new GeneratedTusManagedUploadRetryPlan(
+                        new String[] {
+                        "pending",
+                        "running",
+                        "failed",
+                    },
+                        new int[0]
+                ),
+                new GeneratedTusManagedUploadInput(
+                        "hello failure!",
+                        7,
+                        "managed-permanent-failure-fingerprint",
+                        "managed-permanent-failure",
+                        new GeneratedTusManagedUploadMetadata[] {
+                        new GeneratedTusManagedUploadMetadata(
+                                "filename",
+                                "managed-permanent-failure.txt"
+                        ),
+                    }
+                ),
+                new GeneratedTusManagedUploadAttempt[] {
+                        new GeneratedTusManagedUploadAttempt(
+                                0,
+                                "failed",
+                                new GeneratedTusManagedUploadFailure(
+                                        "during-protocol-request",
+                                        "unretryable-protocol-error",
+                                        -1
+                                ),
+                                new GeneratedTusManagedUploadRequest[] {
+                                        new GeneratedTusManagedUploadRequest(
+                                                "POST",
+                                                "endpoint",
+                                                0,
+                                                400,
+                                                new GeneratedTusManagedUploadHeader[] {
+                                                new GeneratedTusManagedUploadHeader(
+                                                        "Upload-Length",
+                                                        "14"
+                                                ),
+                                            },
+                                                new GeneratedTusManagedUploadHeader[0]
+                                        ),
+                                }
+                        ),
+                }
+        ),
     };
     private static final GeneratedTusMethodOverride[] METHOD_OVERRIDES =
             new GeneratedTusMethodOverride[] {
@@ -208,12 +280,12 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         return executor.makeAttempts();
                     }
                 });
-                assertTrue(testCase.scenarioId, future.get());
+                assertTerminalResult(testCase, future);
             } finally {
                 worker.shutdownNow();
             }
 
-            cleanupAfterSuccess(testCase, ownedSource);
+            cleanupAfterTerminalState(testCase, ownedSource);
 
             assertArrayEquals(
                     testCase.scenarioId,
@@ -224,12 +296,53 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                     testCase.expectedStates,
                     Files.readAllLines(stateFile.toPath(), StandardCharsets.UTF_8)
                             .toArray(new String[testCase.expectedStates.length]));
-            assertNull(testCase.scenarioId, urlStore.get(testCase.input.fingerprint));
-            assertFalse(testCase.scenarioId, ownedSource.exists());
+            assertResumeUrlState(testCase, urlStore);
+            assertOwnedSourceState(testCase, ownedSource);
             assertTrue(testCase.scenarioId, source.exists());
             source.delete();
             stateFile.delete();
         }
+    }
+
+    private void assertTerminalResult(
+            GeneratedTusManagedUploadRuntimeCase testCase,
+            Future<Boolean> future) throws Exception {
+        try {
+            boolean result = future.get();
+            if (!"succeeded".equals(testCase.terminalState)) {
+                throw new AssertionError(testCase.scenarioId + " expected terminal failure");
+            }
+            assertTrue(testCase.scenarioId, result);
+        } catch (ExecutionException error) {
+            if (!"failed".equals(testCase.terminalState)) {
+                throw error;
+            }
+            assertTerminalFailure(testCase, error.getCause());
+        }
+    }
+
+    private void assertTerminalFailure(
+            GeneratedTusManagedUploadRuntimeCase testCase,
+            Throwable error) {
+        if ("unretryable-protocol-error".equals(testCase.terminalFailure)) {
+            assertTrue(testCase.scenarioId, error instanceof ProtocolException);
+            return;
+        }
+        if ("source-unavailable".equals(testCase.terminalFailure)) {
+            assertTrue(testCase.scenarioId, error instanceof IOException);
+            return;
+        }
+        if ("retry-policy-exhausted".equals(testCase.terminalFailure)) {
+            assertTrue(
+                    testCase.scenarioId,
+                    error instanceof ProtocolException || error instanceof IOException);
+            return;
+        }
+
+        throw new AssertionError(
+                testCase.scenarioId
+                        + " uses unsupported generated terminal failure "
+                        + testCase.terminalFailure);
     }
 
     private TusExecutor managedExecutorFor(
@@ -247,26 +360,51 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                 attemptIndex += 1;
                 recordState(testCase, states, stateFile, "running");
 
-                TusUpload upload = uploadFor(testCase, ownedSource);
-                TusUploader uploader = client.resumeOrCreateUpload(upload);
-                uploader.setChunkSize(testCase.input.chunkSize);
-                uploader.setRequestPayloadSize(testCase.input.chunkSize);
-                while (uploader.getOffset() < upload.getSize()) {
-                    uploader.uploadChunk();
-                    if (
-                            attempt.failure != null
-                            && uploader.getOffset() == attempt.failure.afterAcceptedOffset) {
-                        uploader.finish(false);
-                        recordState(testCase, states, stateFile, attempt.stateAfterAttempt);
-                        throw new IOException(attempt.failure.kind);
+                try {
+                    TusUpload upload = uploadFor(testCase, ownedSource);
+                    TusUploader uploader = client.resumeOrCreateUpload(upload);
+                    uploader.setChunkSize(testCase.input.chunkSize);
+                    uploader.setRequestPayloadSize(testCase.input.chunkSize);
+                    while (uploader.getOffset() < upload.getSize()) {
+                        uploader.uploadChunk();
+                        if (
+                                isAfterAcceptedOffsetFailure(attempt)
+                                && uploader.getOffset() == attempt.failure.afterAcceptedOffset) {
+                            uploader.finish(false);
+                            recordState(testCase, states, stateFile, attempt.stateAfterAttempt);
+                            throw new IOException(attempt.failure.kind);
+                        }
                     }
+                    uploader.finish();
+                    recordState(testCase, states, stateFile, attempt.stateAfterAttempt);
+                } catch (ProtocolException error) {
+                    recordDuringProtocolFailure(testCase, states, stateFile, attempt);
+                    throw error;
+                } catch (IOException error) {
+                    recordDuringProtocolFailure(testCase, states, stateFile, attempt);
+                    throw error;
                 }
-                uploader.finish();
-                recordState(testCase, states, stateFile, attempt.stateAfterAttempt);
             }
         };
         executor.setDelays(testCase.retryDelays);
         return executor;
+    }
+
+    private boolean isAfterAcceptedOffsetFailure(GeneratedTusManagedUploadAttempt attempt) {
+        return attempt.failure != null
+                && "after-accepted-offset".equals(attempt.failure.phase);
+    }
+
+    private void recordDuringProtocolFailure(
+            GeneratedTusManagedUploadRuntimeCase testCase,
+            List<String> states,
+            File stateFile,
+            GeneratedTusManagedUploadAttempt attempt) throws IOException {
+        if (attempt.failure == null || !"during-protocol-request".equals(attempt.failure.phase)) {
+            return;
+        }
+
+        recordState(testCase, states, stateFile, attempt.stateAfterAttempt);
     }
 
     private TusUpload uploadFor(
@@ -301,7 +439,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
         assertTrue(testCase.scenarioId, ownedSource.exists());
     }
 
-    private void cleanupAfterSuccess(
+    private void cleanupAfterTerminalState(
             GeneratedTusManagedUploadRuntimeCase testCase,
             File ownedSource) throws IOException {
         if (!"remove-owned-source-after-success".equals(testCase.ownedSourceCleanup)) {
@@ -309,6 +447,41 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
         }
 
         Files.deleteIfExists(ownedSource.toPath());
+    }
+
+    private void assertOwnedSourceState(
+            GeneratedTusManagedUploadRuntimeCase testCase,
+            File ownedSource) {
+        if ("remove-owned-source-after-success".equals(testCase.ownedSourceCleanup)) {
+            assertFalse(testCase.scenarioId, ownedSource.exists());
+            return;
+        }
+        if ("retain-owned-source-after-permanent-failure".equals(testCase.ownedSourceCleanup)) {
+            assertTrue(testCase.scenarioId, ownedSource.exists());
+            ownedSource.delete();
+            return;
+        }
+
+        throw new AssertionError(
+                testCase.scenarioId
+                        + " uses unsupported generated owned-source cleanup "
+                        + testCase.ownedSourceCleanup);
+    }
+
+    private void assertResumeUrlState(
+            GeneratedTusManagedUploadRuntimeCase testCase,
+            GeneratedTusManagedUploadUrlStore urlStore) {
+        if (
+                "remove-after-success".equals(testCase.resumeUrlCleanup)
+                || "absent-after-permanent-failure".equals(testCase.resumeUrlCleanup)) {
+            assertNull(testCase.scenarioId, urlStore.get(testCase.input.fingerprint));
+            return;
+        }
+
+        throw new AssertionError(
+                testCase.scenarioId
+                        + " uses unsupported generated resume URL cleanup "
+                        + testCase.resumeUrlCleanup);
     }
 
     private void recordState(
@@ -440,6 +613,8 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
         final String sourceDurability;
         final String stateBackend;
         final String locationHeaderName;
+        final String terminalState;
+        final String terminalFailure;
         final String ownedSourceCleanup;
         final String resumeUrlCleanup;
         final String[] expectedStates;
@@ -452,6 +627,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                 String scenarioId,
                 GeneratedTusManagedUploadRuntimeProfile profile,
                 GeneratedTusManagedUploadTransport transport,
+                GeneratedTusManagedUploadTerminal terminal,
                 GeneratedTusManagedUploadCleanup cleanup,
                 GeneratedTusManagedUploadRetryPlan retryPlan,
                 GeneratedTusManagedUploadInput input,
@@ -462,6 +638,8 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
             this.sourceDurability = profile.sourceDurability;
             this.stateBackend = profile.stateBackend;
             this.locationHeaderName = transport.locationHeaderName;
+            this.terminalState = terminal.state;
+            this.terminalFailure = terminal.failure;
             this.ownedSourceCleanup = cleanup.ownedSource;
             this.resumeUrlCleanup = cleanup.resumeUrl;
             this.expectedStates = retryPlan.expectedStates;
@@ -469,6 +647,16 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
             this.offsetDiscoveryMethod = offsetDiscoveryMethod();
             this.input = input;
             this.attempts = attempts;
+        }
+    }
+
+    private static final class GeneratedTusManagedUploadTerminal {
+        final String state;
+        final String failure;
+
+        GeneratedTusManagedUploadTerminal(String state, String failure) {
+            this.state = state;
+            this.failure = failure;
         }
     }
 
@@ -558,10 +746,12 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
     }
 
     private static final class GeneratedTusManagedUploadFailure {
+        final String phase;
         final String kind;
         final long afterAcceptedOffset;
 
-        GeneratedTusManagedUploadFailure(String kind, long afterAcceptedOffset) {
+        GeneratedTusManagedUploadFailure(String phase, String kind, long afterAcceptedOffset) {
+            this.phase = phase;
             this.kind = kind;
             this.afterAcceptedOffset = afterAcceptedOffset;
         }
