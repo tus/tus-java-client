@@ -441,7 +441,9 @@ public class TestTusClient extends MockServerProvider {
         TusClient client = new TusClient();
         client.prepareConnection(connection);
 
-        assertEquals(connection.getRequestProperty("Tus-Resumable"), TusClient.TUS_VERSION);
+        for (Map.Entry<String, String> entry : TusProtocol.DEFAULT_REQUEST_HEADERS.entrySet()) {
+            assertEquals(entry.getValue(), connection.getRequestProperty(entry.getKey()));
+        }
     }
 
     /**

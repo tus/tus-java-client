@@ -351,8 +351,8 @@ public class TusClient {
     }
 
     /**
-     * Set headers used for every HTTP request. Currently, this will add the Tus-Resumable header
-     * and any custom header which can be configured using {@link #setHeaders(Map)},
+     * Set headers used for every HTTP request. Currently, this will add generated protocol default
+     * headers and any custom header which can be configured using {@link #setHeaders(Map)},
      *
      * @param connection The connection whose headers will be modified.
      */
@@ -367,7 +367,9 @@ public class TusClient {
         connection.setInstanceFollowRedirects(Boolean.getBoolean("http.strictPostRedirect"));
 
         connection.setConnectTimeout(connectTimeout);
-        connection.addRequestProperty("Tus-Resumable", TUS_VERSION);
+        for (Map.Entry<String, String> entry : TusProtocol.DEFAULT_REQUEST_HEADERS.entrySet()) {
+            connection.addRequestProperty(entry.getKey(), entry.getValue());
+        }
 
         if (headers != null) {
             for (Map.Entry<String, String> entry : headers.entrySet()) {

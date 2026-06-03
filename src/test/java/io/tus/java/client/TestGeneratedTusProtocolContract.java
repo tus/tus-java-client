@@ -1,5 +1,7 @@
 package io.tus.java.client;
 
+import java.util.Map;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -27,9 +29,14 @@ public class TestGeneratedTusProtocolContract {
         }
 
         assertEquals(1, defaultCount);
-        assertEquals("1.0.0", generatedDefault);
         assertEquals(generatedDefault, TusProtocol.DEFAULT_PROTOCOL_VERSION);
         assertEquals(generatedDefault, TusClient.TUS_VERSION);
+        assertEquals(
+                generatedDefault,
+                onlyGeneratedProtocolHeader(TusProtocol.DEFAULT_REQUEST_HEADERS));
+        assertEquals(
+                generatedDefault,
+                onlyGeneratedProtocolHeader(TusProtocol.DEFAULT_RESPONSE_HEADERS));
     }
 
     /**
@@ -80,6 +87,15 @@ public class TestGeneratedTusProtocolContract {
         }
 
         throw new AssertionError("Missing generated TUS operation: " + operationId);
+    }
+
+    private static String onlyGeneratedProtocolHeader(Map<String, String> headers) {
+        assertEquals(1, headers.size());
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
+            return entry.getValue();
+        }
+
+        throw new AssertionError("Generated protocol header map was empty");
     }
 
     private static GeneratedTusProtocolContract.GeneratedTusClientFeature findFeature(
