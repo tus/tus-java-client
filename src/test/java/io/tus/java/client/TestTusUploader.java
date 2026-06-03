@@ -42,17 +42,15 @@ public class TestTusUploader extends MockServerProvider {
     public void testTusUploader() throws IOException, ProtocolException {
         byte[] content = "hello world".getBytes();
 
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withPath("/files/foo")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
                 .withHeader("Upload-Offset", "3")
                 .withHeader("Content-Type", "application/offset+octet-stream")
                 .withHeader("Connection", "keep-alive")
-                .withBody(Arrays.copyOfRange(content, 3, 11)))
-                .respond(new HttpResponse()
+                .withBody(Arrays.copyOfRange(content, 3, 11))))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(204)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Upload-Offset", "11"));
+                        .withHeader("Upload-Offset", "11")));
 
         TusClient client = new TusClient();
         URL uploadUrl = new URL(mockServerURL + "/foo");
@@ -83,17 +81,15 @@ public class TestTusUploader extends MockServerProvider {
     public void testTusUploaderDeclaresDeferredLength() throws IOException, ProtocolException {
         byte[] content = "hello world".getBytes();
 
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withPath("/files/deferred")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
                 .withHeader("Upload-Length", "11")
                 .withHeader("Upload-Offset", "0")
                 .withHeader("Content-Type", "application/offset+octet-stream")
-                .withBody(content))
-                .respond(new HttpResponse()
+                .withBody(content)))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(204)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Upload-Offset", "11"));
+                        .withHeader("Upload-Offset", "11")));
 
         TusClient client = new TusClient();
         URL uploadUrl = new URL(mockServerURL + "/deferred");
@@ -119,17 +115,15 @@ public class TestTusUploader extends MockServerProvider {
     public void testTusUploaderWithProxy() throws IOException, ProtocolException {
         byte[] content = "hello world with proxy".getBytes();
 
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withPath("/files/foo")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
                 .withHeader("Upload-Offset", "0")
                 .withHeader("Content-Type", "application/offset+octet-stream")
                 .withHeader("Proxy-Connection", "keep-alive")
-                .withBody(Arrays.copyOf(content, content.length)))
-            .respond(new HttpResponse()
+                .withBody(Arrays.copyOf(content, content.length))))
+            .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                 .withStatusCode(204)
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                .withHeader("Upload-Offset", "22"));
+                .withHeader("Upload-Offset", "22")));
 
         TusClient client = new TusClient();
         URL uploadUrl = new URL(mockServerURL + "/foo");
@@ -283,38 +277,32 @@ public class TestTusUploader extends MockServerProvider {
     public void testSetRequestPayloadSize() throws Exception {
         byte[] content = "hello world".getBytes();
 
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withPath("/files/payload")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
                 .withHeader("Upload-Offset", "0")
                 .withHeader("Content-Type", "application/offset+octet-stream")
-                .withBody(Arrays.copyOfRange(content, 0, 5)))
-                .respond(new HttpResponse()
+                .withBody(Arrays.copyOfRange(content, 0, 5))))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(204)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Upload-Offset", "5"));
+                        .withHeader("Upload-Offset", "5")));
 
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withPath("/files/payload")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
                 .withHeader("Upload-Offset", "5")
                 .withHeader("Content-Type", "application/offset+octet-stream")
-                .withBody(Arrays.copyOfRange(content, 5, 10)))
-                .respond(new HttpResponse()
+                .withBody(Arrays.copyOfRange(content, 5, 10))))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(204)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Upload-Offset", "10"));
+                        .withHeader("Upload-Offset", "10")));
 
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withPath("/files/payload")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
                 .withHeader("Upload-Offset", "10")
                 .withHeader("Content-Type", "application/offset+octet-stream")
-                .withBody(Arrays.copyOfRange(content, 10, 11)))
-                .respond(new HttpResponse()
+                .withBody(Arrays.copyOfRange(content, 10, 11))))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(204)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Upload-Offset", "11"));
+                        .withHeader("Upload-Offset", "11")));
 
         TusClient client = new TusClient();
         URL uploadUrl = new URL(mockServerURL + "/payload");
@@ -374,11 +362,10 @@ public class TestTusUploader extends MockServerProvider {
     public void testMissingUploadOffsetHeader() throws Exception {
         byte[] content = "hello world".getBytes();
 
-        mockServer.when(new HttpRequest()
-                .withPath("/files/missingHeader"))
-                .respond(new HttpResponse()
-                        .withStatusCode(204)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION));
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
+                .withPath("/files/missingHeader")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
+                        .withStatusCode(204)));
 
         TusClient client = new TusClient();
         URL uploadUrl = new URL(mockServerURL + "/missingHeader");
@@ -408,12 +395,11 @@ public class TestTusUploader extends MockServerProvider {
     public void testUnmatchingUploadOffsetHeader() throws Exception {
         byte[] content = "hello world".getBytes();
 
-        mockServer.when(new HttpRequest()
-                .withPath("/files/unmatchingHeader"))
-                .respond(new HttpResponse()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
+                .withPath("/files/unmatchingHeader")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(204)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Upload-Offset", "44"));
+                        .withHeader("Upload-Offset", "44")));
 
         TusClient client = new TusClient();
         URL uploadUrl = new URL(mockServerURL + "/unmatchingHeader");

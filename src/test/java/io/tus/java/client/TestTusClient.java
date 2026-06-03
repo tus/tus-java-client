@@ -81,17 +81,15 @@ public class TestTusClient extends MockServerProvider {
      */
     @Test
     public void testCreateUpload() throws IOException, ProtocolException {
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("POST")
                 .withPath("/files")
                 .withHeader("Connection", "keep-alive")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
                 .withHeader("Upload-Metadata", "foo aGVsbG8=,bar d29ybGQ=")
-                .withHeader("Upload-Length", "10"))
-                .respond(new HttpResponse()
+                .withHeader("Upload-Length", "10")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(201)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Location", mockServerURL + "/foo"));
+                        .withHeader("Location", mockServerURL + "/foo")));
 
         Map<String, String> metadata = new LinkedHashMap<String, String>();
         metadata.put("foo", "hello");
@@ -115,15 +113,13 @@ public class TestTusClient extends MockServerProvider {
      */
     @Test
     public void testCreateUploadWithDeferredLength() throws IOException, ProtocolException {
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("POST")
                 .withPath("/files")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                .withHeader("Upload-Defer-Length", "1"))
-                .respond(new HttpResponse()
+                .withHeader("Upload-Defer-Length", "1")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(201)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Location", mockServerURL + "/foo"));
+                        .withHeader("Location", mockServerURL + "/foo")));
 
         TusClient client = new TusClient();
         client.setUploadCreationURL(mockServerURL);
@@ -148,17 +144,15 @@ public class TestTusClient extends MockServerProvider {
      */
     @Test
     public void testCreateUploadWithProxy() throws IOException, ProtocolException {
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("POST")
                 .withPath("/files")
                 .withHeader("Proxy-Connection", "keep-alive")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
                 .withHeader("Upload-Metadata", "foo aGVsbG8=,bar d29ybGQ=")
-                .withHeader("Upload-Length", "11"))
-                .respond(new HttpResponse()
+                .withHeader("Upload-Length", "11")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(201)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Location", mockServerURL + "/foo"));
+                        .withHeader("Location", mockServerURL + "/foo")));
 
         Map<String, String> metadata = new LinkedHashMap<String, String>();
         metadata.put("foo", "hello");
@@ -182,14 +176,12 @@ public class TestTusClient extends MockServerProvider {
      */
     @Test
     public void testCreateUploadWithMissingLocationHeader() throws Exception {
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("POST")
                 .withPath("/files")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                .withHeader("Upload-Length", "10"))
-                .respond(new HttpResponse()
-                        .withStatusCode(201)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION));
+                .withHeader("Upload-Length", "10")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
+                        .withStatusCode(201)));
 
         TusClient client = new TusClient();
         client.setUploadCreationURL(mockServerURL);
@@ -214,24 +206,21 @@ public class TestTusClient extends MockServerProvider {
         System.setProperty("http.strictPostRedirect", "true");
 
         // Attempt a real redirect
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("POST")
                 .withPath("/filesRedirect")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                .withHeader("Upload-Length", "10"))
+                .withHeader("Upload-Length", "10")))
                 .respond(new HttpResponse()
                         .withStatusCode(301)
                         .withHeader("Location", mockServerURL + "Redirected/"));
 
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("POST")
                 .withPath("/filesRedirected/")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                .withHeader("Upload-Length", "10"))
-                .respond(new HttpResponse()
+                .withHeader("Upload-Length", "10")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(201)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Location", "foo"));
+                        .withHeader("Location", "foo")));
 
         TusClient client = new TusClient();
         client.setUploadCreationURL(new URL(mockServerURL + "Redirect"));
@@ -256,14 +245,12 @@ public class TestTusClient extends MockServerProvider {
     @Test
     public void testResumeUpload() throws ResumingNotEnabledException, FingerprintNotFoundException, IOException,
             ProtocolException {
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("HEAD")
-                .withPath("/files/foo")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION))
-                .respond(new HttpResponse()
+                .withPath("/files/foo")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(204)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Upload-Offset", "3"));
+                        .withHeader("Upload-Offset", "3")));
 
         TusClient client = new TusClient();
         client.setUploadCreationURL(mockServerURL);
@@ -309,16 +296,14 @@ public class TestTusClient extends MockServerProvider {
      */
     @Test
     public void testResumeOrCreateUpload() throws IOException, ProtocolException {
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("POST")
                 .withPath("/files")
                 .withHeader("Connection", "keep-alive")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                .withHeader("Upload-Length", "10"))
-                .respond(new HttpResponse()
+                .withHeader("Upload-Length", "10")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(201)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Location", mockServerURL + "/foo"));
+                        .withHeader("Location", mockServerURL + "/foo")));
 
         TusClient client = new TusClient();
         client.setUploadCreationURL(mockServerURL);
@@ -338,16 +323,14 @@ public class TestTusClient extends MockServerProvider {
      */
     @Test
     public void testResumeOrCreateUploadWithProxy() throws IOException, ProtocolException {
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("POST")
                 .withPath("/files")
                 .withHeader("Proxy-Connection", "keep-alive")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                .withHeader("Upload-Length", "11"))
-                .respond(new HttpResponse()
+                .withHeader("Upload-Length", "11")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(201)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Location", mockServerURL + "/foo"));
+                        .withHeader("Location", mockServerURL + "/foo")));
 
         TusClient client = new TusClient();
         client.setUploadCreationURL(mockServerURL);
@@ -369,22 +352,19 @@ public class TestTusClient extends MockServerProvider {
      */
     @Test
     public void testResumeOrCreateUploadNotFound() throws IOException, ProtocolException {
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("HEAD")
-                .withPath("/files/not_found")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION))
+                .withPath("/files/not_found")))
                 .respond(new HttpResponse()
                         .withStatusCode(404));
 
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("POST")
                 .withPath("/files")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                .withHeader("Upload-Length", "10"))
-                .respond(new HttpResponse()
+                .withHeader("Upload-Length", "10")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(201)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Location", mockServerURL + "/foo"));
+                        .withHeader("Location", mockServerURL + "/foo")));
 
         TusClient client = new TusClient();
         client.setUploadCreationURL(mockServerURL);
@@ -409,14 +389,12 @@ public class TestTusClient extends MockServerProvider {
      */
     @Test
     public void testBeginOrResumeUploadFromURL() throws IOException, ProtocolException {
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("HEAD")
-                .withPath("/files/fooFromURL")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION))
-                .respond(new HttpResponse()
+                .withPath("/files/fooFromURL")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(204)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Upload-Offset", "3"));
+                        .withHeader("Upload-Offset", "3")));
 
         TusClient client = new TusClient();
         URL uploadURL = new URL(mockServerURL.toString() + "/fooFromURL");
@@ -507,24 +485,21 @@ public class TestTusClient extends MockServerProvider {
         assertTrue(connection.getInstanceFollowRedirects());
 
         // Attempt a real redirect
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("POST")
                 .withPath("/filesRedirect")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                .withHeader("Upload-Length", "10"))
+                .withHeader("Upload-Length", "10")))
                 .respond(new HttpResponse()
                         .withStatusCode(301)
                         .withHeader("Location", mockServerURL + "Redirected"));
 
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("POST")
                 .withPath("/filesRedirected")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                .withHeader("Upload-Length", "10"))
-                .respond(new HttpResponse()
+                .withHeader("Upload-Length", "10")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(201)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Location", mockServerURL + "/foo"));
+                        .withHeader("Location", mockServerURL + "/foo")));
 
         client.setUploadCreationURL(new URL(mockServerURL + "Redirect"));
         TusUpload upload = new TusUpload();
