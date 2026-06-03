@@ -6,10 +6,17 @@
 
 package io.tus.java.client;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * Generated TUS protocol contract fixture used by tests.
  */
 final class GeneratedTusProtocolContract {
+    static final Map<String, String> DEFAULT_REQUEST_HEADERS = defaultRequestHeaders();
+    static final Map<String, String> DEFAULT_RESPONSE_HEADERS = defaultResponseHeaders();
+
     static final GeneratedTusWireVersion[] WIRE_VERSIONS = new GeneratedTusWireVersion[] {
         new GeneratedTusWireVersion(
                 true,
@@ -1308,6 +1315,18 @@ final class GeneratedTusProtocolContract {
             GeneratedTusClientConformanceScenarios.CLIENT_CONFORMANCE_SCENARIOS;
 
     private GeneratedTusProtocolContract() {
+    }
+
+    private static Map<String, String> defaultRequestHeaders() {
+        Map<String, String> result = new LinkedHashMap<String, String>();
+        result.put("Tus-Resumable", "1.0.0");
+        return Collections.unmodifiableMap(result);
+    }
+
+    private static Map<String, String> defaultResponseHeaders() {
+        Map<String, String> result = new LinkedHashMap<String, String>();
+        result.put("Tus-Resumable", "1.0.0");
+        return Collections.unmodifiableMap(result);
     }
 
     /**
