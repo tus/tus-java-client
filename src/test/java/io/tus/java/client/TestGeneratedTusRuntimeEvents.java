@@ -52,28 +52,22 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 "POST",
                                 "endpoint",
                                 201,
+                                true,
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
                                         "Upload-Length",
                                         "11"
                                 ),
                                 new GeneratedTusRuntimeEventHeader(
-                                        "Tus-Resumable",
-                                        "1.0.0"
-                                ),
-                                new GeneratedTusRuntimeEventHeader(
                                         "Upload-Metadata",
                                         "filename aGVsbG8udHh0"
                                 ),
                             },
+                                true,
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
                                         "Location",
                                         "https://tus.io/uploads/generated-contract"
-                                ),
-                                new GeneratedTusRuntimeEventHeader(
-                                        "Tus-Resumable",
-                                        "1.0.0"
                                 ),
                             }
                         ),
@@ -81,6 +75,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 "PATCH",
                                 "upload",
                                 204,
+                                true,
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
                                         "Upload-Offset",
@@ -90,19 +85,12 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                         "Content-Type",
                                         "application/offset+octet-stream"
                                 ),
-                                new GeneratedTusRuntimeEventHeader(
-                                        "Tus-Resumable",
-                                        "1.0.0"
-                                ),
                             },
+                                true,
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
                                         "Upload-Offset",
                                         "11"
-                                ),
-                                new GeneratedTusRuntimeEventHeader(
-                                        "Tus-Resumable",
-                                        "1.0.0"
                                 ),
                             }
                         ),
@@ -141,12 +129,9 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 "HEAD",
                                 "upload",
                                 200,
-                                new GeneratedTusRuntimeEventHeader[] {
-                                new GeneratedTusRuntimeEventHeader(
-                                        "Tus-Resumable",
-                                        "1.0.0"
-                                ),
-                            },
+                                true,
+                                new GeneratedTusRuntimeEventHeader[0],
+                                true,
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
                                         "Upload-Length",
@@ -156,16 +141,13 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                         "Upload-Offset",
                                         "5"
                                 ),
-                                new GeneratedTusRuntimeEventHeader(
-                                        "Tus-Resumable",
-                                        "1.0.0"
-                                ),
                             }
                         ),
                         new GeneratedTusRuntimeEventRequest(
                                 "PATCH",
                                 "upload",
                                 204,
+                                true,
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
                                         "Upload-Offset",
@@ -175,19 +157,12 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                         "Content-Type",
                                         "application/offset+octet-stream"
                                 ),
-                                new GeneratedTusRuntimeEventHeader(
-                                        "Tus-Resumable",
-                                        "1.0.0"
-                                ),
                             },
+                                true,
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
                                         "Upload-Offset",
                                         "11"
-                                ),
-                                new GeneratedTusRuntimeEventHeader(
-                                        "Tus-Resumable",
-                                        "1.0.0"
                                 ),
                             }
                         ),
@@ -222,28 +197,22 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 "POST",
                                 "endpoint",
                                 201,
+                                true,
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
                                         "Upload-Length",
                                         "11"
                                 ),
                                 new GeneratedTusRuntimeEventHeader(
-                                        "Tus-Resumable",
-                                        "1.0.0"
-                                ),
-                                new GeneratedTusRuntimeEventHeader(
                                         "Upload-Metadata",
                                         "filename aGVsbG8udHh0"
                                 ),
                             },
+                                true,
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
                                         "Location",
                                         "relative-contract"
-                                ),
-                                new GeneratedTusRuntimeEventHeader(
-                                        "Tus-Resumable",
-                                        "1.0.0"
                                 ),
                             }
                         ),
@@ -251,6 +220,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 "PATCH",
                                 "upload",
                                 204,
+                                true,
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
                                         "Upload-Offset",
@@ -260,19 +230,12 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                         "Content-Type",
                                         "application/offset+octet-stream"
                                 ),
-                                new GeneratedTusRuntimeEventHeader(
-                                        "Tus-Resumable",
-                                        "1.0.0"
-                                ),
                             },
+                                true,
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
                                         "Upload-Offset",
                                         "11"
-                                ),
-                                new GeneratedTusRuntimeEventHeader(
-                                        "Tus-Resumable",
-                                        "1.0.0"
                                 ),
                             }
                         ),
@@ -307,28 +270,22 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 "POST",
                                 "endpoint",
                                 201,
+                                true,
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
                                         "Upload-Defer-Length",
                                         "1"
                                 ),
                                 new GeneratedTusRuntimeEventHeader(
-                                        "Tus-Resumable",
-                                        "1.0.0"
-                                ),
-                                new GeneratedTusRuntimeEventHeader(
                                         "Upload-Metadata",
                                         "filename aGVsbG8udHh0"
                                 ),
                             },
+                                true,
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
                                         "Location",
                                         "https://tus.io/uploads/deferred-contract"
-                                ),
-                                new GeneratedTusRuntimeEventHeader(
-                                        "Tus-Resumable",
-                                        "1.0.0"
                                 ),
                             }
                         ),
@@ -336,6 +293,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 "PATCH",
                                 "upload",
                                 204,
+                                true,
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
                                         "Upload-Length",
@@ -349,19 +307,12 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                         "Content-Type",
                                         "application/offset+octet-stream"
                                 ),
-                                new GeneratedTusRuntimeEventHeader(
-                                        "Tus-Resumable",
-                                        "1.0.0"
-                                ),
                             },
+                                true,
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
                                         "Upload-Offset",
                                         "11"
-                                ),
-                                new GeneratedTusRuntimeEventHeader(
-                                        "Tus-Resumable",
-                                        "1.0.0"
                                 ),
                             }
                         ),
@@ -524,6 +475,11 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         HttpRequest httpRequest = new HttpRequest()
                 .withMethod(method)
                 .withPath(pathFor(testCase, request));
+        if (request.includesDefaultProtocolRequestHeaders) {
+            for (Map.Entry<String, String> entry : TusProtocol.DEFAULT_REQUEST_HEADERS.entrySet()) {
+                httpRequest.withHeader(entry.getKey(), entry.getValue());
+            }
+        }
         for (GeneratedTusRuntimeEventHeader header : request.requestHeaders) {
             httpRequest.withHeader(header.name, header.value);
         }
@@ -557,6 +513,11 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
             GeneratedTusRuntimeEventCase testCase,
             GeneratedTusRuntimeEventRequest request) throws Exception {
         HttpResponse response = new HttpResponse().withStatusCode(request.statusCode);
+        if (request.includesDefaultProtocolResponseHeaders) {
+            for (Map.Entry<String, String> entry : TusProtocol.DEFAULT_RESPONSE_HEADERS.entrySet()) {
+                response.withHeader(entry.getKey(), entry.getValue());
+            }
+        }
         for (GeneratedTusRuntimeEventHeader header : request.responseHeaders) {
             response.withHeader(header.name, headerValueFor(testCase, header));
         }
@@ -766,19 +727,25 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         final String method;
         final String url;
         final int statusCode;
+        final boolean includesDefaultProtocolRequestHeaders;
         final GeneratedTusRuntimeEventHeader[] requestHeaders;
+        final boolean includesDefaultProtocolResponseHeaders;
         final GeneratedTusRuntimeEventHeader[] responseHeaders;
 
         GeneratedTusRuntimeEventRequest(
                 String method,
                 String url,
                 int statusCode,
+                boolean includesDefaultProtocolRequestHeaders,
                 GeneratedTusRuntimeEventHeader[] requestHeaders,
+                boolean includesDefaultProtocolResponseHeaders,
                 GeneratedTusRuntimeEventHeader[] responseHeaders) {
             this.method = method;
             this.url = url;
             this.statusCode = statusCode;
+            this.includesDefaultProtocolRequestHeaders = includesDefaultProtocolRequestHeaders;
             this.requestHeaders = requestHeaders;
+            this.includesDefaultProtocolResponseHeaders = includesDefaultProtocolResponseHeaders;
             this.responseHeaders = responseHeaders;
         }
     }
