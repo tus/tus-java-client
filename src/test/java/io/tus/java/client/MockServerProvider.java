@@ -40,14 +40,14 @@ public class MockServerProvider {
         mockServer.stop();
     }
 
-    protected HttpRequest withDefaultProtocolRequestHeaders(HttpRequest request) {
+    protected final HttpRequest withDefaultProtocolRequestHeaders(HttpRequest request) {
         for (Map.Entry<String, String> entry : TusProtocol.DEFAULT_REQUEST_HEADERS.entrySet()) {
             request.withHeader(entry.getKey(), entry.getValue());
         }
         return request;
     }
 
-    protected HttpResponse withDefaultProtocolResponseHeaders(HttpResponse response) {
+    protected final HttpResponse withDefaultProtocolResponseHeaders(HttpResponse response) {
         for (Map.Entry<String, String> entry : TusProtocol.DEFAULT_RESPONSE_HEADERS.entrySet()) {
             response.withHeader(entry.getKey(), entry.getValue());
         }
