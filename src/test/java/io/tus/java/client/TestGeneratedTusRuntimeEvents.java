@@ -599,12 +599,10 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         }
     }
 
-    private static String generatedTusEventKey(String kind, String... parts) {
-        if (parts.length == 0) {
-            return kind;
-        }
+    private static final String generatedTusEventKeyPartSeparator = ":";
 
-        return kind + ":" + String.join(":", parts);
+    private static String generatedTusEventKey(String... parts) {
+        return String.join(generatedTusEventKeyPartSeparator, parts);
     }
 
     private static String generatedTusEventKeyNumber(long value) {
