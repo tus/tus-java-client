@@ -361,6 +361,10 @@ final class GeneratedTusProtocolContract {
         ),
     };
 
+    static final String OFFSET_DISCOVERY_OPERATION_ID =
+            "getTusUploadOffset";
+    static final String OFFSET_DISCOVERY_METHOD = operationMethod(OFFSET_DISCOVERY_OPERATION_ID);
+
     static final GeneratedTusClientFeature[] CLIENT_FEATURES = new GeneratedTusClientFeature[] {
         new GeneratedTusClientFeature(
                 new GeneratedTusClientFeatureConformance(
@@ -1359,6 +1363,16 @@ final class GeneratedTusProtocolContract {
             GeneratedTusClientConformanceScenarios.CLIENT_CONFORMANCE_SCENARIOS;
 
     private GeneratedTusProtocolContract() {
+    }
+
+    private static String operationMethod(String operationId) {
+        for (GeneratedTusProtocolOperation operation : OPERATIONS) {
+            if (operationId.equals(operation.operationId)) {
+                return operation.method;
+            }
+        }
+
+        throw new AssertionError("Missing generated operation " + operationId);
     }
 
     private static Map<String, String> defaultRequestHeaders() {

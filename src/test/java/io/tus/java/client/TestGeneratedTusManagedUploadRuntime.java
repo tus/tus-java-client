@@ -1034,14 +1034,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
     }
 
     private static String offsetDiscoveryMethod() {
-        for (GeneratedTusProtocolContract.GeneratedTusProtocolOperation operation
-                : GeneratedTusProtocolContract.OPERATIONS) {
-            if ("offset-discovery".equals(operation.role)) {
-                return operation.method;
-            }
-        }
-
-        throw new AssertionError("Missing generated offset-discovery operation");
+        return GeneratedTusProtocolContract.OFFSET_DISCOVERY_METHOD;
     }
 
     private static final class GeneratedTusManagedUploadRuntimeCase {
