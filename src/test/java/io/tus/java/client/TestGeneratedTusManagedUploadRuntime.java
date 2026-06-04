@@ -47,32 +47,9 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         true,
                         false
                 ),
-                new GeneratedTusManagedUploadTransport(
+                new GeneratedTusManagedUploadRuntimePlan(
+                        "Location",
                         "pending",
-                        "Location"
-                ),
-                new GeneratedTusManagedUploadOutcomeExpectations(
-                        false,
-                        false,
-                        true,
-                        true
-                ),
-                new GeneratedTusManagedUploadExecution(
-                        true,
-                        false,
-                        false,
-                        false,
-                        true,
-                        true,
-                        false,
-                        false
-                ),
-                new GeneratedTusManagedUploadStateExpectations(
-                        true,
-                        false,
-                        false
-                ),
-                new GeneratedTusManagedUploadRetryPlan(
                         new String[] {
                         "pending",
                         "running",
@@ -84,7 +61,35 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         0,
                     }
                 ),
-                new GeneratedTusManagedUploadInput(
+                new GeneratedTusManagedUploadOutcomeExpectations(
+                        false,
+                        false,
+                        true,
+                        true
+                ),
+                new GeneratedTusManagedUploadExecution(
+                        new GeneratedTusManagedUploadTerminalExecution(
+                                true,
+                                false,
+                                false
+                        ),
+                        new GeneratedTusManagedUploadSchedulingExecution(
+                                false,
+                                true
+                        ),
+                        new GeneratedTusManagedUploadSourceExecution(
+                                true,
+                                false,
+                                false
+                        )
+                ),
+                new GeneratedTusManagedUploadStateExpectations(
+                        true,
+                        false,
+                        false
+                ),
+                new GeneratedTusManagedUploadWorkload(
+                        new GeneratedTusManagedUploadInput(
                         "hello managed!",
                         7,
                         "managed-durable-retry-fingerprint",
@@ -95,8 +100,8 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                                 "managed.txt"
                         ),
                     }
-                ),
-                new GeneratedTusManagedUploadAttempt[] {
+                        ),
+                        new GeneratedTusManagedUploadAttempt[] {
                         new GeneratedTusManagedUploadAttempt(
                                 0,
                                 "running",
@@ -226,7 +231,8 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                                         ),
                                 }
                         ),
-                }
+                        }
+                )
         ),
         new GeneratedTusManagedUploadRuntimeCase(
                 new GeneratedTusManagedUploadRuntimeProfile(
@@ -238,9 +244,15 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         true,
                         false
                 ),
-                new GeneratedTusManagedUploadTransport(
+                new GeneratedTusManagedUploadRuntimePlan(
+                        "Location",
                         "pending",
-                        "Location"
+                        new String[] {
+                        "pending",
+                        "running",
+                        "failed",
+                    },
+                        new int[0]
                 ),
                 new GeneratedTusManagedUploadOutcomeExpectations(
                         false,
@@ -249,29 +261,28 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         false
                 ),
                 new GeneratedTusManagedUploadExecution(
-                        false,
-                        false,
-                        false,
-                        true,
-                        true,
-                        true,
-                        false,
-                        false
+                        new GeneratedTusManagedUploadTerminalExecution(
+                                false,
+                                false,
+                                true
+                        ),
+                        new GeneratedTusManagedUploadSchedulingExecution(
+                                false,
+                                true
+                        ),
+                        new GeneratedTusManagedUploadSourceExecution(
+                                true,
+                                false,
+                                false
+                        )
                 ),
                 new GeneratedTusManagedUploadStateExpectations(
                         true,
                         true,
                         false
                 ),
-                new GeneratedTusManagedUploadRetryPlan(
-                        new String[] {
-                        "pending",
-                        "running",
-                        "failed",
-                    },
-                        new int[0]
-                ),
-                new GeneratedTusManagedUploadInput(
+                new GeneratedTusManagedUploadWorkload(
+                        new GeneratedTusManagedUploadInput(
                         "hello failure!",
                         7,
                         "managed-permanent-failure-fingerprint",
@@ -282,8 +293,8 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                                 "managed-permanent-failure.txt"
                         ),
                     }
-                ),
-                new GeneratedTusManagedUploadAttempt[] {
+                        ),
+                        new GeneratedTusManagedUploadAttempt[] {
                         new GeneratedTusManagedUploadAttempt(
                                 0,
                                 "running",
@@ -321,7 +332,8 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                                         ),
                                 }
                         ),
-                }
+                        }
+                )
         ),
         new GeneratedTusManagedUploadRuntimeCase(
                 new GeneratedTusManagedUploadRuntimeProfile(
@@ -333,32 +345,9 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         true,
                         false
                 ),
-                new GeneratedTusManagedUploadTransport(
+                new GeneratedTusManagedUploadRuntimePlan(
+                        "Location",
                         "pending",
-                        "Location"
-                ),
-                new GeneratedTusManagedUploadOutcomeExpectations(
-                        false,
-                        true,
-                        true,
-                        false
-                ),
-                new GeneratedTusManagedUploadExecution(
-                        false,
-                        false,
-                        true,
-                        true,
-                        true,
-                        true,
-                        false,
-                        false
-                ),
-                new GeneratedTusManagedUploadStateExpectations(
-                        true,
-                        true,
-                        false
-                ),
-                new GeneratedTusManagedUploadRetryPlan(
                         new String[] {
                         "pending",
                         "running",
@@ -373,7 +362,35 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         0,
                     }
                 ),
-                new GeneratedTusManagedUploadInput(
+                new GeneratedTusManagedUploadOutcomeExpectations(
+                        false,
+                        true,
+                        true,
+                        false
+                ),
+                new GeneratedTusManagedUploadExecution(
+                        new GeneratedTusManagedUploadTerminalExecution(
+                                false,
+                                true,
+                                true
+                        ),
+                        new GeneratedTusManagedUploadSchedulingExecution(
+                                false,
+                                true
+                        ),
+                        new GeneratedTusManagedUploadSourceExecution(
+                                true,
+                                false,
+                                false
+                        )
+                ),
+                new GeneratedTusManagedUploadStateExpectations(
+                        true,
+                        true,
+                        false
+                ),
+                new GeneratedTusManagedUploadWorkload(
+                        new GeneratedTusManagedUploadInput(
                         "hello retries!",
                         7,
                         "managed-retry-exhausted-fingerprint",
@@ -384,8 +401,8 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                                 "managed-retry-exhausted.txt"
                         ),
                     }
-                ),
-                new GeneratedTusManagedUploadAttempt[] {
+                        ),
+                        new GeneratedTusManagedUploadAttempt[] {
                         new GeneratedTusManagedUploadAttempt(
                                 0,
                                 "running",
@@ -497,7 +514,8 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                                         ),
                                 }
                         ),
-                }
+                        }
+                )
         ),
         new GeneratedTusManagedUploadRuntimeCase(
                 new GeneratedTusManagedUploadRuntimeProfile(
@@ -509,9 +527,15 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         true,
                         false
                 ),
-                new GeneratedTusManagedUploadTransport(
+                new GeneratedTusManagedUploadRuntimePlan(
+                        "Location",
                         "pending",
-                        "Location"
+                        new String[] {
+                        "pending",
+                        "running",
+                        "failed",
+                    },
+                        new int[0]
                 ),
                 new GeneratedTusManagedUploadOutcomeExpectations(
                         false,
@@ -520,29 +544,28 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         false
                 ),
                 new GeneratedTusManagedUploadExecution(
-                        false,
-                        false,
-                        true,
-                        false,
-                        true,
-                        false,
-                        true,
-                        true
+                        new GeneratedTusManagedUploadTerminalExecution(
+                                false,
+                                true,
+                                false
+                        ),
+                        new GeneratedTusManagedUploadSchedulingExecution(
+                                false,
+                                true
+                        ),
+                        new GeneratedTusManagedUploadSourceExecution(
+                                false,
+                                true,
+                                true
+                        )
                 ),
                 new GeneratedTusManagedUploadStateExpectations(
                         false,
                         false,
                         false
                 ),
-                new GeneratedTusManagedUploadRetryPlan(
-                        new String[] {
-                        "pending",
-                        "running",
-                        "failed",
-                    },
-                        new int[0]
-                ),
-                new GeneratedTusManagedUploadInput(
+                new GeneratedTusManagedUploadWorkload(
+                        new GeneratedTusManagedUploadInput(
                         "hello missing!",
                         7,
                         "managed-source-unavailable-fingerprint",
@@ -553,8 +576,8 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                                 "managed-source-unavailable.txt"
                         ),
                     }
-                ),
-                new GeneratedTusManagedUploadAttempt[] {
+                        ),
+                        new GeneratedTusManagedUploadAttempt[] {
                         new GeneratedTusManagedUploadAttempt(
                                 0,
                                 "running",
@@ -570,7 +593,8 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
 
                                 }
                         ),
-                }
+                        }
+                )
         ),
     };
     private static final GeneratedTusMethodOverride[] METHOD_OVERRIDES =
@@ -1052,21 +1076,19 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
         GeneratedTusManagedUploadRuntimeCase(
                 GeneratedTusManagedUploadRuntimeProfile profile,
                 GeneratedTusManagedUploadRuntimeCapabilities runtimeCapabilities,
-                GeneratedTusManagedUploadTransport transport,
+                GeneratedTusManagedUploadRuntimePlan runtimePlan,
                 GeneratedTusManagedUploadOutcomeExpectations outcomeExpectations,
                 GeneratedTusManagedUploadExecution execution,
                 GeneratedTusManagedUploadStateExpectations stateExpectations,
-                GeneratedTusManagedUploadRetryPlan retryPlan,
-                GeneratedTusManagedUploadInput input,
-                GeneratedTusManagedUploadAttempt[] attempts) {
+                GeneratedTusManagedUploadWorkload workload) {
             this.scenarioId = profile.scenarioId;
             this.copySourceToOwnedStorage = runtimeCapabilities.copySourceToOwnedStorage;
             this.useDurableOsScheduler = runtimeCapabilities.useDurableOsScheduler;
             this.useFilesystemStateBackend = runtimeCapabilities.useFilesystemStateBackend;
             this.usePlatformKeyValueStateBackend =
                     runtimeCapabilities.usePlatformKeyValueStateBackend;
-            this.initialState = transport.initialState;
-            this.locationHeaderName = transport.locationHeaderName;
+            this.initialState = runtimePlan.initialState;
+            this.locationHeaderName = runtimePlan.locationHeaderName;
             this.expectDeferredNetworkResult = outcomeExpectations.expectDeferredNetworkResult;
             this.expectTerminalFailure = outcomeExpectations.expectTerminalFailure;
             this.expectTerminalResult = outcomeExpectations.expectTerminalResult;
@@ -1082,11 +1104,11 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
             this.expectInputSourceExists = stateExpectations.inputSourceExists;
             this.expectOwnedSourceExists = stateExpectations.ownedSourceExists;
             this.expectResumeUrlExists = stateExpectations.resumeUrlExists;
-            this.expectedStates = retryPlan.expectedStates;
-            this.retryDelays = retryPlan.retryDelays;
+            this.expectedStates = runtimePlan.expectedStates;
+            this.retryDelays = runtimePlan.retryDelays;
             this.offsetDiscoveryMethod = offsetDiscoveryMethod();
-            this.input = input;
-            this.attempts = attempts;
+            this.input = workload.input;
+            this.attempts = workload.attempts;
         }
     }
 
@@ -1134,13 +1156,21 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
         }
     }
 
-    private static final class GeneratedTusManagedUploadTransport {
+    private static final class GeneratedTusManagedUploadRuntimePlan {
+        final String[] expectedStates;
         final String initialState;
         final String locationHeaderName;
+        final int[] retryDelays;
 
-        GeneratedTusManagedUploadTransport(String initialState, String locationHeaderName) {
+        GeneratedTusManagedUploadRuntimePlan(
+                String locationHeaderName,
+                String initialState,
+                String[] expectedStates,
+                int[] retryDelays) {
+            this.expectedStates = expectedStates;
             this.initialState = initialState;
             this.locationHeaderName = locationHeaderName;
+            this.retryDelays = retryDelays;
         }
     }
 
@@ -1155,19 +1185,61 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
         final boolean sourceUnavailableBeforeProtocol;
 
         GeneratedTusManagedUploadExecution(
+                GeneratedTusManagedUploadTerminalExecution terminalExecution,
+                GeneratedTusManagedUploadSchedulingExecution schedulingExecution,
+                GeneratedTusManagedUploadSourceExecution sourceExecution) {
+            this.cleanupOwnedSourceAfterTerminalState =
+                    terminalExecution.cleanupOwnedSourceAfterTerminalState;
+            this.deferBeforeProtocol = schedulingExecution.deferBeforeProtocol;
+            this.expectIoExceptionOnTerminalFailure =
+                    terminalExecution.expectIoExceptionOnTerminalFailure;
+            this.expectProtocolExceptionOnTerminalFailure =
+                    terminalExecution.expectProtocolExceptionOnTerminalFailure;
+            this.networkConstraintSatisfied = schedulingExecution.networkConstraintSatisfied;
+            this.prepareDurableSourceBeforeProtocol =
+                    sourceExecution.prepareDurableSourceBeforeProtocol;
+            this.simulateMissingSourceBeforeDurableCopy =
+                    sourceExecution.simulateMissingSourceBeforeDurableCopy;
+            this.sourceUnavailableBeforeProtocol = sourceExecution.sourceUnavailableBeforeProtocol;
+        }
+    }
+
+    private static final class GeneratedTusManagedUploadTerminalExecution {
+        final boolean cleanupOwnedSourceAfterTerminalState;
+        final boolean expectIoExceptionOnTerminalFailure;
+        final boolean expectProtocolExceptionOnTerminalFailure;
+
+        GeneratedTusManagedUploadTerminalExecution(
                 boolean cleanupOwnedSourceAfterTerminalState,
-                boolean deferBeforeProtocol,
                 boolean expectIoExceptionOnTerminalFailure,
-                boolean expectProtocolExceptionOnTerminalFailure,
-                boolean networkConstraintSatisfied,
+                boolean expectProtocolExceptionOnTerminalFailure) {
+            this.cleanupOwnedSourceAfterTerminalState = cleanupOwnedSourceAfterTerminalState;
+            this.expectIoExceptionOnTerminalFailure = expectIoExceptionOnTerminalFailure;
+            this.expectProtocolExceptionOnTerminalFailure = expectProtocolExceptionOnTerminalFailure;
+        }
+    }
+
+    private static final class GeneratedTusManagedUploadSchedulingExecution {
+        final boolean deferBeforeProtocol;
+        final boolean networkConstraintSatisfied;
+
+        GeneratedTusManagedUploadSchedulingExecution(
+                boolean deferBeforeProtocol,
+                boolean networkConstraintSatisfied) {
+            this.deferBeforeProtocol = deferBeforeProtocol;
+            this.networkConstraintSatisfied = networkConstraintSatisfied;
+        }
+    }
+
+    private static final class GeneratedTusManagedUploadSourceExecution {
+        final boolean prepareDurableSourceBeforeProtocol;
+        final boolean simulateMissingSourceBeforeDurableCopy;
+        final boolean sourceUnavailableBeforeProtocol;
+
+        GeneratedTusManagedUploadSourceExecution(
                 boolean prepareDurableSourceBeforeProtocol,
                 boolean simulateMissingSourceBeforeDurableCopy,
                 boolean sourceUnavailableBeforeProtocol) {
-            this.cleanupOwnedSourceAfterTerminalState = cleanupOwnedSourceAfterTerminalState;
-            this.deferBeforeProtocol = deferBeforeProtocol;
-            this.expectIoExceptionOnTerminalFailure = expectIoExceptionOnTerminalFailure;
-            this.expectProtocolExceptionOnTerminalFailure = expectProtocolExceptionOnTerminalFailure;
-            this.networkConstraintSatisfied = networkConstraintSatisfied;
             this.prepareDurableSourceBeforeProtocol = prepareDurableSourceBeforeProtocol;
             this.simulateMissingSourceBeforeDurableCopy = simulateMissingSourceBeforeDurableCopy;
             this.sourceUnavailableBeforeProtocol = sourceUnavailableBeforeProtocol;
@@ -1189,16 +1261,6 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
         }
     }
 
-    private static final class GeneratedTusManagedUploadRetryPlan {
-        final String[] expectedStates;
-        final int[] retryDelays;
-
-        GeneratedTusManagedUploadRetryPlan(String[] expectedStates, int[] retryDelays) {
-            this.expectedStates = expectedStates;
-            this.retryDelays = retryDelays;
-        }
-    }
-
     private static final class GeneratedTusManagedUploadInput {
         final String content;
         final int chunkSize;
@@ -1217,6 +1279,18 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
             this.fingerprint = fingerprint;
             this.uploadPath = uploadPath;
             this.metadata = metadata;
+        }
+    }
+
+    private static final class GeneratedTusManagedUploadWorkload {
+        final GeneratedTusManagedUploadAttempt[] attempts;
+        final GeneratedTusManagedUploadInput input;
+
+        GeneratedTusManagedUploadWorkload(
+                GeneratedTusManagedUploadInput input,
+                GeneratedTusManagedUploadAttempt[] attempts) {
+            this.attempts = attempts;
+            this.input = input;
         }
     }
 
