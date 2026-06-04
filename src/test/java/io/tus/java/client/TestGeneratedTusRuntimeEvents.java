@@ -574,13 +574,18 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
             uploader.setProgressListener(new TusUploader.ProgressListener() {
                 @Override
                 public void onProgress(long bytesSent, long bytesTotal) {
-                    events.add("progress:" + bytesSent + ":" + bytesTotal);
+                    events.add(generatedTusEventKeyProgress(
+                            generatedTusEventKeyNumber(bytesSent),
+                            generatedTusEventKeyNumber(bytesTotal)));
                 }
             });
             uploader.setChunkCompleteListener(new TusUploader.ChunkCompleteListener() {
                 @Override
                 public void onChunkComplete(long chunkSize, long bytesAccepted, long bytesTotal) {
-                    events.add("chunk-complete:" + chunkSize + ":" + bytesAccepted + ":" + bytesTotal);
+                    events.add(generatedTusEventKeyChunkComplete(
+                            generatedTusEventKeyNumber(chunkSize),
+                            generatedTusEventKeyNumber(bytesAccepted),
+                            generatedTusEventKeyNumber(bytesTotal)));
                 }
             });
 
@@ -592,6 +597,78 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
             assertEvents(testCase, events);
             assertStoredUploadState(testCase, urlStore);
         }
+    }
+
+    private static String generatedTusEventKey(String kind, String... parts) {
+        if (parts.length == 0) {
+            return kind;
+        }
+
+        return kind + ":" + String.join(":", parts);
+    }
+
+    private static String generatedTusEventKeyNumber(long value) {
+        return Long.toString(value);
+    }
+
+    private static String generatedTusEventKeyAfterResponse(String requestIndex) {
+        return generatedTusEventKey("after-response", requestIndex);
+    }
+
+    private static String generatedTusEventKeyBeforeRequest(String requestIndex) {
+        return generatedTusEventKey("before-request", requestIndex);
+    }
+
+    private static String generatedTusEventKeyChunkComplete(String chunkSize, String bytesAccepted, String bytesTotal) {
+        return generatedTusEventKey("chunk-complete", chunkSize, bytesAccepted, bytesTotal);
+    }
+
+    private static String generatedTusEventKeyFingerprint(String fingerprint) {
+        return generatedTusEventKey("fingerprint", fingerprint);
+    }
+
+    private static String generatedTusEventKeyProgress(String bytesSent, String bytesTotal) {
+        return generatedTusEventKey("progress", bytesSent, bytesTotal);
+    }
+
+    private static String generatedTusEventKeyRequestAbort(String requestIndex) {
+        return generatedTusEventKey("request-abort", requestIndex);
+    }
+
+    private static String generatedTusEventKeyRetrySchedule(String delay) {
+        return generatedTusEventKey("retry-schedule", delay);
+    }
+
+    private static String generatedTusEventKeyShouldRetry(String retryAttempt, String decision) {
+        return generatedTusEventKey("should-retry", retryAttempt, decision);
+    }
+
+    private static String generatedTusEventKeySourceClose() {
+        return generatedTusEventKey("source-close");
+    }
+
+    private static String generatedTusEventKeySourceOpen(String inputKind, String size) {
+        return generatedTusEventKey("source-open", inputKind, size);
+    }
+
+    private static String generatedTusEventKeySuccess() {
+        return generatedTusEventKey("success");
+    }
+
+    private static String generatedTusEventKeyUploadUrlAvailable() {
+        return generatedTusEventKey("upload-url-available");
+    }
+
+    private static String generatedTusEventKeyUrlStorageAdd(String fingerprint, String uploadUrl) {
+        return generatedTusEventKey("url-storage-add", fingerprint, uploadUrl);
+    }
+
+    private static String generatedTusEventKeyUrlStorageFind(String fingerprint, String count) {
+        return generatedTusEventKey("url-storage-find", fingerprint, count);
+    }
+
+    private static String generatedTusEventKeyUrlStorageRemove(String urlStorageKey) {
+        return generatedTusEventKey("url-storage-remove", urlStorageKey);
     }
 
     private TusUploader uploaderFor(TusClient client, GeneratedTusRuntimeEventCase testCase)
