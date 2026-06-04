@@ -109,7 +109,7 @@ public class TusUploader {
         }
         client.prepareConnection(connection);
         connection.setRequestProperty("Upload-Offset", Long.toString(offset));
-        if (!uploadLengthDeclared) {
+        if (shouldDeclareUploadLength()) {
             connection.setRequestProperty("Upload-Length", Long.toString(upload.getSize()));
             requestDeclaresUploadLength = true;
         }
@@ -205,6 +205,14 @@ public class TusUploader {
      */
     public int getRequestPayloadSize() {
         return requestPayloadSize;
+    }
+
+    private boolean shouldDeclareUploadLength() {
+        if (uploadLengthDeclared) {
+            return false;
+        }
+
+        return offset + requestPayloadSize >= upload.getSize();
     }
 
     /**

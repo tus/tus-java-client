@@ -458,7 +458,7 @@ final class GeneratedTusProtocolContract {
                     },
                         "covered-by-generated-scenario"
                 ),
-                "Create an upload without a known length and declare the length on first PATCH.",
+                "Create an upload without a known length and declare the length on the final upload request.",
                 "deferredLengthUpload",
                 new GeneratedTusClientFeatureFlowStep[] {
                 new GeneratedTusClientFeatureFlowStep(
@@ -473,14 +473,14 @@ final class GeneratedTusProtocolContract {
                         "",
                         "defer-upload-length",
                         "",
-                        "Track the source so the first PATCH can declare the total size."
+                        "Track the source until the final upload request reveals the total size."
                 ),
                 new GeneratedTusClientFeatureFlowStep(
                         "operation",
                         "patchTusUpload",
                         "",
                         "",
-                        "Declare Upload-Length on the first chunk request."
+                        "Declare Upload-Length on the final upload request."
                 ),
             },
                 new String[] {
@@ -489,6 +489,7 @@ final class GeneratedTusProtocolContract {
             },
                 new String[] {
                 "defer-upload-length",
+                "emit-chunk-complete",
                 "emit-progress",
             }
         ),
@@ -1622,14 +1623,17 @@ final class GeneratedTusProtocolContract {
      */
     static final class GeneratedTusClientConformanceEventPolicy {
         final String matching;
+        final String deferredLengthBytesTotal;
         final String progress;
         final String transportProgress;
 
         GeneratedTusClientConformanceEventPolicy(
                 String matching,
+                String deferredLengthBytesTotal,
                 String progress,
                 String transportProgress) {
             this.matching = matching;
+            this.deferredLengthBytesTotal = deferredLengthBytesTotal;
             this.progress = progress;
             this.transportProgress = transportProgress;
         }

@@ -31,6 +31,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         new GeneratedTusRuntimeEventCase(
                 "singleUploadLifecycle",
                 "exact-except-extra-progress",
+                null,
                 false,
                 new GeneratedTusRuntimeBeforeStartAction[0],
                 new GeneratedTusRuntimeEventInput(
@@ -104,6 +105,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         new GeneratedTusRuntimeEventCase(
                 "resumeFromPreviousUpload",
                 "exact-except-extra-progress",
+                null,
                 false,
                 new GeneratedTusRuntimeBeforeStartAction[] {
                 new GeneratedTusRuntimeBeforeStartAction(
@@ -176,6 +178,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         new GeneratedTusRuntimeEventCase(
                 "relativeLocationResolution",
                 "exact-except-extra-progress",
+                null,
                 false,
                 new GeneratedTusRuntimeBeforeStartAction[0],
                 new GeneratedTusRuntimeEventInput(
@@ -249,6 +252,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         new GeneratedTusRuntimeEventCase(
                 "deferredLengthUpload",
                 "exact-except-extra-progress",
+                "allow-known-total-before-declaration",
                 true,
                 new GeneratedTusRuntimeBeforeStartAction[0],
                 new GeneratedTusRuntimeEventInput(
@@ -326,6 +330,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         new GeneratedTusRuntimeEventCase(
                 "deferredLengthChunkedUpload",
                 "exact-except-extra-progress",
+                "allow-known-total-before-declaration",
                 true,
                 new GeneratedTusRuntimeBeforeStartAction[0],
                 new GeneratedTusRuntimeEventInput(
@@ -377,10 +382,6 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                         "application/offset+octet-stream"
                                 ),
                                 new GeneratedTusRuntimeEventHeader(
-                                        "Upload-Length",
-                                        "11"
-                                ),
-                                new GeneratedTusRuntimeEventHeader(
                                         "Upload-Offset",
                                         "0"
                                 ),
@@ -427,6 +428,10 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                         "application/offset+octet-stream"
                                 ),
                                 new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Length",
+                                        "11"
+                                ),
+                                new GeneratedTusRuntimeEventHeader(
                                         "Upload-Offset",
                                         "10"
                                 ),
@@ -441,12 +446,12 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                         ),
                 },
                 new String[] {
-                "progress:0:11",
-                "progress:5:11",
-                "chunk-complete:5:5:11",
-                "progress:5:11",
-                "progress:10:11",
-                "chunk-complete:5:10:11",
+                "progress:0:null",
+                "progress:5:null",
+                "chunk-complete:5:5:null",
+                "progress:5:null",
+                "progress:10:null",
+                "chunk-complete:5:10:null",
                 "progress:10:11",
                 "progress:11:11",
                 "chunk-complete:1:11:11",
@@ -743,7 +748,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         for (String event : events) {
             if (
                     expectedIndex < testCase.eventKeys.length
-                    && event.equals(testCase.eventKeys[expectedIndex])) {
+                    && eventMatchesExpected(testCase, event, testCase.eventKeys[expectedIndex])) {
                 expectedIndex += 1;
                 continue;
             }
@@ -772,9 +777,35 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                         + java.util.Arrays.toString(testCase.eventKeys));
     }
 
+    private boolean eventMatchesExpected(
+            GeneratedTusRuntimeEventCase testCase,
+            String event,
+            String expected) {
+        if (event.equals(expected)) {
+            return true;
+        }
+
+        if (
+                !"allow-known-total-before-declaration"
+                        .equals(testCase.eventPolicyDeferredLengthBytesTotal)) {
+            return false;
+        }
+
+        if (!testCase.uploadLengthDeferred || !expected.endsWith(":null")) {
+            return false;
+        }
+
+        String expectedPrefix = expected.substring(0, expected.length() - ":null".length());
+        String localKnownTotal =
+                ":" + testCase.input.content.getBytes(StandardCharsets.UTF_8).length;
+
+        return event.equals(expectedPrefix + localKnownTotal);
+    }
+
     private static final class GeneratedTusRuntimeEventCase {
         final String scenarioId;
         final String eventPolicyMatching;
+        final String eventPolicyDeferredLengthBytesTotal;
         final boolean uploadLengthDeferred;
         final GeneratedTusRuntimeBeforeStartAction[] beforeStartActions;
         final GeneratedTusRuntimeEventInput input;
@@ -784,6 +815,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         GeneratedTusRuntimeEventCase(
                 String scenarioId,
                 String eventPolicyMatching,
+                String eventPolicyDeferredLengthBytesTotal,
                 boolean uploadLengthDeferred,
                 GeneratedTusRuntimeBeforeStartAction[] beforeStartActions,
                 GeneratedTusRuntimeEventInput input,
@@ -791,6 +823,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                 String[] eventKeys) {
             this.scenarioId = scenarioId;
             this.eventPolicyMatching = eventPolicyMatching;
+            this.eventPolicyDeferredLengthBytesTotal = eventPolicyDeferredLengthBytesTotal;
             this.uploadLengthDeferred = uploadLengthDeferred;
             this.beforeStartActions = beforeStartActions;
             this.input = input;

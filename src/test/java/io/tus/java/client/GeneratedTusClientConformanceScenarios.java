@@ -35,6 +35,7 @@ final class GeneratedTusClientConformanceScenarios {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact-except-extra-progress",
+                                null,
                                 "milestone",
                                 "may-emit-extra-samples"
                         ),
@@ -68,6 +69,7 @@ final class GeneratedTusClientConformanceScenarios {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact-except-extra-progress",
+                                null,
                                 "milestone",
                                 "may-emit-extra-samples"
                         ),
@@ -99,6 +101,7 @@ final class GeneratedTusClientConformanceScenarios {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact-except-extra-progress",
+                                null,
                                 "milestone",
                                 "may-emit-extra-samples"
                         ),
@@ -135,6 +138,7 @@ final class GeneratedTusClientConformanceScenarios {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact-except-extra-progress",
+                                null,
                                 "milestone",
                                 "may-emit-extra-samples"
                         ),
@@ -165,6 +169,7 @@ final class GeneratedTusClientConformanceScenarios {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact-except-extra-progress",
+                                null,
                                 "milestone",
                                 "may-emit-extra-samples"
                         ),
@@ -202,6 +207,7 @@ final class GeneratedTusClientConformanceScenarios {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact-except-extra-progress",
+                                null,
                                 "milestone",
                                 "may-emit-extra-samples"
                         ),
@@ -231,6 +237,7 @@ final class GeneratedTusClientConformanceScenarios {
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
                                 null,
+                                null,
                                 null
                         ),
                         new String[0]
@@ -251,6 +258,7 @@ final class GeneratedTusClientConformanceScenarios {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
+                                null,
                                 null,
                                 null
                         ),
@@ -273,6 +281,7 @@ final class GeneratedTusClientConformanceScenarios {
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
                                 null,
+                                null,
                                 null
                         ),
                         new String[0]
@@ -293,6 +302,7 @@ final class GeneratedTusClientConformanceScenarios {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
+                                null,
                                 null,
                                 null
                         ),
@@ -315,6 +325,7 @@ final class GeneratedTusClientConformanceScenarios {
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
                                 null,
+                                null,
                                 null
                         ),
                         new String[0]
@@ -335,6 +346,7 @@ final class GeneratedTusClientConformanceScenarios {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
+                                null,
                                 null,
                                 null
                         ),
@@ -357,6 +369,7 @@ final class GeneratedTusClientConformanceScenarios {
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
                                 null,
+                                null,
                                 null
                         ),
                         new String[0]
@@ -377,6 +390,7 @@ final class GeneratedTusClientConformanceScenarios {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
+                                null,
                                 null,
                                 null
                         ),
@@ -399,6 +413,7 @@ final class GeneratedTusClientConformanceScenarios {
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
                                 null,
+                                null,
                                 null
                         ),
                         new String[0]
@@ -419,6 +434,7 @@ final class GeneratedTusClientConformanceScenarios {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
+                                null,
                                 null,
                                 null
                         ),
@@ -443,6 +459,7 @@ final class GeneratedTusClientConformanceScenarios {
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
                                 null,
+                                null,
                                 null
                         ),
                         new String[0]
@@ -465,6 +482,7 @@ final class GeneratedTusClientConformanceScenarios {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
+                                null,
                                 null,
                                 null
                         ),
@@ -490,6 +508,7 @@ final class GeneratedTusClientConformanceScenarios {
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
                                 null,
+                                null,
                                 null
                         ),
                         new String[0]
@@ -513,6 +532,7 @@ final class GeneratedTusClientConformanceScenarios {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
+                                null,
                                 null,
                                 null
                         ),
@@ -539,6 +559,7 @@ final class GeneratedTusClientConformanceScenarios {
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
                                 null,
+                                null,
                                 null
                         ),
                         new String[0]
@@ -564,6 +585,7 @@ final class GeneratedTusClientConformanceScenarios {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact-except-extra-progress",
+                                null,
                                 "milestone",
                                 "may-emit-extra-samples"
                         ),
@@ -599,6 +621,7 @@ final class GeneratedTusClientConformanceScenarios {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact-except-extra-progress",
+                                null,
                                 "milestone",
                                 "may-emit-extra-samples"
                         ),
@@ -631,6 +654,7 @@ final class GeneratedTusClientConformanceScenarios {
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
                                 null,
+                                null,
                                 null
                         ),
                         new String[] {
@@ -658,6 +682,7 @@ final class GeneratedTusClientConformanceScenarios {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
+                                null,
                                 null,
                                 null
                         ),
@@ -687,6 +712,7 @@ final class GeneratedTusClientConformanceScenarios {
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
                                 null,
+                                null,
                                 null
                         ),
                         new String[] {
@@ -714,6 +740,7 @@ final class GeneratedTusClientConformanceScenarios {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
+                                null,
                                 null,
                                 null
                         ),
@@ -743,6 +770,7 @@ final class GeneratedTusClientConformanceScenarios {
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
                                 null,
+                                null,
                                 null
                         ),
                         new String[] {
@@ -771,6 +799,7 @@ final class GeneratedTusClientConformanceScenarios {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact-except-extra-progress",
+                                "allow-known-total-before-declaration",
                                 "milestone",
                                 "may-emit-extra-samples"
                         ),
@@ -804,17 +833,18 @@ final class GeneratedTusClientConformanceScenarios {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact-except-extra-progress",
+                                "allow-known-total-before-declaration",
                                 "milestone",
                                 "may-emit-extra-samples"
                         ),
                         new String[] {
                         "upload-url-available",
-                        "progress:0:11",
-                        "progress:5:11",
-                        "chunk-complete:5:5:11",
-                        "progress:5:11",
-                        "progress:10:11",
-                        "chunk-complete:5:10:11",
+                        "progress:0:null",
+                        "progress:5:null",
+                        "chunk-complete:5:5:null",
+                        "progress:5:null",
+                        "progress:10:null",
+                        "chunk-complete:5:10:null",
                         "progress:10:11",
                         "progress:11:11",
                         "chunk-complete:1:11:11",
@@ -841,6 +871,7 @@ final class GeneratedTusClientConformanceScenarios {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
+                                null,
                                 null,
                                 null
                         ),
@@ -869,6 +900,7 @@ final class GeneratedTusClientConformanceScenarios {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact-except-extra-progress",
+                                null,
                                 "milestone",
                                 "may-emit-extra-samples"
                         ),
@@ -905,6 +937,7 @@ final class GeneratedTusClientConformanceScenarios {
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
                                 null,
+                                null,
                                 null
                         ),
                         new String[] {
@@ -936,6 +969,7 @@ final class GeneratedTusClientConformanceScenarios {
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
                                 null,
+                                null,
                                 null
                         ),
                         new String[] {
@@ -963,6 +997,7 @@ final class GeneratedTusClientConformanceScenarios {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
+                                null,
                                 null,
                                 null
                         ),
@@ -992,6 +1027,7 @@ final class GeneratedTusClientConformanceScenarios {
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
                                 null,
+                                null,
                                 null
                         ),
                         new String[] {
@@ -1019,6 +1055,7 @@ final class GeneratedTusClientConformanceScenarios {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
+                                null,
                                 null,
                                 null
                         ),
@@ -1048,6 +1085,7 @@ final class GeneratedTusClientConformanceScenarios {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                                 "exact",
+                                null,
                                 null,
                                 null
                         ),

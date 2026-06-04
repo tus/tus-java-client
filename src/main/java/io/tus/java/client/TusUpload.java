@@ -75,7 +75,7 @@ public class TusUpload {
      * Set whether upload creation should defer declaring the upload length.
      *
      * When enabled, the upload is created with Upload-Defer-Length and the uploader declares
-     * Upload-Length on the first PATCH request.
+     * Upload-Length on the final upload request.
      *
      * @param uploadLengthDeferred True to use deferred upload length creation.
      */

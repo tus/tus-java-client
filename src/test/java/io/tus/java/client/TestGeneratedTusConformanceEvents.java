@@ -22,6 +22,7 @@ public class TestGeneratedTusConformanceEvents {
                 "singleUploadLifecycle",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                         "exact-except-extra-progress",
+                        null,
                         "milestone",
                         "may-emit-extra-samples"
                 ),
@@ -41,6 +42,7 @@ public class TestGeneratedTusConformanceEvents {
                 "creationWithUpload",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                         "exact-except-extra-progress",
+                        null,
                         "milestone",
                         "may-emit-extra-samples"
                 ),
@@ -57,6 +59,7 @@ public class TestGeneratedTusConformanceEvents {
                 "creationWithUploadPartialChunk",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                         "exact-except-extra-progress",
+                        null,
                         "milestone",
                         "may-emit-extra-samples"
                 ),
@@ -80,6 +83,7 @@ public class TestGeneratedTusConformanceEvents {
                 "ietfDraft05CreationWithUpload",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                         "exact-except-extra-progress",
+                        null,
                         "milestone",
                         "may-emit-extra-samples"
                 ),
@@ -96,6 +100,7 @@ public class TestGeneratedTusConformanceEvents {
                 "ietfDraft05ChunkedUploadComplete",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                         "exact-except-extra-progress",
+                        null,
                         "milestone",
                         "may-emit-extra-samples"
                 ),
@@ -119,6 +124,7 @@ public class TestGeneratedTusConformanceEvents {
                 "ietfDraft03ResumeWithoutKnownLength",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                         "exact-except-extra-progress",
+                        null,
                         "milestone",
                         "may-emit-extra-samples"
                 ),
@@ -136,6 +142,7 @@ public class TestGeneratedTusConformanceEvents {
                 "resumeFromPreviousUpload",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                         "exact-except-extra-progress",
+                        null,
                         "milestone",
                         "may-emit-extra-samples"
                 ),
@@ -157,6 +164,7 @@ public class TestGeneratedTusConformanceEvents {
                 "relativeLocationResolution",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                         "exact-except-extra-progress",
+                        null,
                         "milestone",
                         "may-emit-extra-samples"
                 ),
@@ -175,6 +183,7 @@ public class TestGeneratedTusConformanceEvents {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                         "exact",
                         null,
+                        null,
                         null
                 ),
                 new String[] {
@@ -188,6 +197,7 @@ public class TestGeneratedTusConformanceEvents {
                 "arrayBufferViewInput",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                         "exact",
+                        null,
                         null,
                         null
                 ),
@@ -203,6 +213,7 @@ public class TestGeneratedTusConformanceEvents {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                         "exact",
                         null,
+                        null,
                         null
                 ),
                 new String[] {
@@ -216,6 +227,7 @@ public class TestGeneratedTusConformanceEvents {
                 "nodeReadableStreamInput",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                         "exact",
+                        null,
                         null,
                         null
                 ),
@@ -231,6 +243,7 @@ public class TestGeneratedTusConformanceEvents {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                         "exact",
                         null,
+                        null,
                         null
                 ),
                 new String[] {
@@ -244,6 +257,7 @@ public class TestGeneratedTusConformanceEvents {
                 "deferredLengthUpload",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                         "exact-except-extra-progress",
+                        "allow-known-total-before-declaration",
                         "milestone",
                         "may-emit-extra-samples"
                 ),
@@ -261,17 +275,18 @@ public class TestGeneratedTusConformanceEvents {
                 "deferredLengthChunkedUpload",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                         "exact-except-extra-progress",
+                        "allow-known-total-before-declaration",
                         "milestone",
                         "may-emit-extra-samples"
                 ),
                 new String[] {
                 "upload-url-available",
-                "progress:0:11",
-                "progress:5:11",
-                "chunk-complete:5:5:11",
-                "progress:5:11",
-                "progress:10:11",
-                "chunk-complete:5:10:11",
+                "progress:0:null",
+                "progress:5:null",
+                "chunk-complete:5:5:null",
+                "progress:5:null",
+                "progress:10:null",
+                "chunk-complete:5:10:null",
                 "progress:10:11",
                 "progress:11:11",
                 "chunk-complete:1:11:11",
@@ -284,6 +299,7 @@ public class TestGeneratedTusConformanceEvents {
                 "parallelUploadConcat",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                         "exact-except-extra-progress",
+                        null,
                         "milestone",
                         "may-emit-extra-samples"
                 ),
@@ -300,6 +316,7 @@ public class TestGeneratedTusConformanceEvents {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                         "exact",
                         null,
+                        null,
                         null
                 ),
                 new String[] {
@@ -311,6 +328,7 @@ public class TestGeneratedTusConformanceEvents {
                 "retryPatchAfterOffsetRecovery",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                         "exact",
+                        null,
                         null,
                         null
                 ),
@@ -326,6 +344,7 @@ public class TestGeneratedTusConformanceEvents {
                 "requestLifecycleHooks",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                         "exact",
+                        null,
                         null,
                         null
                 ),
@@ -342,6 +361,7 @@ public class TestGeneratedTusConformanceEvents {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                         "exact",
                         null,
+                        null,
                         null
                 ),
                 new String[] {
@@ -354,6 +374,7 @@ public class TestGeneratedTusConformanceEvents {
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                         "exact",
                         null,
+                        null,
                         null
                 ),
                 new String[] {
@@ -365,6 +386,7 @@ public class TestGeneratedTusConformanceEvents {
                 "terminateWithRetry",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                         "exact",
+                        null,
                         null,
                         null
                 ),
@@ -557,6 +579,7 @@ public class TestGeneratedTusConformanceEvents {
             GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy expected,
             GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy actual) {
         assertEquals(expected.matching, actual.matching);
+        assertEquals(expected.deferredLengthBytesTotal, actual.deferredLengthBytesTotal);
         assertEquals(expected.progress, actual.progress);
         assertEquals(expected.transportProgress, actual.transportProgress);
     }
