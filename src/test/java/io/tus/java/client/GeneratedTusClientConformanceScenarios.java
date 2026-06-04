@@ -14,10 +14,8 @@ final class GeneratedTusClientConformanceScenarios {
             new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario[] {
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "single-upload-lifecycle",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "success",
-                        null
-                ),
+                "success",
+                null,
                 "singleUploadLifecycle",
                 "singleUploadLifecycle",
                 new String[] {
@@ -66,10 +64,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "creation-with-upload",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "success",
-                        null
-                ),
+                "success",
+                null,
                 "creationWithUpload",
                 "creationWithUpload",
                 new String[] {
@@ -107,10 +103,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "creation-with-upload-partial-chunk",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "success",
-                        null
-                ),
+                "success",
+                null,
                 "creationWithUpload",
                 "creationWithUploadPartialChunk",
                 new String[] {
@@ -163,10 +157,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "creation-with-upload",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "success",
-                        null
-                ),
+                "success",
+                null,
                 "protocolVersionSelection",
                 "ietfDraft05CreationWithUpload",
                 new String[] {
@@ -203,10 +195,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "upload-body-headers",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "success",
-                        null
-                ),
+                "success",
+                null,
                 "protocolVersionSelection",
                 "ietfDraft05ChunkedUploadComplete",
                 new String[] {
@@ -258,10 +248,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "upload-body-headers",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "success",
-                        null
-                ),
+                "success",
+                null,
                 "protocolVersionSelection",
                 "ietfDraft03ResumeWithoutKnownLength",
                 new String[] {
@@ -301,10 +289,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "start-option-validation",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "error",
-                        "missingInput"
-                ),
+                "error",
+                "missingInput",
                 "startOptionValidation",
                 "startValidationMissingInput",
                 new String[0],
@@ -325,10 +311,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "start-option-validation",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "error",
-                        "missingEndpointOrUploadUrl"
-                ),
+                "error",
+                "missingEndpointOrUploadUrl",
                 "startOptionValidation",
                 "startValidationMissingEndpointOrUploadUrl",
                 new String[0],
@@ -349,10 +333,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "start-option-validation",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "error",
-                        "unsupportedProtocol"
-                ),
+                "error",
+                "unsupportedProtocol",
                 "startOptionValidation",
                 "startValidationUnsupportedProtocol",
                 new String[0],
@@ -373,10 +355,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "start-option-validation",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "error",
-                        "retryDelaysNotArray"
-                ),
+                "error",
+                "retryDelaysNotArray",
                 "startOptionValidation",
                 "startValidationRetryDelaysNotArray",
                 new String[0],
@@ -397,10 +377,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "start-option-validation",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "error",
-                        "parallelUploadsWithUploadUrl"
-                ),
+                "error",
+                "parallelUploadsWithUploadUrl",
                 "startOptionValidation",
                 "startValidationParallelUploadsWithUploadUrl",
                 new String[0],
@@ -421,10 +399,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "start-option-validation",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "error",
-                        "parallelUploadsWithUploadSize"
-                ),
+                "error",
+                "parallelUploadsWithUploadSize",
                 "startOptionValidation",
                 "startValidationParallelUploadsWithUploadSize",
                 new String[0],
@@ -445,10 +421,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "start-option-validation",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "error",
-                        "parallelUploadsWithDeferredLength"
-                ),
+                "error",
+                "parallelUploadsWithDeferredLength",
                 "startOptionValidation",
                 "startValidationParallelUploadsWithDeferredLength",
                 new String[0],
@@ -469,10 +443,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "start-option-validation",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "error",
-                        "parallelUploadsWithUploadDataDuringCreation"
-                ),
+                "error",
+                "parallelUploadsWithUploadDataDuringCreation",
                 "startOptionValidation",
                 "startValidationParallelUploadsWithUploadDataDuringCreation",
                 new String[0],
@@ -493,10 +465,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "start-option-validation",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "error",
-                        "parallelBoundariesWithoutParallelUploads"
-                ),
+                "error",
+                "parallelBoundariesWithoutParallelUploads",
                 "startOptionValidation",
                 "startValidationParallelBoundariesWithoutParallelUploads",
                 new String[0],
@@ -517,10 +487,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "start-option-validation",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "error",
-                        "parallelBoundariesLengthMismatch"
-                ),
+                "error",
+                "parallelBoundariesLengthMismatch",
                 "startOptionValidation",
                 "startValidationParallelBoundariesLengthMismatch",
                 new String[0],
@@ -541,10 +509,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "detailed-error",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "error",
-                        "unexpectedCreateResponse"
-                ),
+                "error",
+                "unexpectedCreateResponse",
                 "detailedErrors",
                 "detailedCreateResponseError",
                 new String[] {
@@ -567,10 +533,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "detailed-error",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "error",
-                        "createUploadRequestFailed"
-                ),
+                "error",
+                "createUploadRequestFailed",
                 "detailedErrors",
                 "detailedCreateRequestError",
                 new String[] {
@@ -593,10 +557,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "upload-body-headers",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "success",
-                        null
-                ),
+                "success",
+                null,
                 "uploadBodyHeaders",
                 "uploadBodyHeaders",
                 new String[] {
@@ -620,10 +582,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "custom-request-headers",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "success",
-                        null
-                ),
+                "success",
+                null,
                 "customRequestHeaders",
                 "customRequestHeaders",
                 new String[] {
@@ -647,10 +607,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "request-id-headers",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "success",
-                        null
-                ),
+                "success",
+                null,
                 "requestIdHeaders",
                 "requestIdHeaders",
                 new String[] {
@@ -675,10 +633,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "resume-from-previous-upload",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "success",
-                        null
-                ),
+                "success",
+                null,
                 "resumeUpload",
                 "resumeFromPreviousUpload",
                 new String[] {
@@ -728,10 +684,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "relative-location-resolution",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "success",
-                        null
-                ),
+                "success",
+                null,
                 "relativeLocationResolution",
                 "relativeLocationResolution",
                 new String[] {
@@ -771,10 +725,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "array-buffer-input",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "success",
-                        null
-                ),
+                "success",
+                null,
                 "inputSources",
                 "arrayBufferInput",
                 new String[] {
@@ -806,10 +758,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "array-buffer-view-input",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "success",
-                        null
-                ),
+                "success",
+                null,
                 "inputSources",
                 "arrayBufferViewInput",
                 new String[] {
@@ -841,10 +791,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "web-readable-stream-input",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "success",
-                        null
-                ),
+                "success",
+                null,
                 "inputSources",
                 "webReadableStreamInput",
                 new String[] {
@@ -876,10 +824,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "node-readable-stream-input",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "success",
-                        null
-                ),
+                "success",
+                null,
                 "inputSources",
                 "nodeReadableStreamInput",
                 new String[] {
@@ -911,10 +857,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "node-path-input",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "success",
-                        null
-                ),
+                "success",
+                null,
                 "inputSources",
                 "nodePathInput",
                 new String[] {
@@ -946,10 +890,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "deferred-length-upload",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "success",
-                        null
-                ),
+                "success",
+                null,
                 "deferredLengthUpload",
                 "deferredLengthUpload",
                 new String[] {
@@ -990,10 +932,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "deferred-length-upload",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "success",
-                        null
-                ),
+                "success",
+                null,
                 "deferredLengthUpload",
                 "deferredLengthChunkedUpload",
                 new String[] {
@@ -1059,10 +999,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "override-patch-method",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "success",
-                        null
-                ),
+                "success",
+                null,
                 "overridePatchMethod",
                 "overridePatchMethod",
                 new String[] {
@@ -1086,10 +1024,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "parallel-upload-concat",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "success",
-                        null
-                ),
+                "success",
+                null,
                 "parallelUploadConcat",
                 "parallelUploadConcat",
                 new String[] {
@@ -1129,10 +1065,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "parallel-upload-abort-cleanup",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "aborted",
-                        null
-                ),
+                "aborted",
+                null,
                 "parallelUploadConcat",
                 "parallelUploadAbortCleanup",
                 new String[] {
@@ -1166,10 +1100,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "retry-patch-after-offset-recovery",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "success",
-                        null
-                ),
+                "success",
+                null,
                 "retryOffsetRecovery",
                 "retryPatchAfterOffsetRecovery",
                 new String[] {
@@ -1208,10 +1140,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "request-lifecycle-hooks",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "success",
-                        null
-                ),
+                "success",
+                null,
                 "requestLifecycleHooks",
                 "requestLifecycleHooks",
                 new String[] {
@@ -1244,10 +1174,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "abort-upload",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "aborted",
-                        null
-                ),
+                "aborted",
+                null,
                 "abortUpload",
                 "abortUpload",
                 new String[] {
@@ -1274,10 +1202,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "abort-upload-after-stored-url",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "aborted",
-                        null
-                ),
+                "aborted",
+                null,
                 "abortUpload",
                 "abortUploadAfterStoredUrl",
                 new String[] {
@@ -1307,10 +1233,8 @@ final class GeneratedTusClientConformanceScenarios {
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "terminate-with-retry",
-                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
-                        "terminated",
-                        null
-                ),
+                "terminated",
+                null,
                 "terminateUpload",
                 "terminateWithRetry",
                 new String[] {

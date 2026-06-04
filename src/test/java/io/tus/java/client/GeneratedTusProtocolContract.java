@@ -1587,15 +1587,16 @@ final class GeneratedTusProtocolContract {
 
         GeneratedTusClientConformanceScenario(
                 String behavior,
-                GeneratedTusClientConformanceCompletion completion,
+                String completionKind,
+                String completionReason,
                 String featureId,
                 String scenarioId,
                 String[] operationIds,
                 String[] primitives,
                 GeneratedTusClientConformanceEvents events) {
             this.behavior = behavior;
-            this.completionKind = completion.kind;
-            this.completionReason = completion.reason;
+            this.completionKind = completionKind;
+            this.completionReason = completionReason;
             this.featureId = featureId;
             this.scenarioId = scenarioId;
             this.operationIds = operationIds;
@@ -1649,16 +1650,4 @@ final class GeneratedTusProtocolContract {
         }
     }
 
-    /**
-     * Generated client conformance completion fixture.
-     */
-    static final class GeneratedTusClientConformanceCompletion {
-        final String kind;
-        final String reason;
-
-        GeneratedTusClientConformanceCompletion(String kind, String reason) {
-            this.kind = kind;
-            this.reason = reason;
-        }
-    }
 }
