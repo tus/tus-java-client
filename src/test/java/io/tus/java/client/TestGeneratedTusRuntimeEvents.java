@@ -32,7 +32,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                 "singleUploadLifecycle",
                 new GeneratedTusRuntimeEventExpectations(
                         new GeneratedTusRuntimeEventPolicy(
-                                "exact-except-extra-progress"
+                                "exact-except-allowed-extra-events"
                         ),
                         new String[] {
                         "progress:0:11",
@@ -117,7 +117,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                 "resumeFromPreviousUpload",
                 new GeneratedTusRuntimeEventExpectations(
                         new GeneratedTusRuntimeEventPolicy(
-                                "exact-except-extra-progress"
+                                "exact-except-allowed-extra-events"
                         ),
                         new String[] {
                         "progress:5:11",
@@ -201,7 +201,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                 "relativeLocationResolution",
                 new GeneratedTusRuntimeEventExpectations(
                         new GeneratedTusRuntimeEventPolicy(
-                                "exact-except-extra-progress"
+                                "exact-except-allowed-extra-events"
                         ),
                         new String[] {
                         "progress:0:11",
@@ -286,7 +286,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                 "deferredLengthUpload",
                 new GeneratedTusRuntimeEventExpectations(
                         new GeneratedTusRuntimeEventPolicy(
-                                "exact-except-extra-progress"
+                                "exact-except-allowed-extra-events"
                         ),
                         new String[] {
                         "progress:0:11",
@@ -375,7 +375,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                 "deferredLengthChunkedUpload",
                 new GeneratedTusRuntimeEventExpectations(
                         new GeneratedTusRuntimeEventPolicy(
-                                "exact-except-extra-progress"
+                                "exact-except-allowed-extra-events"
                         ),
                         new String[] {
                         "progress:0:null",
@@ -879,8 +879,8 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
             return;
         }
 
-        if ("exact-except-extra-progress".equals(testCase.eventExpectations.policy.matching)) {
-            assertEventsExactExceptExtraProgress(testCase, events);
+        if ("exact-except-allowed-extra-events".equals(testCase.eventExpectations.policy.matching)) {
+            assertEventsExactExceptAllowedExtraEvents(testCase, events);
             return;
         }
 
@@ -891,7 +891,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                         + testCase.scenarioId);
     }
 
-    private void assertEventsExactExceptExtraProgress(
+    private void assertEventsExactExceptAllowedExtraEvents(
             GeneratedTusRuntimeEventCase testCase,
             List<String> events) {
         int expectedIndex = 0;
@@ -909,7 +909,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
 
             throw new AssertionError(
                     testCase.scenarioId
-                            + " emitted unexpected non-progress event "
+                            + " emitted unexpected non-allowed extra event "
                             + event
                             + "; expected "
                             + java.util.Arrays.toString(testCase.eventExpectations.keys));

@@ -21,7 +21,7 @@ public class TestGeneratedTusConformanceEvents {
                 "singleUploadLifecycle",
                 "singleUploadLifecycle",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
-                        "exact-except-extra-progress",
+                        "exact-except-allowed-extra-events",
                         null,
                         "milestone",
                         "may-emit-extra-samples"
@@ -54,7 +54,7 @@ public class TestGeneratedTusConformanceEvents {
                 "creationWithUpload",
                 "creationWithUpload",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
-                        "exact-except-extra-progress",
+                        "exact-except-allowed-extra-events",
                         null,
                         "milestone",
                         "may-emit-extra-samples"
@@ -81,7 +81,7 @@ public class TestGeneratedTusConformanceEvents {
                 "creationWithUpload",
                 "creationWithUploadPartialChunk",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
-                        "exact-except-extra-progress",
+                        "exact-except-allowed-extra-events",
                         null,
                         "milestone",
                         "may-emit-extra-samples"
@@ -122,7 +122,7 @@ public class TestGeneratedTusConformanceEvents {
                 "protocolVersionSelection",
                 "ietfDraft05CreationWithUpload",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
-                        "exact-except-extra-progress",
+                        "exact-except-allowed-extra-events",
                         null,
                         "milestone",
                         "may-emit-extra-samples"
@@ -149,7 +149,7 @@ public class TestGeneratedTusConformanceEvents {
                 "protocolVersionSelection",
                 "ietfDraft05ChunkedUploadComplete",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
-                        "exact-except-extra-progress",
+                        "exact-except-allowed-extra-events",
                         null,
                         "milestone",
                         "may-emit-extra-samples"
@@ -190,7 +190,7 @@ public class TestGeneratedTusConformanceEvents {
                 "protocolVersionSelection",
                 "ietfDraft03ResumeWithoutKnownLength",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
-                        "exact-except-extra-progress",
+                        "exact-except-allowed-extra-events",
                         null,
                         "milestone",
                         "may-emit-extra-samples"
@@ -219,7 +219,7 @@ public class TestGeneratedTusConformanceEvents {
                 "resumeUpload",
                 "resumeFromPreviousUpload",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
-                        "exact-except-extra-progress",
+                        "exact-except-allowed-extra-events",
                         null,
                         "milestone",
                         "may-emit-extra-samples"
@@ -256,7 +256,7 @@ public class TestGeneratedTusConformanceEvents {
                 "relativeLocationResolution",
                 "relativeLocationResolution",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
-                        "exact-except-extra-progress",
+                        "exact-except-allowed-extra-events",
                         null,
                         "milestone",
                         "may-emit-extra-samples"
@@ -390,7 +390,7 @@ public class TestGeneratedTusConformanceEvents {
                 "deferredLengthUpload",
                 "deferredLengthUpload",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
-                        "exact-except-extra-progress",
+                        "exact-except-allowed-extra-events",
                         "allow-known-total-before-declaration",
                         "milestone",
                         "may-emit-extra-samples"
@@ -419,7 +419,7 @@ public class TestGeneratedTusConformanceEvents {
                 "deferredLengthUpload",
                 "deferredLengthChunkedUpload",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
-                        "exact-except-extra-progress",
+                        "exact-except-allowed-extra-events",
                         "allow-known-total-before-declaration",
                         "milestone",
                         "may-emit-extra-samples"
@@ -472,7 +472,7 @@ public class TestGeneratedTusConformanceEvents {
                 "parallelUploadConcat",
                 "parallelUploadConcat",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
-                        "exact-except-extra-progress",
+                        "exact-except-allowed-extra-events",
                         null,
                         "milestone",
                         "may-emit-extra-samples"

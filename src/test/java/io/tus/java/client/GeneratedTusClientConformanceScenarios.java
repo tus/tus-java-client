@@ -34,7 +34,7 @@ final class GeneratedTusClientConformanceScenarios {
             },
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
-                                "exact-except-extra-progress",
+                                "exact-except-allowed-extra-events",
                                 null,
                                 "milestone",
                                 "may-emit-extra-samples"
@@ -81,7 +81,7 @@ final class GeneratedTusClientConformanceScenarios {
             },
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
-                                "exact-except-extra-progress",
+                                "exact-except-allowed-extra-events",
                                 null,
                                 "milestone",
                                 "may-emit-extra-samples"
@@ -123,7 +123,7 @@ final class GeneratedTusClientConformanceScenarios {
             },
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
-                                "exact-except-extra-progress",
+                                "exact-except-allowed-extra-events",
                                 null,
                                 "milestone",
                                 "may-emit-extra-samples"
@@ -177,7 +177,7 @@ final class GeneratedTusClientConformanceScenarios {
             },
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
-                                "exact-except-extra-progress",
+                                "exact-except-allowed-extra-events",
                                 null,
                                 "milestone",
                                 "may-emit-extra-samples"
@@ -218,7 +218,7 @@ final class GeneratedTusClientConformanceScenarios {
             },
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
-                                "exact-except-extra-progress",
+                                "exact-except-allowed-extra-events",
                                 null,
                                 "milestone",
                                 "may-emit-extra-samples"
@@ -273,7 +273,7 @@ final class GeneratedTusClientConformanceScenarios {
             },
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
-                                "exact-except-extra-progress",
+                                "exact-except-allowed-extra-events",
                                 null,
                                 "milestone",
                                 "may-emit-extra-samples"
@@ -692,7 +692,7 @@ final class GeneratedTusClientConformanceScenarios {
             },
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
-                                "exact-except-extra-progress",
+                                "exact-except-allowed-extra-events",
                                 null,
                                 "milestone",
                                 "may-emit-extra-samples"
@@ -743,7 +743,7 @@ final class GeneratedTusClientConformanceScenarios {
             },
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
-                                "exact-except-extra-progress",
+                                "exact-except-allowed-extra-events",
                                 null,
                                 "milestone",
                                 "may-emit-extra-samples"
@@ -962,7 +962,7 @@ final class GeneratedTusClientConformanceScenarios {
             },
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
-                                "exact-except-extra-progress",
+                                "exact-except-allowed-extra-events",
                                 "allow-known-total-before-declaration",
                                 "milestone",
                                 "may-emit-extra-samples"
@@ -1007,7 +1007,7 @@ final class GeneratedTusClientConformanceScenarios {
             },
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
-                                "exact-except-extra-progress",
+                                "exact-except-allowed-extra-events",
                                 "allow-known-total-before-declaration",
                                 "milestone",
                                 "may-emit-extra-samples"
@@ -1105,7 +1105,7 @@ final class GeneratedTusClientConformanceScenarios {
             },
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
                         new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
-                                "exact-except-extra-progress",
+                                "exact-except-allowed-extra-events",
                                 null,
                                 "milestone",
                                 "may-emit-extra-samples"
