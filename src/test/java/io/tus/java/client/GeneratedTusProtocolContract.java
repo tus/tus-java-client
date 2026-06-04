@@ -1570,6 +1570,30 @@ final class GeneratedTusProtocolContract {
     }
 
     /**
+     * Generated client conformance scenario metadata.
+     */
+    static final class GeneratedTusClientConformanceScenarioMetadata {
+        final String behavior;
+        final String completionKind;
+        final String completionReason;
+        final String featureId;
+        final String scenarioId;
+
+        GeneratedTusClientConformanceScenarioMetadata(
+                String behavior,
+                String completionKind,
+                String completionReason,
+                String featureId,
+                String scenarioId) {
+            this.behavior = behavior;
+            this.completionKind = completionKind;
+            this.completionReason = completionReason;
+            this.featureId = featureId;
+            this.scenarioId = scenarioId;
+        }
+    }
+
+    /**
      * Generated client conformance scenario fixture.
      */
     static final class GeneratedTusClientConformanceScenario {
@@ -1586,19 +1610,15 @@ final class GeneratedTusProtocolContract {
         final String[] eventKeyExtraPrefixes;
 
         GeneratedTusClientConformanceScenario(
-                String behavior,
-                String completionKind,
-                String completionReason,
-                String featureId,
-                String scenarioId,
+                GeneratedTusClientConformanceScenarioMetadata metadata,
                 String[] operationIds,
                 String[] primitives,
                 GeneratedTusClientConformanceEvents events) {
-            this.behavior = behavior;
-            this.completionKind = completionKind;
-            this.completionReason = completionReason;
-            this.featureId = featureId;
-            this.scenarioId = scenarioId;
+            this.behavior = metadata.behavior;
+            this.completionKind = metadata.completionKind;
+            this.completionReason = metadata.completionReason;
+            this.featureId = metadata.featureId;
+            this.scenarioId = metadata.scenarioId;
             this.operationIds = operationIds;
             this.primitives = primitives;
             this.eventPolicy = events.policy;
