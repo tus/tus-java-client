@@ -100,7 +100,9 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                                 0,
                                 "failed",
                                 new GeneratedTusManagedUploadFailure(
-                                        "after-accepted-offset",
+                                        true,
+                                        false,
+                                        false,
                                         "io-error",
                                         7
                                 ),
@@ -282,7 +284,9 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                                 0,
                                 "failed",
                                 new GeneratedTusManagedUploadFailure(
-                                        "during-protocol-request",
+                                        false,
+                                        false,
+                                        true,
                                         "unretryable-protocol-error",
                                         -1
                                 ),
@@ -380,7 +384,9 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                                 0,
                                 "failed",
                                 new GeneratedTusManagedUploadFailure(
-                                        "during-protocol-request",
+                                        false,
+                                        false,
+                                        true,
                                         "retryable-protocol-error",
                                         -1
                                 ),
@@ -414,7 +420,9 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                                 1,
                                 "failed",
                                 new GeneratedTusManagedUploadFailure(
-                                        "during-protocol-request",
+                                        false,
+                                        false,
+                                        true,
                                         "retryable-protocol-error",
                                         -1
                                 ),
@@ -448,7 +456,9 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                                 2,
                                 "failed",
                                 new GeneratedTusManagedUploadFailure(
-                                        "during-protocol-request",
+                                        false,
+                                        false,
+                                        true,
                                         "retryable-protocol-error",
                                         -1
                                 ),
@@ -539,7 +549,9 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                                 0,
                                 "failed",
                                 new GeneratedTusManagedUploadFailure(
-                                        "before-protocol-request",
+                                        false,
+                                        true,
+                                        false,
                                         "source-unavailable",
                                         -1
                                 ),
@@ -702,7 +714,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                                 && uploader.getOffset() == attempt.failure.afterAcceptedOffset) {
                             uploader.finish(false);
                             recordState(testCase, states, stateFile, attempt.stateAfterAttempt);
-                            throw new IOException(attempt.failure.kind);
+                            throw new IOException(attempt.failure.failureMessage);
                         }
                     }
                     uploader.finish();
@@ -722,7 +734,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
 
     private boolean isAfterAcceptedOffsetFailure(GeneratedTusManagedUploadAttempt attempt) {
         return attempt.failure != null
-                && "after-accepted-offset".equals(attempt.failure.phase);
+                && attempt.failure.failAfterAcceptedOffset;
     }
 
     private void recordDuringProtocolFailure(
@@ -730,7 +742,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
             List<String> states,
             File stateFile,
             GeneratedTusManagedUploadAttempt attempt) throws IOException {
-        if (attempt.failure == null || !"during-protocol-request".equals(attempt.failure.phase)) {
+        if (attempt.failure == null || !attempt.failure.failDuringProtocolRequest) {
             return;
         }
 
@@ -1212,14 +1224,23 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
     }
 
     private static final class GeneratedTusManagedUploadFailure {
-        final String phase;
-        final String kind;
         final long afterAcceptedOffset;
+        final boolean failAfterAcceptedOffset;
+        final boolean failBeforeProtocolRequest;
+        final boolean failDuringProtocolRequest;
+        final String failureMessage;
 
-        GeneratedTusManagedUploadFailure(String phase, String kind, long afterAcceptedOffset) {
-            this.phase = phase;
-            this.kind = kind;
+        GeneratedTusManagedUploadFailure(
+                boolean failAfterAcceptedOffset,
+                boolean failBeforeProtocolRequest,
+                boolean failDuringProtocolRequest,
+                String failureMessage,
+                long afterAcceptedOffset) {
             this.afterAcceptedOffset = afterAcceptedOffset;
+            this.failAfterAcceptedOffset = failAfterAcceptedOffset;
+            this.failBeforeProtocolRequest = failBeforeProtocolRequest;
+            this.failDuringProtocolRequest = failDuringProtocolRequest;
+            this.failureMessage = failureMessage;
         }
     }
 
