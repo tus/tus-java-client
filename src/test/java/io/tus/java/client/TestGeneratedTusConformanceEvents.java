@@ -35,6 +35,16 @@ public class TestGeneratedTusConformanceEvents {
                 "chunk-complete:11:11:11",
                 "success",
                 "source-close",
+            },
+                new String[][] {
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -52,6 +62,13 @@ public class TestGeneratedTusConformanceEvents {
                 "upload-url-available",
                 "success",
                 "source-close",
+            },
+                new String[][] {
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -76,6 +93,20 @@ public class TestGeneratedTusConformanceEvents {
                 "chunk-complete:1:11:11",
                 "success",
                 "source-close",
+            },
+                new String[][] {
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -93,6 +124,13 @@ public class TestGeneratedTusConformanceEvents {
                 "upload-url-available",
                 "success",
                 "source-close",
+            },
+                new String[][] {
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -117,6 +155,20 @@ public class TestGeneratedTusConformanceEvents {
                 "chunk-complete:1:11:11",
                 "success",
                 "source-close",
+            },
+                new String[][] {
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -135,6 +187,14 @@ public class TestGeneratedTusConformanceEvents {
                 "chunk-complete:6:11:11",
                 "success",
                 "source-close",
+            },
+                new String[][] {
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -157,6 +217,18 @@ public class TestGeneratedTusConformanceEvents {
                 "url-storage-remove:tus::contract-resume-fingerprint::1337",
                 "success",
                 "source-close",
+            },
+                new String[][] {
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -175,6 +247,14 @@ public class TestGeneratedTusConformanceEvents {
                 "chunk-complete:11:11:11",
                 "success",
                 "source-close",
+            },
+                new String[][] {
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -190,6 +270,11 @@ public class TestGeneratedTusConformanceEvents {
                 "source-open:array-buffer:11",
                 "success",
                 "source-close",
+            },
+                new String[][] {
+                new String[0],
+                new String[0],
+                new String[0],
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -205,6 +290,11 @@ public class TestGeneratedTusConformanceEvents {
                 "source-open:array-buffer-view:11",
                 "success",
                 "source-close",
+            },
+                new String[][] {
+                new String[0],
+                new String[0],
+                new String[0],
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -220,6 +310,11 @@ public class TestGeneratedTusConformanceEvents {
                 "source-open:web-readable-stream:null",
                 "success",
                 "source-close",
+            },
+                new String[][] {
+                new String[0],
+                new String[0],
+                new String[0],
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -235,6 +330,11 @@ public class TestGeneratedTusConformanceEvents {
                 "source-open:node-readable-stream:null",
                 "success",
                 "source-close",
+            },
+                new String[][] {
+                new String[0],
+                new String[0],
+                new String[0],
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -250,6 +350,11 @@ public class TestGeneratedTusConformanceEvents {
                 "source-open:node-path-reference:11",
                 "success",
                 "source-close",
+            },
+                new String[][] {
+                new String[0],
+                new String[0],
+                new String[0],
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -268,6 +373,14 @@ public class TestGeneratedTusConformanceEvents {
                 "chunk-complete:11:11:11",
                 "success",
                 "source-close",
+            },
+                new String[][] {
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -292,6 +405,32 @@ public class TestGeneratedTusConformanceEvents {
                 "chunk-complete:1:11:11",
                 "success",
                 "source-close",
+            },
+                new String[][] {
+                new String[0],
+                new String[] {
+                        "progress:0:11",
+                    },
+                new String[] {
+                        "progress:5:11",
+                    },
+                new String[] {
+                        "chunk-complete:5:5:11",
+                    },
+                new String[] {
+                        "progress:5:11",
+                    },
+                new String[] {
+                        "progress:10:11",
+                    },
+                new String[] {
+                        "chunk-complete:5:10:11",
+                    },
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -308,6 +447,12 @@ public class TestGeneratedTusConformanceEvents {
                 "chunk-complete:5:5:11",
                 "progress:11:11",
                 "chunk-complete:6:11:11",
+            },
+                new String[][] {
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -321,6 +466,9 @@ public class TestGeneratedTusConformanceEvents {
                 ),
                 new String[] {
                 "request-abort:3",
+            },
+                new String[][] {
+                new String[0],
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -337,6 +485,12 @@ public class TestGeneratedTusConformanceEvents {
                 "retry-schedule:0",
                 "should-retry:0:true",
                 "retry-schedule:0",
+            },
+                new String[][] {
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -353,6 +507,12 @@ public class TestGeneratedTusConformanceEvents {
                 "after-response:0",
                 "success",
                 "source-close",
+            },
+                new String[][] {
+                new String[0],
+                new String[0],
+                new String[0],
+                new String[0],
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -366,6 +526,9 @@ public class TestGeneratedTusConformanceEvents {
                 ),
                 new String[] {
                 "request-abort:0",
+            },
+                new String[][] {
+                new String[0],
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -379,6 +542,9 @@ public class TestGeneratedTusConformanceEvents {
                 ),
                 new String[] {
                 "request-abort:1",
+            },
+                new String[][] {
+                new String[0],
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -393,6 +559,10 @@ public class TestGeneratedTusConformanceEvents {
                 new String[] {
                 "should-retry:0:true",
                 "retry-schedule:0",
+            },
+                new String[][] {
+                new String[0],
+                new String[0],
             }
         ),
     };
@@ -493,6 +663,9 @@ public class TestGeneratedTusConformanceEvents {
             assertContains(feature.conformance.scenarioIds, scenario.scenarioId);
             assertEventPolicyEquals(testCase.eventPolicy, scenario.eventPolicy);
             assertArrayEquals(testCase.eventKeys, scenario.eventKeys);
+            assertStringMatrixEquals(
+                    testCase.eventKeyAlternativeGroups,
+                    scenario.eventKeyAlternativeGroups);
         }
     }
 
@@ -584,21 +757,31 @@ public class TestGeneratedTusConformanceEvents {
         assertEquals(expected.transportProgress, actual.transportProgress);
     }
 
+    private static void assertStringMatrixEquals(String[][] expected, String[][] actual) {
+        assertEquals(expected.length, actual.length);
+        for (int index = 0; index < expected.length; index += 1) {
+            assertArrayEquals(expected[index], actual[index]);
+        }
+    }
+
     private static final class GeneratedTusEventCanaryCase {
         final String featureId;
         final String scenarioId;
         final GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy eventPolicy;
         final String[] eventKeys;
+        final String[][] eventKeyAlternativeGroups;
 
         GeneratedTusEventCanaryCase(
                 String featureId,
                 String scenarioId,
                 GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy eventPolicy,
-                String[] eventKeys) {
+                String[] eventKeys,
+                String[][] eventKeyAlternativeGroups) {
             this.featureId = featureId;
             this.scenarioId = scenarioId;
             this.eventPolicy = eventPolicy;
             this.eventKeys = eventKeys;
+            this.eventKeyAlternativeGroups = eventKeyAlternativeGroups;
         }
     }
 

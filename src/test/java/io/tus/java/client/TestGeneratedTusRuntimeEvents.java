@@ -30,9 +30,20 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
             new GeneratedTusRuntimeEventCase[] {
         new GeneratedTusRuntimeEventCase(
                 "singleUploadLifecycle",
-                new GeneratedTusRuntimeEventPolicy(
-                        "exact-except-extra-progress",
-                        null
+                new GeneratedTusRuntimeEventExpectations(
+                        new GeneratedTusRuntimeEventPolicy(
+                                "exact-except-extra-progress"
+                        ),
+                        new String[] {
+                        "progress:0:11",
+                        "progress:11:11",
+                        "chunk-complete:11:11:11",
+                    },
+                        new String[][] {
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                    }
                 ),
                 false,
                 new GeneratedTusRuntimeBeforeStartAction[0],
@@ -97,18 +108,24 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 ),
                             }
                         ),
-                },
-                new String[] {
-                "progress:0:11",
-                "progress:11:11",
-                "chunk-complete:11:11:11",
-            }
+                }
         ),
         new GeneratedTusRuntimeEventCase(
                 "resumeFromPreviousUpload",
-                new GeneratedTusRuntimeEventPolicy(
-                        "exact-except-extra-progress",
-                        null
+                new GeneratedTusRuntimeEventExpectations(
+                        new GeneratedTusRuntimeEventPolicy(
+                                "exact-except-extra-progress"
+                        ),
+                        new String[] {
+                        "progress:5:11",
+                        "progress:11:11",
+                        "chunk-complete:6:11:11",
+                    },
+                        new String[][] {
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                    }
                 ),
                 false,
                 new GeneratedTusRuntimeBeforeStartAction[] {
@@ -172,18 +189,24 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 ),
                             }
                         ),
-                },
-                new String[] {
-                "progress:5:11",
-                "progress:11:11",
-                "chunk-complete:6:11:11",
-            }
+                }
         ),
         new GeneratedTusRuntimeEventCase(
                 "relativeLocationResolution",
-                new GeneratedTusRuntimeEventPolicy(
-                        "exact-except-extra-progress",
-                        null
+                new GeneratedTusRuntimeEventExpectations(
+                        new GeneratedTusRuntimeEventPolicy(
+                                "exact-except-extra-progress"
+                        ),
+                        new String[] {
+                        "progress:0:11",
+                        "progress:11:11",
+                        "chunk-complete:11:11:11",
+                    },
+                        new String[][] {
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                    }
                 ),
                 false,
                 new GeneratedTusRuntimeBeforeStartAction[0],
@@ -248,18 +271,24 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 ),
                             }
                         ),
-                },
-                new String[] {
-                "progress:0:11",
-                "progress:11:11",
-                "chunk-complete:11:11:11",
-            }
+                }
         ),
         new GeneratedTusRuntimeEventCase(
                 "deferredLengthUpload",
-                new GeneratedTusRuntimeEventPolicy(
-                        "exact-except-extra-progress",
-                        "allow-known-total-before-declaration"
+                new GeneratedTusRuntimeEventExpectations(
+                        new GeneratedTusRuntimeEventPolicy(
+                                "exact-except-extra-progress"
+                        ),
+                        new String[] {
+                        "progress:0:11",
+                        "progress:11:11",
+                        "chunk-complete:11:11:11",
+                    },
+                        new String[][] {
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                    }
                 ),
                 true,
                 new GeneratedTusRuntimeBeforeStartAction[0],
@@ -328,18 +357,48 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 ),
                             }
                         ),
-                },
-                new String[] {
-                "progress:0:11",
-                "progress:11:11",
-                "chunk-complete:11:11:11",
-            }
+                }
         ),
         new GeneratedTusRuntimeEventCase(
                 "deferredLengthChunkedUpload",
-                new GeneratedTusRuntimeEventPolicy(
-                        "exact-except-extra-progress",
-                        "allow-known-total-before-declaration"
+                new GeneratedTusRuntimeEventExpectations(
+                        new GeneratedTusRuntimeEventPolicy(
+                                "exact-except-extra-progress"
+                        ),
+                        new String[] {
+                        "progress:0:null",
+                        "progress:5:null",
+                        "chunk-complete:5:5:null",
+                        "progress:5:null",
+                        "progress:10:null",
+                        "chunk-complete:5:10:null",
+                        "progress:10:11",
+                        "progress:11:11",
+                        "chunk-complete:1:11:11",
+                    },
+                        new String[][] {
+                        new String[] {
+                                "progress:0:11",
+                            },
+                        new String[] {
+                                "progress:5:11",
+                            },
+                        new String[] {
+                                "chunk-complete:5:5:11",
+                            },
+                        new String[] {
+                                "progress:5:11",
+                            },
+                        new String[] {
+                                "progress:10:11",
+                            },
+                        new String[] {
+                                "chunk-complete:5:10:11",
+                            },
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                    }
                 ),
                 true,
                 new GeneratedTusRuntimeBeforeStartAction[0],
@@ -454,18 +513,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 ),
                             }
                         ),
-                },
-                new String[] {
-                "progress:0:null",
-                "progress:5:null",
-                "chunk-complete:5:5:null",
-                "progress:5:null",
-                "progress:10:null",
-                "chunk-complete:5:10:null",
-                "progress:10:11",
-                "progress:11:11",
-                "chunk-complete:1:11:11",
-            }
+                }
         ),
     };
     private static final GeneratedTusMethodOverride[] METHOD_OVERRIDES =
@@ -731,22 +779,22 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
     }
 
     private void assertEvents(GeneratedTusRuntimeEventCase testCase, List<String> events) {
-        if ("exact".equals(testCase.eventPolicy.matching)) {
+        if ("exact".equals(testCase.eventExpectations.policy.matching)) {
             assertArrayEquals(
                     testCase.scenarioId,
-                    testCase.eventKeys,
+                    testCase.eventExpectations.keys,
                     events.toArray(new String[events.size()]));
             return;
         }
 
-        if ("exact-except-extra-progress".equals(testCase.eventPolicy.matching)) {
+        if ("exact-except-extra-progress".equals(testCase.eventExpectations.policy.matching)) {
             assertEventsExactExceptExtraProgress(testCase, events);
             return;
         }
 
         throw new AssertionError(
                 "Unsupported generated event policy "
-                        + testCase.eventPolicy.matching
+                        + testCase.eventExpectations.policy.matching
                         + " for "
                         + testCase.scenarioId);
     }
@@ -757,8 +805,8 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         int expectedIndex = 0;
         for (String event : events) {
             if (
-                    expectedIndex < testCase.eventKeys.length
-                    && eventMatchesExpected(testCase, event, testCase.eventKeys[expectedIndex])) {
+                    expectedIndex < testCase.eventExpectations.keys.length
+                    && eventMatchesExpected(testCase, event, expectedIndex)) {
                 expectedIndex += 1;
                 continue;
             }
@@ -772,10 +820,10 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                             + " emitted unexpected non-progress event "
                             + event
                             + "; expected "
-                            + java.util.Arrays.toString(testCase.eventKeys));
+                            + java.util.Arrays.toString(testCase.eventExpectations.keys));
         }
 
-        if (expectedIndex == testCase.eventKeys.length) {
+        if (expectedIndex == testCase.eventExpectations.keys.length) {
             return;
         }
 
@@ -784,70 +832,71 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                         + " did not emit every expected non-extra event; observed "
                         + events
                         + "; expected "
-                        + java.util.Arrays.toString(testCase.eventKeys));
+                        + java.util.Arrays.toString(testCase.eventExpectations.keys));
     }
 
     private boolean eventMatchesExpected(
             GeneratedTusRuntimeEventCase testCase,
             String event,
-            String expected) {
+            int expectedIndex) {
+        String expected = testCase.eventExpectations.keys[expectedIndex];
         if (event.equals(expected)) {
             return true;
         }
 
-        if (
-                !"allow-known-total-before-declaration"
-                        .equals(testCase.eventPolicy.deferredLengthBytesTotal)) {
-            return false;
+        for (String alternative : testCase.eventExpectations.alternativeGroups[expectedIndex]) {
+            if (event.equals(alternative)) {
+                return true;
+            }
         }
 
-        if (!testCase.uploadLengthDeferred || !expected.endsWith(":null")) {
-            return false;
-        }
-
-        String expectedPrefix = expected.substring(0, expected.length() - ":null".length());
-        String localKnownTotal =
-                ":" + testCase.input.content.getBytes(StandardCharsets.UTF_8).length;
-
-        return event.equals(expectedPrefix + localKnownTotal);
+        return false;
     }
 
     private static final class GeneratedTusRuntimeEventCase {
         final String scenarioId;
-        final GeneratedTusRuntimeEventPolicy eventPolicy;
+        final GeneratedTusRuntimeEventExpectations eventExpectations;
         final boolean uploadLengthDeferred;
         final GeneratedTusRuntimeBeforeStartAction[] beforeStartActions;
         final GeneratedTusRuntimeEventInput input;
         final GeneratedTusRuntimeEventRequest[] requests;
-        final String[] eventKeys;
 
         GeneratedTusRuntimeEventCase(
                 String scenarioId,
-                GeneratedTusRuntimeEventPolicy eventPolicy,
+                GeneratedTusRuntimeEventExpectations eventExpectations,
                 boolean uploadLengthDeferred,
                 GeneratedTusRuntimeBeforeStartAction[] beforeStartActions,
                 GeneratedTusRuntimeEventInput input,
-                GeneratedTusRuntimeEventRequest[] requests,
-                String[] eventKeys) {
+                GeneratedTusRuntimeEventRequest[] requests) {
             this.scenarioId = scenarioId;
-            this.eventPolicy = eventPolicy;
+            this.eventExpectations = eventExpectations;
             this.uploadLengthDeferred = uploadLengthDeferred;
             this.beforeStartActions = beforeStartActions;
             this.input = input;
             this.requests = requests;
-            this.eventKeys = eventKeys;
+        }
+    }
+
+    private static final class GeneratedTusRuntimeEventExpectations {
+        final GeneratedTusRuntimeEventPolicy policy;
+        final String[] keys;
+        final String[][] alternativeGroups;
+
+        GeneratedTusRuntimeEventExpectations(
+                GeneratedTusRuntimeEventPolicy policy,
+                String[] keys,
+                String[][] alternativeGroups) {
+            this.policy = policy;
+            this.keys = keys;
+            this.alternativeGroups = alternativeGroups;
         }
     }
 
     private static final class GeneratedTusRuntimeEventPolicy {
         final String matching;
-        final String deferredLengthBytesTotal;
 
-        GeneratedTusRuntimeEventPolicy(
-                String matching,
-                String deferredLengthBytesTotal) {
+        GeneratedTusRuntimeEventPolicy(String matching) {
             this.matching = matching;
-            this.deferredLengthBytesTotal = deferredLengthBytesTotal;
         }
     }
 

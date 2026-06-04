@@ -48,6 +48,16 @@ final class GeneratedTusClientConformanceScenarios {
                         "chunk-complete:11:11:11",
                         "success",
                         "source-close",
+                    },
+                        new String[][] {
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
                     }
                 )
         ),
@@ -79,6 +89,13 @@ final class GeneratedTusClientConformanceScenarios {
                         "upload-url-available",
                         "success",
                         "source-close",
+                    },
+                        new String[][] {
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
                     }
                 )
         ),
@@ -118,6 +135,20 @@ final class GeneratedTusClientConformanceScenarios {
                         "chunk-complete:1:11:11",
                         "success",
                         "source-close",
+                    },
+                        new String[][] {
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
                     }
                 )
         ),
@@ -148,6 +179,13 @@ final class GeneratedTusClientConformanceScenarios {
                         "upload-url-available",
                         "success",
                         "source-close",
+                    },
+                        new String[][] {
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
                     }
                 )
         ),
@@ -186,6 +224,20 @@ final class GeneratedTusClientConformanceScenarios {
                         "chunk-complete:1:11:11",
                         "success",
                         "source-close",
+                    },
+                        new String[][] {
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
                     }
                 )
         ),
@@ -218,6 +270,14 @@ final class GeneratedTusClientConformanceScenarios {
                         "chunk-complete:6:11:11",
                         "success",
                         "source-close",
+                    },
+                        new String[][] {
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
                     }
                 )
         ),
@@ -240,7 +300,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null,
                                 null
                         ),
-                        new String[0]
+                        new String[0],
+                        new String[0][0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -262,7 +323,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null,
                                 null
                         ),
-                        new String[0]
+                        new String[0],
+                        new String[0][0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -284,7 +346,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null,
                                 null
                         ),
-                        new String[0]
+                        new String[0],
+                        new String[0][0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -306,7 +369,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null,
                                 null
                         ),
-                        new String[0]
+                        new String[0],
+                        new String[0][0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -328,7 +392,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null,
                                 null
                         ),
-                        new String[0]
+                        new String[0],
+                        new String[0][0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -350,7 +415,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null,
                                 null
                         ),
-                        new String[0]
+                        new String[0],
+                        new String[0][0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -372,7 +438,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null,
                                 null
                         ),
-                        new String[0]
+                        new String[0],
+                        new String[0][0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -394,7 +461,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null,
                                 null
                         ),
-                        new String[0]
+                        new String[0],
+                        new String[0][0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -416,7 +484,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null,
                                 null
                         ),
-                        new String[0]
+                        new String[0],
+                        new String[0][0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -438,7 +507,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null,
                                 null
                         ),
-                        new String[0]
+                        new String[0],
+                        new String[0][0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -462,7 +532,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null,
                                 null
                         ),
-                        new String[0]
+                        new String[0],
+                        new String[0][0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -486,7 +557,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null,
                                 null
                         ),
-                        new String[0]
+                        new String[0],
+                        new String[0][0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -511,7 +583,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null,
                                 null
                         ),
-                        new String[0]
+                        new String[0],
+                        new String[0][0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -536,7 +609,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null,
                                 null
                         ),
-                        new String[0]
+                        new String[0],
+                        new String[0][0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -562,7 +636,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null,
                                 null
                         ),
-                        new String[0]
+                        new String[0],
+                        new String[0][0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -600,6 +675,18 @@ final class GeneratedTusClientConformanceScenarios {
                         "url-storage-remove:tus::contract-resume-fingerprint::1337",
                         "success",
                         "source-close",
+                    },
+                        new String[][] {
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
                     }
                 )
         ),
@@ -632,6 +719,14 @@ final class GeneratedTusClientConformanceScenarios {
                         "chunk-complete:11:11:11",
                         "success",
                         "source-close",
+                    },
+                        new String[][] {
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
                     }
                 )
         ),
@@ -661,6 +756,11 @@ final class GeneratedTusClientConformanceScenarios {
                         "source-open:array-buffer:11",
                         "success",
                         "source-close",
+                    },
+                        new String[][] {
+                        new String[0],
+                        new String[0],
+                        new String[0],
                     }
                 )
         ),
@@ -690,6 +790,11 @@ final class GeneratedTusClientConformanceScenarios {
                         "source-open:array-buffer-view:11",
                         "success",
                         "source-close",
+                    },
+                        new String[][] {
+                        new String[0],
+                        new String[0],
+                        new String[0],
                     }
                 )
         ),
@@ -719,6 +824,11 @@ final class GeneratedTusClientConformanceScenarios {
                         "source-open:web-readable-stream:null",
                         "success",
                         "source-close",
+                    },
+                        new String[][] {
+                        new String[0],
+                        new String[0],
+                        new String[0],
                     }
                 )
         ),
@@ -748,6 +858,11 @@ final class GeneratedTusClientConformanceScenarios {
                         "source-open:node-readable-stream:null",
                         "success",
                         "source-close",
+                    },
+                        new String[][] {
+                        new String[0],
+                        new String[0],
+                        new String[0],
                     }
                 )
         ),
@@ -777,6 +892,11 @@ final class GeneratedTusClientConformanceScenarios {
                         "source-open:node-path-reference:11",
                         "success",
                         "source-close",
+                    },
+                        new String[][] {
+                        new String[0],
+                        new String[0],
+                        new String[0],
                     }
                 )
         ),
@@ -810,6 +930,14 @@ final class GeneratedTusClientConformanceScenarios {
                         "chunk-complete:11:11:11",
                         "success",
                         "source-close",
+                    },
+                        new String[][] {
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
                     }
                 )
         ),
@@ -850,6 +978,32 @@ final class GeneratedTusClientConformanceScenarios {
                         "chunk-complete:1:11:11",
                         "success",
                         "source-close",
+                    },
+                        new String[][] {
+                        new String[0],
+                        new String[] {
+                                "progress:0:11",
+                            },
+                        new String[] {
+                                "progress:5:11",
+                            },
+                        new String[] {
+                                "chunk-complete:5:5:11",
+                            },
+                        new String[] {
+                                "progress:5:11",
+                            },
+                        new String[] {
+                                "progress:10:11",
+                            },
+                        new String[] {
+                                "chunk-complete:5:10:11",
+                            },
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
                     }
                 )
         ),
@@ -875,7 +1029,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null,
                                 null
                         ),
-                        new String[0]
+                        new String[0],
+                        new String[0][0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -909,6 +1064,12 @@ final class GeneratedTusClientConformanceScenarios {
                         "chunk-complete:5:5:11",
                         "progress:11:11",
                         "chunk-complete:6:11:11",
+                    },
+                        new String[][] {
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
                     }
                 )
         ),
@@ -942,6 +1103,9 @@ final class GeneratedTusClientConformanceScenarios {
                         ),
                         new String[] {
                         "request-abort:3",
+                    },
+                        new String[][] {
+                        new String[0],
                     }
                 )
         ),
@@ -977,6 +1141,12 @@ final class GeneratedTusClientConformanceScenarios {
                         "retry-schedule:0",
                         "should-retry:0:true",
                         "retry-schedule:0",
+                    },
+                        new String[][] {
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
                     }
                 )
         ),
@@ -1006,6 +1176,12 @@ final class GeneratedTusClientConformanceScenarios {
                         "after-response:0",
                         "success",
                         "source-close",
+                    },
+                        new String[][] {
+                        new String[0],
+                        new String[0],
+                        new String[0],
+                        new String[0],
                     }
                 )
         ),
@@ -1032,6 +1208,9 @@ final class GeneratedTusClientConformanceScenarios {
                         ),
                         new String[] {
                         "request-abort:0",
+                    },
+                        new String[][] {
+                        new String[0],
                     }
                 )
         ),
@@ -1061,6 +1240,9 @@ final class GeneratedTusClientConformanceScenarios {
                         ),
                         new String[] {
                         "request-abort:1",
+                    },
+                        new String[][] {
+                        new String[0],
                     }
                 )
         ),
@@ -1092,6 +1274,10 @@ final class GeneratedTusClientConformanceScenarios {
                         new String[] {
                         "should-retry:0:true",
                         "retry-schedule:0",
+                    },
+                        new String[][] {
+                        new String[0],
+                        new String[0],
                     }
                 )
         ),

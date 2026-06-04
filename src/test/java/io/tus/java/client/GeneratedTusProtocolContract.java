@@ -1582,6 +1582,7 @@ final class GeneratedTusProtocolContract {
         final String[] primitives;
         final GeneratedTusClientConformanceEventPolicy eventPolicy;
         final String[] eventKeys;
+        final String[][] eventKeyAlternativeGroups;
 
         GeneratedTusClientConformanceScenario(
                 String behavior,
@@ -1600,6 +1601,7 @@ final class GeneratedTusProtocolContract {
             this.primitives = primitives;
             this.eventPolicy = events.policy;
             this.eventKeys = events.keys;
+            this.eventKeyAlternativeGroups = events.alternativeGroups;
         }
     }
 
@@ -1609,12 +1611,15 @@ final class GeneratedTusProtocolContract {
     static final class GeneratedTusClientConformanceEvents {
         final GeneratedTusClientConformanceEventPolicy policy;
         final String[] keys;
+        final String[][] alternativeGroups;
 
         GeneratedTusClientConformanceEvents(
                 GeneratedTusClientConformanceEventPolicy policy,
-                String[] keys) {
+                String[] keys,
+                String[][] alternativeGroups) {
             this.policy = policy;
             this.keys = keys;
+            this.alternativeGroups = alternativeGroups;
         }
     }
 
