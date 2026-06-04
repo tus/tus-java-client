@@ -483,6 +483,31 @@ final class GeneratedTusClientConformanceScenarios {
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
+                "request-id-headers",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
+                        "success",
+                        null
+                ),
+                "requestIdHeaders",
+                "requestIdHeaders",
+                new String[] {
+                "createTusUpload",
+                "patchTusUpload",
+            },
+                new String[] {
+                "add-request-id-header",
+                "apply-custom-request-headers",
+            },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
+                        new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                                "exact",
+                                null,
+                                null
+                        ),
+                        new String[0]
+                )
+        ),
+        new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
                 "resume-from-previous-upload",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
                         "success",

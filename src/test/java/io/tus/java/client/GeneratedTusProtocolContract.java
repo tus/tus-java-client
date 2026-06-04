@@ -602,6 +602,47 @@ final class GeneratedTusProtocolContract {
         new GeneratedTusClientFeature(
                 new GeneratedTusClientFeatureConformance(
                         new String[] {
+                        "requestIdHeaders",
+                    },
+                        "covered-by-generated-scenario"
+                ),
+                "Add generated request IDs after protocol and custom request headers.",
+                "requestIdHeaders",
+                new GeneratedTusClientFeatureFlowStep[] {
+                new GeneratedTusClientFeatureFlowStep(
+                        "primitive",
+                        "",
+                        "add-request-id-header",
+                        "",
+                        "Generate a request ID and apply it after custom request headers so it is authoritative."
+                ),
+                new GeneratedTusClientFeatureFlowStep(
+                        "operation",
+                        "createTusUpload",
+                        "",
+                        "",
+                        "Create uploads with a generated request ID."
+                ),
+                new GeneratedTusClientFeatureFlowStep(
+                        "operation",
+                        "patchTusUpload",
+                        "",
+                        "",
+                        "Upload bytes with a generated request ID."
+                ),
+            },
+                new String[] {
+                "createTusUpload",
+                "patchTusUpload",
+            },
+                new String[] {
+                "add-request-id-header",
+                "apply-custom-request-headers",
+            }
+        ),
+        new GeneratedTusClientFeature(
+                new GeneratedTusClientFeatureConformance(
+                        new String[] {
                         "overridePatchMethod",
                     },
                         "covered-by-generated-scenario"
