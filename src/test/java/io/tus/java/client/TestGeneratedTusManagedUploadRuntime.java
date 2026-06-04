@@ -50,10 +50,11 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                 new GeneratedTusManagedUploadTransport(
                         "Location"
                 ),
-                new GeneratedTusManagedUploadOutcome(
-                        "terminal",
-                        "succeeded",
-                        ""
+                new GeneratedTusManagedUploadOutcomeExpectations(
+                        false,
+                        false,
+                        true,
+                        true
                 ),
                 new GeneratedTusManagedUploadExecution(
                         true,
@@ -235,10 +236,11 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                 new GeneratedTusManagedUploadTransport(
                         "Location"
                 ),
-                new GeneratedTusManagedUploadOutcome(
-                        "terminal",
-                        "failed",
-                        ""
+                new GeneratedTusManagedUploadOutcomeExpectations(
+                        false,
+                        true,
+                        true,
+                        false
                 ),
                 new GeneratedTusManagedUploadExecution(
                         false,
@@ -325,10 +327,11 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                 new GeneratedTusManagedUploadTransport(
                         "Location"
                 ),
-                new GeneratedTusManagedUploadOutcome(
-                        "terminal",
-                        "failed",
-                        ""
+                new GeneratedTusManagedUploadOutcomeExpectations(
+                        false,
+                        true,
+                        true,
+                        false
                 ),
                 new GeneratedTusManagedUploadExecution(
                         false,
@@ -490,10 +493,11 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                 new GeneratedTusManagedUploadTransport(
                         "Location"
                 ),
-                new GeneratedTusManagedUploadOutcome(
-                        "terminal",
-                        "failed",
-                        ""
+                new GeneratedTusManagedUploadOutcomeExpectations(
+                        false,
+                        true,
+                        true,
+                        false
                 ),
                 new GeneratedTusManagedUploadExecution(
                         false,
@@ -626,18 +630,18 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
     private void assertTerminalResult(
             GeneratedTusManagedUploadRuntimeCase testCase,
             Future<Boolean> future) throws Exception {
-        if (!"terminal".equals(testCase.outcomeKind)) {
+        if (!testCase.expectTerminalResult) {
             throw new AssertionError(testCase.scenarioId + " expected deferred outcome");
         }
 
         try {
             boolean result = future.get();
-            if (!"succeeded".equals(testCase.outcomeState)) {
+            if (!testCase.expectTerminalSuccess) {
                 throw new AssertionError(testCase.scenarioId + " expected terminal failure");
             }
             assertTrue(testCase.scenarioId, result);
         } catch (ExecutionException error) {
-            if (!"failed".equals(testCase.outcomeState)) {
+            if (!testCase.expectTerminalFailure) {
                 throw error;
             }
             assertTerminalFailure(testCase, error.getCause());
@@ -664,9 +668,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
 
     private void assertDeferredResult(GeneratedTusManagedUploadRuntimeCase testCase) {
         if (
-                !"deferred".equals(testCase.outcomeKind)
-                || !"pending".equals(testCase.outcomeState)
-                || !"network-constraint-unsatisfied".equals(testCase.outcomeReason)
+                !testCase.expectDeferredNetworkResult
                 || !testCase.deferBeforeProtocol
                 || testCase.networkConstraintSatisfied) {
             throw new AssertionError(testCase.scenarioId + " expected deferred network outcome");
@@ -1002,9 +1004,10 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
         final boolean useFilesystemStateBackend;
         final boolean usePlatformKeyValueStateBackend;
         final String locationHeaderName;
-        final String outcomeKind;
-        final String outcomeState;
-        final String outcomeReason;
+        final boolean expectDeferredNetworkResult;
+        final boolean expectTerminalFailure;
+        final boolean expectTerminalResult;
+        final boolean expectTerminalSuccess;
         final boolean cleanupOwnedSourceAfterTerminalState;
         final boolean deferBeforeProtocol;
         final boolean expectIoExceptionOnTerminalFailure;
@@ -1026,7 +1029,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                 GeneratedTusManagedUploadRuntimeProfile profile,
                 GeneratedTusManagedUploadRuntimeCapabilities runtimeCapabilities,
                 GeneratedTusManagedUploadTransport transport,
-                GeneratedTusManagedUploadOutcome outcome,
+                GeneratedTusManagedUploadOutcomeExpectations outcomeExpectations,
                 GeneratedTusManagedUploadExecution execution,
                 GeneratedTusManagedUploadStateExpectations stateExpectations,
                 GeneratedTusManagedUploadRetryPlan retryPlan,
@@ -1039,9 +1042,10 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
             this.usePlatformKeyValueStateBackend =
                     runtimeCapabilities.usePlatformKeyValueStateBackend;
             this.locationHeaderName = transport.locationHeaderName;
-            this.outcomeKind = outcome.kind;
-            this.outcomeState = outcome.state;
-            this.outcomeReason = outcome.reason;
+            this.expectDeferredNetworkResult = outcomeExpectations.expectDeferredNetworkResult;
+            this.expectTerminalFailure = outcomeExpectations.expectTerminalFailure;
+            this.expectTerminalResult = outcomeExpectations.expectTerminalResult;
+            this.expectTerminalSuccess = outcomeExpectations.expectTerminalSuccess;
             this.cleanupOwnedSourceAfterTerminalState = execution.cleanupOwnedSourceAfterTerminalState;
             this.deferBeforeProtocol = execution.deferBeforeProtocol;
             this.expectIoExceptionOnTerminalFailure = execution.expectIoExceptionOnTerminalFailure;
@@ -1061,15 +1065,21 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
         }
     }
 
-    private static final class GeneratedTusManagedUploadOutcome {
-        final String kind;
-        final String state;
-        final String reason;
+    private static final class GeneratedTusManagedUploadOutcomeExpectations {
+        final boolean expectDeferredNetworkResult;
+        final boolean expectTerminalFailure;
+        final boolean expectTerminalResult;
+        final boolean expectTerminalSuccess;
 
-        GeneratedTusManagedUploadOutcome(String kind, String state, String reason) {
-            this.kind = kind;
-            this.state = state;
-            this.reason = reason;
+        GeneratedTusManagedUploadOutcomeExpectations(
+                boolean expectDeferredNetworkResult,
+                boolean expectTerminalFailure,
+                boolean expectTerminalResult,
+                boolean expectTerminalSuccess) {
+            this.expectDeferredNetworkResult = expectDeferredNetworkResult;
+            this.expectTerminalFailure = expectTerminalFailure;
+            this.expectTerminalResult = expectTerminalResult;
+            this.expectTerminalSuccess = expectTerminalSuccess;
         }
     }
 
