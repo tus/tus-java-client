@@ -1583,6 +1583,7 @@ final class GeneratedTusProtocolContract {
         final GeneratedTusClientConformanceEventPolicy eventPolicy;
         final String[] eventKeys;
         final String[][] eventKeyAlternativeGroups;
+        final String[] eventKeyExtraPrefixes;
 
         GeneratedTusClientConformanceScenario(
                 String behavior,
@@ -1602,6 +1603,7 @@ final class GeneratedTusProtocolContract {
             this.eventPolicy = events.policy;
             this.eventKeys = events.keys;
             this.eventKeyAlternativeGroups = events.alternativeGroups;
+            this.eventKeyExtraPrefixes = events.extraPrefixes;
         }
     }
 
@@ -1612,14 +1614,17 @@ final class GeneratedTusProtocolContract {
         final GeneratedTusClientConformanceEventPolicy policy;
         final String[] keys;
         final String[][] alternativeGroups;
+        final String[] extraPrefixes;
 
         GeneratedTusClientConformanceEvents(
                 GeneratedTusClientConformanceEventPolicy policy,
                 String[] keys,
-                String[][] alternativeGroups) {
+                String[][] alternativeGroups,
+                String[] extraPrefixes) {
             this.policy = policy;
             this.keys = keys;
             this.alternativeGroups = alternativeGroups;
+            this.extraPrefixes = extraPrefixes;
         }
     }
 

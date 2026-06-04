@@ -43,6 +43,9 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                         new String[0],
                         new String[0],
                         new String[0],
+                    },
+                        new String[] {
+                        "progress:",
                     }
                 ),
                 false,
@@ -125,6 +128,9 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                         new String[0],
                         new String[0],
                         new String[0],
+                    },
+                        new String[] {
+                        "progress:",
                     }
                 ),
                 false,
@@ -206,6 +212,9 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                         new String[0],
                         new String[0],
                         new String[0],
+                    },
+                        new String[] {
+                        "progress:",
                     }
                 ),
                 false,
@@ -288,6 +297,9 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                         new String[0],
                         new String[0],
                         new String[0],
+                    },
+                        new String[] {
+                        "progress:",
                     }
                 ),
                 true,
@@ -398,6 +410,9 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                         new String[0],
                         new String[0],
                         new String[0],
+                    },
+                        new String[] {
+                        "progress:",
                     }
                 ),
                 true,
@@ -811,7 +826,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                 continue;
             }
 
-            if (event.startsWith("progress:")) {
+            if (eventHasAllowedExtraPrefix(testCase, event)) {
                 continue;
             }
 
@@ -853,6 +868,18 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         return false;
     }
 
+    private boolean eventHasAllowedExtraPrefix(
+            GeneratedTusRuntimeEventCase testCase,
+            String event) {
+        for (String prefix : testCase.eventExpectations.extraPrefixes) {
+            if (event.startsWith(prefix)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static final class GeneratedTusRuntimeEventCase {
         final String scenarioId;
         final GeneratedTusRuntimeEventExpectations eventExpectations;
@@ -881,14 +908,17 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         final GeneratedTusRuntimeEventPolicy policy;
         final String[] keys;
         final String[][] alternativeGroups;
+        final String[] extraPrefixes;
 
         GeneratedTusRuntimeEventExpectations(
                 GeneratedTusRuntimeEventPolicy policy,
                 String[] keys,
-                String[][] alternativeGroups) {
+                String[][] alternativeGroups,
+                String[] extraPrefixes) {
             this.policy = policy;
             this.keys = keys;
             this.alternativeGroups = alternativeGroups;
+            this.extraPrefixes = extraPrefixes;
         }
     }
 

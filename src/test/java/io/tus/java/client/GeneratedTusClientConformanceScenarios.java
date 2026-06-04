@@ -58,6 +58,9 @@ final class GeneratedTusClientConformanceScenarios {
                         new String[0],
                         new String[0],
                         new String[0],
+                    },
+                        new String[] {
+                        "progress:",
                     }
                 )
         ),
@@ -96,6 +99,9 @@ final class GeneratedTusClientConformanceScenarios {
                         new String[0],
                         new String[0],
                         new String[0],
+                    },
+                        new String[] {
+                        "progress:",
                     }
                 )
         ),
@@ -149,6 +155,9 @@ final class GeneratedTusClientConformanceScenarios {
                         new String[0],
                         new String[0],
                         new String[0],
+                    },
+                        new String[] {
+                        "progress:",
                     }
                 )
         ),
@@ -186,6 +195,9 @@ final class GeneratedTusClientConformanceScenarios {
                         new String[0],
                         new String[0],
                         new String[0],
+                    },
+                        new String[] {
+                        "progress:",
                     }
                 )
         ),
@@ -238,6 +250,9 @@ final class GeneratedTusClientConformanceScenarios {
                         new String[0],
                         new String[0],
                         new String[0],
+                    },
+                        new String[] {
+                        "progress:",
                     }
                 )
         ),
@@ -278,6 +293,9 @@ final class GeneratedTusClientConformanceScenarios {
                         new String[0],
                         new String[0],
                         new String[0],
+                    },
+                        new String[] {
+                        "progress:",
                     }
                 )
         ),
@@ -301,7 +319,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null
                         ),
                         new String[0],
-                        new String[0][0]
+                        new String[0][0],
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -324,7 +343,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null
                         ),
                         new String[0],
-                        new String[0][0]
+                        new String[0][0],
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -347,7 +367,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null
                         ),
                         new String[0],
-                        new String[0][0]
+                        new String[0][0],
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -370,7 +391,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null
                         ),
                         new String[0],
-                        new String[0][0]
+                        new String[0][0],
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -393,7 +415,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null
                         ),
                         new String[0],
-                        new String[0][0]
+                        new String[0][0],
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -416,7 +439,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null
                         ),
                         new String[0],
-                        new String[0][0]
+                        new String[0][0],
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -439,7 +463,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null
                         ),
                         new String[0],
-                        new String[0][0]
+                        new String[0][0],
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -462,7 +487,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null
                         ),
                         new String[0],
-                        new String[0][0]
+                        new String[0][0],
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -485,7 +511,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null
                         ),
                         new String[0],
-                        new String[0][0]
+                        new String[0][0],
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -508,7 +535,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null
                         ),
                         new String[0],
-                        new String[0][0]
+                        new String[0][0],
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -533,7 +561,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null
                         ),
                         new String[0],
-                        new String[0][0]
+                        new String[0][0],
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -558,7 +587,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null
                         ),
                         new String[0],
-                        new String[0][0]
+                        new String[0][0],
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -584,7 +614,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null
                         ),
                         new String[0],
-                        new String[0][0]
+                        new String[0][0],
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -610,7 +641,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null
                         ),
                         new String[0],
-                        new String[0][0]
+                        new String[0][0],
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -637,7 +669,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null
                         ),
                         new String[0],
-                        new String[0][0]
+                        new String[0][0],
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -687,6 +720,9 @@ final class GeneratedTusClientConformanceScenarios {
                         new String[0],
                         new String[0],
                         new String[0],
+                    },
+                        new String[] {
+                        "progress:",
                     }
                 )
         ),
@@ -727,6 +763,9 @@ final class GeneratedTusClientConformanceScenarios {
                         new String[0],
                         new String[0],
                         new String[0],
+                    },
+                        new String[] {
+                        "progress:",
                     }
                 )
         ),
@@ -761,7 +800,8 @@ final class GeneratedTusClientConformanceScenarios {
                         new String[0],
                         new String[0],
                         new String[0],
-                    }
+                    },
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -795,7 +835,8 @@ final class GeneratedTusClientConformanceScenarios {
                         new String[0],
                         new String[0],
                         new String[0],
-                    }
+                    },
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -829,7 +870,8 @@ final class GeneratedTusClientConformanceScenarios {
                         new String[0],
                         new String[0],
                         new String[0],
-                    }
+                    },
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -863,7 +905,8 @@ final class GeneratedTusClientConformanceScenarios {
                         new String[0],
                         new String[0],
                         new String[0],
-                    }
+                    },
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -897,7 +940,8 @@ final class GeneratedTusClientConformanceScenarios {
                         new String[0],
                         new String[0],
                         new String[0],
-                    }
+                    },
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -938,6 +982,9 @@ final class GeneratedTusClientConformanceScenarios {
                         new String[0],
                         new String[0],
                         new String[0],
+                    },
+                        new String[] {
+                        "progress:",
                     }
                 )
         ),
@@ -1004,6 +1051,9 @@ final class GeneratedTusClientConformanceScenarios {
                         new String[0],
                         new String[0],
                         new String[0],
+                    },
+                        new String[] {
+                        "progress:",
                     }
                 )
         ),
@@ -1030,7 +1080,8 @@ final class GeneratedTusClientConformanceScenarios {
                                 null
                         ),
                         new String[0],
-                        new String[0][0]
+                        new String[0][0],
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -1070,6 +1121,9 @@ final class GeneratedTusClientConformanceScenarios {
                         new String[0],
                         new String[0],
                         new String[0],
+                    },
+                        new String[] {
+                        "progress:",
                     }
                 )
         ),
@@ -1106,7 +1160,8 @@ final class GeneratedTusClientConformanceScenarios {
                     },
                         new String[][] {
                         new String[0],
-                    }
+                    },
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -1147,7 +1202,8 @@ final class GeneratedTusClientConformanceScenarios {
                         new String[0],
                         new String[0],
                         new String[0],
-                    }
+                    },
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -1182,7 +1238,8 @@ final class GeneratedTusClientConformanceScenarios {
                         new String[0],
                         new String[0],
                         new String[0],
-                    }
+                    },
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -1211,7 +1268,8 @@ final class GeneratedTusClientConformanceScenarios {
                     },
                         new String[][] {
                         new String[0],
-                    }
+                    },
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -1243,7 +1301,8 @@ final class GeneratedTusClientConformanceScenarios {
                     },
                         new String[][] {
                         new String[0],
-                    }
+                    },
+                        new String[0]
                 )
         ),
         new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
@@ -1278,7 +1337,8 @@ final class GeneratedTusClientConformanceScenarios {
                         new String[][] {
                         new String[0],
                         new String[0],
-                    }
+                    },
+                        new String[0]
                 )
         ),
     };

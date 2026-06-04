@@ -45,6 +45,9 @@ public class TestGeneratedTusConformanceEvents {
                 new String[0],
                 new String[0],
                 new String[0],
+            },
+                new String[] {
+                "progress:",
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -69,6 +72,9 @@ public class TestGeneratedTusConformanceEvents {
                 new String[0],
                 new String[0],
                 new String[0],
+            },
+                new String[] {
+                "progress:",
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -107,6 +113,9 @@ public class TestGeneratedTusConformanceEvents {
                 new String[0],
                 new String[0],
                 new String[0],
+            },
+                new String[] {
+                "progress:",
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -131,6 +140,9 @@ public class TestGeneratedTusConformanceEvents {
                 new String[0],
                 new String[0],
                 new String[0],
+            },
+                new String[] {
+                "progress:",
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -169,6 +181,9 @@ public class TestGeneratedTusConformanceEvents {
                 new String[0],
                 new String[0],
                 new String[0],
+            },
+                new String[] {
+                "progress:",
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -195,6 +210,9 @@ public class TestGeneratedTusConformanceEvents {
                 new String[0],
                 new String[0],
                 new String[0],
+            },
+                new String[] {
+                "progress:",
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -229,6 +247,9 @@ public class TestGeneratedTusConformanceEvents {
                 new String[0],
                 new String[0],
                 new String[0],
+            },
+                new String[] {
+                "progress:",
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -255,6 +276,9 @@ public class TestGeneratedTusConformanceEvents {
                 new String[0],
                 new String[0],
                 new String[0],
+            },
+                new String[] {
+                "progress:",
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -275,7 +299,8 @@ public class TestGeneratedTusConformanceEvents {
                 new String[0],
                 new String[0],
                 new String[0],
-            }
+            },
+                new String[0]
         ),
         new GeneratedTusEventCanaryCase(
                 "inputSources",
@@ -295,7 +320,8 @@ public class TestGeneratedTusConformanceEvents {
                 new String[0],
                 new String[0],
                 new String[0],
-            }
+            },
+                new String[0]
         ),
         new GeneratedTusEventCanaryCase(
                 "inputSources",
@@ -315,7 +341,8 @@ public class TestGeneratedTusConformanceEvents {
                 new String[0],
                 new String[0],
                 new String[0],
-            }
+            },
+                new String[0]
         ),
         new GeneratedTusEventCanaryCase(
                 "inputSources",
@@ -335,7 +362,8 @@ public class TestGeneratedTusConformanceEvents {
                 new String[0],
                 new String[0],
                 new String[0],
-            }
+            },
+                new String[0]
         ),
         new GeneratedTusEventCanaryCase(
                 "inputSources",
@@ -355,7 +383,8 @@ public class TestGeneratedTusConformanceEvents {
                 new String[0],
                 new String[0],
                 new String[0],
-            }
+            },
+                new String[0]
         ),
         new GeneratedTusEventCanaryCase(
                 "deferredLengthUpload",
@@ -381,6 +410,9 @@ public class TestGeneratedTusConformanceEvents {
                 new String[0],
                 new String[0],
                 new String[0],
+            },
+                new String[] {
+                "progress:",
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -431,6 +463,9 @@ public class TestGeneratedTusConformanceEvents {
                 new String[0],
                 new String[0],
                 new String[0],
+            },
+                new String[] {
+                "progress:",
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -453,6 +488,9 @@ public class TestGeneratedTusConformanceEvents {
                 new String[0],
                 new String[0],
                 new String[0],
+            },
+                new String[] {
+                "progress:",
             }
         ),
         new GeneratedTusEventCanaryCase(
@@ -469,7 +507,8 @@ public class TestGeneratedTusConformanceEvents {
             },
                 new String[][] {
                 new String[0],
-            }
+            },
+                new String[0]
         ),
         new GeneratedTusEventCanaryCase(
                 "retryOffsetRecovery",
@@ -491,7 +530,8 @@ public class TestGeneratedTusConformanceEvents {
                 new String[0],
                 new String[0],
                 new String[0],
-            }
+            },
+                new String[0]
         ),
         new GeneratedTusEventCanaryCase(
                 "requestLifecycleHooks",
@@ -513,7 +553,8 @@ public class TestGeneratedTusConformanceEvents {
                 new String[0],
                 new String[0],
                 new String[0],
-            }
+            },
+                new String[0]
         ),
         new GeneratedTusEventCanaryCase(
                 "abortUpload",
@@ -529,7 +570,8 @@ public class TestGeneratedTusConformanceEvents {
             },
                 new String[][] {
                 new String[0],
-            }
+            },
+                new String[0]
         ),
         new GeneratedTusEventCanaryCase(
                 "abortUpload",
@@ -545,7 +587,8 @@ public class TestGeneratedTusConformanceEvents {
             },
                 new String[][] {
                 new String[0],
-            }
+            },
+                new String[0]
         ),
         new GeneratedTusEventCanaryCase(
                 "terminateUpload",
@@ -563,7 +606,8 @@ public class TestGeneratedTusConformanceEvents {
                 new String[][] {
                 new String[0],
                 new String[0],
-            }
+            },
+                new String[0]
         ),
     };
 
@@ -666,6 +710,7 @@ public class TestGeneratedTusConformanceEvents {
             assertStringMatrixEquals(
                     testCase.eventKeyAlternativeGroups,
                     scenario.eventKeyAlternativeGroups);
+            assertArrayEquals(testCase.eventKeyExtraPrefixes, scenario.eventKeyExtraPrefixes);
         }
     }
 
@@ -770,18 +815,21 @@ public class TestGeneratedTusConformanceEvents {
         final GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy eventPolicy;
         final String[] eventKeys;
         final String[][] eventKeyAlternativeGroups;
+        final String[] eventKeyExtraPrefixes;
 
         GeneratedTusEventCanaryCase(
                 String featureId,
                 String scenarioId,
                 GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy eventPolicy,
                 String[] eventKeys,
-                String[][] eventKeyAlternativeGroups) {
+                String[][] eventKeyAlternativeGroups,
+                String[] eventKeyExtraPrefixes) {
             this.featureId = featureId;
             this.scenarioId = scenarioId;
             this.eventPolicy = eventPolicy;
             this.eventKeys = eventKeys;
             this.eventKeyAlternativeGroups = eventKeyAlternativeGroups;
+            this.eventKeyExtraPrefixes = eventKeyExtraPrefixes;
         }
     }
 
