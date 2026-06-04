@@ -30,8 +30,10 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
             new GeneratedTusRuntimeEventCase[] {
         new GeneratedTusRuntimeEventCase(
                 "singleUploadLifecycle",
-                "exact-except-extra-progress",
-                null,
+                new GeneratedTusRuntimeEventPolicy(
+                        "exact-except-extra-progress",
+                        null
+                ),
                 false,
                 new GeneratedTusRuntimeBeforeStartAction[0],
                 new GeneratedTusRuntimeEventInput(
@@ -104,8 +106,10 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         ),
         new GeneratedTusRuntimeEventCase(
                 "resumeFromPreviousUpload",
-                "exact-except-extra-progress",
-                null,
+                new GeneratedTusRuntimeEventPolicy(
+                        "exact-except-extra-progress",
+                        null
+                ),
                 false,
                 new GeneratedTusRuntimeBeforeStartAction[] {
                 new GeneratedTusRuntimeBeforeStartAction(
@@ -177,8 +181,10 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         ),
         new GeneratedTusRuntimeEventCase(
                 "relativeLocationResolution",
-                "exact-except-extra-progress",
-                null,
+                new GeneratedTusRuntimeEventPolicy(
+                        "exact-except-extra-progress",
+                        null
+                ),
                 false,
                 new GeneratedTusRuntimeBeforeStartAction[0],
                 new GeneratedTusRuntimeEventInput(
@@ -251,8 +257,10 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         ),
         new GeneratedTusRuntimeEventCase(
                 "deferredLengthUpload",
-                "exact-except-extra-progress",
-                "allow-known-total-before-declaration",
+                new GeneratedTusRuntimeEventPolicy(
+                        "exact-except-extra-progress",
+                        "allow-known-total-before-declaration"
+                ),
                 true,
                 new GeneratedTusRuntimeBeforeStartAction[0],
                 new GeneratedTusRuntimeEventInput(
@@ -329,8 +337,10 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         ),
         new GeneratedTusRuntimeEventCase(
                 "deferredLengthChunkedUpload",
-                "exact-except-extra-progress",
-                "allow-known-total-before-declaration",
+                new GeneratedTusRuntimeEventPolicy(
+                        "exact-except-extra-progress",
+                        "allow-known-total-before-declaration"
+                ),
                 true,
                 new GeneratedTusRuntimeBeforeStartAction[0],
                 new GeneratedTusRuntimeEventInput(
@@ -721,7 +731,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
     }
 
     private void assertEvents(GeneratedTusRuntimeEventCase testCase, List<String> events) {
-        if ("exact".equals(testCase.eventPolicyMatching)) {
+        if ("exact".equals(testCase.eventPolicy.matching)) {
             assertArrayEquals(
                     testCase.scenarioId,
                     testCase.eventKeys,
@@ -729,14 +739,14 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
             return;
         }
 
-        if ("exact-except-extra-progress".equals(testCase.eventPolicyMatching)) {
+        if ("exact-except-extra-progress".equals(testCase.eventPolicy.matching)) {
             assertEventsExactExceptExtraProgress(testCase, events);
             return;
         }
 
         throw new AssertionError(
                 "Unsupported generated event policy "
-                        + testCase.eventPolicyMatching
+                        + testCase.eventPolicy.matching
                         + " for "
                         + testCase.scenarioId);
     }
@@ -787,7 +797,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
 
         if (
                 !"allow-known-total-before-declaration"
-                        .equals(testCase.eventPolicyDeferredLengthBytesTotal)) {
+                        .equals(testCase.eventPolicy.deferredLengthBytesTotal)) {
             return false;
         }
 
@@ -804,8 +814,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
 
     private static final class GeneratedTusRuntimeEventCase {
         final String scenarioId;
-        final String eventPolicyMatching;
-        final String eventPolicyDeferredLengthBytesTotal;
+        final GeneratedTusRuntimeEventPolicy eventPolicy;
         final boolean uploadLengthDeferred;
         final GeneratedTusRuntimeBeforeStartAction[] beforeStartActions;
         final GeneratedTusRuntimeEventInput input;
@@ -814,21 +823,31 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
 
         GeneratedTusRuntimeEventCase(
                 String scenarioId,
-                String eventPolicyMatching,
-                String eventPolicyDeferredLengthBytesTotal,
+                GeneratedTusRuntimeEventPolicy eventPolicy,
                 boolean uploadLengthDeferred,
                 GeneratedTusRuntimeBeforeStartAction[] beforeStartActions,
                 GeneratedTusRuntimeEventInput input,
                 GeneratedTusRuntimeEventRequest[] requests,
                 String[] eventKeys) {
             this.scenarioId = scenarioId;
-            this.eventPolicyMatching = eventPolicyMatching;
-            this.eventPolicyDeferredLengthBytesTotal = eventPolicyDeferredLengthBytesTotal;
+            this.eventPolicy = eventPolicy;
             this.uploadLengthDeferred = uploadLengthDeferred;
             this.beforeStartActions = beforeStartActions;
             this.input = input;
             this.requests = requests;
             this.eventKeys = eventKeys;
+        }
+    }
+
+    private static final class GeneratedTusRuntimeEventPolicy {
+        final String matching;
+        final String deferredLengthBytesTotal;
+
+        GeneratedTusRuntimeEventPolicy(
+                String matching,
+                String deferredLengthBytesTotal) {
+            this.matching = matching;
+            this.deferredLengthBytesTotal = deferredLengthBytesTotal;
         }
     }
 
