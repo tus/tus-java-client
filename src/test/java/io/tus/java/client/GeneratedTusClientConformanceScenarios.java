@@ -154,6 +154,43 @@ final class GeneratedTusClientConformanceScenarios {
                         null
                 ),
                 "protocolVersionSelection",
+                "ietfDraft05ChunkedUploadComplete",
+                new String[] {
+                "getTusUploadOffset",
+                "patchTusUpload",
+            },
+                new String[] {
+                "select-client-protocol",
+            },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
+                        new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                                "exact-except-extra-progress",
+                                "milestone",
+                                "may-emit-extra-samples"
+                        ),
+                        new String[] {
+                        "upload-url-available",
+                        "progress:0:11",
+                        "progress:5:11",
+                        "chunk-complete:5:5:11",
+                        "progress:5:11",
+                        "progress:10:11",
+                        "chunk-complete:5:10:11",
+                        "progress:10:11",
+                        "progress:11:11",
+                        "chunk-complete:1:11:11",
+                        "success",
+                        "source-close",
+                    }
+                )
+        ),
+        new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
+                "upload-body-headers",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
+                        "success",
+                        null
+                ),
+                "protocolVersionSelection",
                 "ietfDraft03ResumeWithoutKnownLength",
                 new String[] {
                 "getTusUploadOffset",
@@ -742,6 +779,45 @@ final class GeneratedTusClientConformanceScenarios {
                         "progress:0:11",
                         "progress:11:11",
                         "chunk-complete:11:11:11",
+                        "success",
+                        "source-close",
+                    }
+                )
+        ),
+        new GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario(
+                "deferred-length-upload",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceCompletion(
+                        "success",
+                        null
+                ),
+                "deferredLengthUpload",
+                "deferredLengthChunkedUpload",
+                new String[] {
+                "createTusUpload",
+                "patchTusUpload",
+            },
+                new String[] {
+                "defer-upload-length",
+                "emit-chunk-complete",
+                "emit-progress",
+            },
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEvents(
+                        new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                                "exact-except-extra-progress",
+                                "milestone",
+                                "may-emit-extra-samples"
+                        ),
+                        new String[] {
+                        "upload-url-available",
+                        "progress:0:11",
+                        "progress:5:11",
+                        "chunk-complete:5:5:11",
+                        "progress:5:11",
+                        "progress:10:11",
+                        "chunk-complete:5:10:11",
+                        "progress:10:11",
+                        "progress:11:11",
+                        "chunk-complete:1:11:11",
                         "success",
                         "source-close",
                     }

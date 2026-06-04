@@ -240,6 +240,10 @@ public class TusUploader {
      *                      to the HTTP request.
      */
     public int uploadChunk() throws IOException, ProtocolException {
+        if (isUploadComplete()) {
+            return -1;
+        }
+
         openConnection();
         notifyProgressAtRequestStart();
 
@@ -294,6 +298,10 @@ public class TusUploader {
      *                      to the HTTP request.
      */
     @Deprecated public int uploadChunk(int chunkSize) throws IOException, ProtocolException {
+        if (isUploadComplete()) {
+            return -1;
+        }
+
         openConnection();
 
         byte[] buf = new byte[chunkSize];
@@ -438,6 +446,10 @@ public class TusUploader {
         if (progressListener != null) {
             progressListener.onProgress(bytesSent, upload.getSize());
         }
+    }
+
+    private boolean isUploadComplete() {
+        return upload.getSize() > 0 && offset >= upload.getSize();
     }
 
     private void notifyChunkComplete(long chunkSize, long bytesAccepted) {

@@ -454,10 +454,11 @@ final class GeneratedTusProtocolContract {
                 new GeneratedTusClientFeatureConformance(
                         new String[] {
                         "deferredLengthUpload",
+                        "deferredLengthChunkedUpload",
                     },
                         "covered-by-generated-scenario"
                 ),
-                "Create an upload without a known length and declare the length on final PATCH.",
+                "Create an upload without a known length and declare the length on first PATCH.",
                 "deferredLengthUpload",
                 new GeneratedTusClientFeatureFlowStep[] {
                 new GeneratedTusClientFeatureFlowStep(
@@ -472,14 +473,14 @@ final class GeneratedTusProtocolContract {
                         "",
                         "defer-upload-length",
                         "",
-                        "Track the source until the final chunk reveals the total size."
+                        "Track the source so the first PATCH can declare the total size."
                 ),
                 new GeneratedTusClientFeatureFlowStep(
                         "operation",
                         "patchTusUpload",
                         "",
                         "",
-                        "Declare Upload-Length on the final chunk request."
+                        "Declare Upload-Length on the first chunk request."
                 ),
             },
                 new String[] {
@@ -1062,6 +1063,7 @@ final class GeneratedTusProtocolContract {
                 new GeneratedTusClientFeatureConformance(
                         new String[] {
                         "ietfDraft05CreationWithUpload",
+                        "ietfDraft05ChunkedUploadComplete",
                         "ietfDraft03ResumeWithoutKnownLength",
                     },
                         "covered-by-generated-scenario"

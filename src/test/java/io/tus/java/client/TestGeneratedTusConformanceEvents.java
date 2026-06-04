@@ -93,6 +93,29 @@ public class TestGeneratedTusConformanceEvents {
         ),
         new GeneratedTusEventCanaryCase(
                 "protocolVersionSelection",
+                "ietfDraft05ChunkedUploadComplete",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact-except-extra-progress",
+                        "milestone",
+                        "may-emit-extra-samples"
+                ),
+                new String[] {
+                "upload-url-available",
+                "progress:0:11",
+                "progress:5:11",
+                "chunk-complete:5:5:11",
+                "progress:5:11",
+                "progress:10:11",
+                "chunk-complete:5:10:11",
+                "progress:10:11",
+                "progress:11:11",
+                "chunk-complete:1:11:11",
+                "success",
+                "source-close",
+            }
+        ),
+        new GeneratedTusEventCanaryCase(
+                "protocolVersionSelection",
                 "ietfDraft03ResumeWithoutKnownLength",
                 new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
                         "exact-except-extra-progress",
@@ -229,6 +252,29 @@ public class TestGeneratedTusConformanceEvents {
                 "progress:0:11",
                 "progress:11:11",
                 "chunk-complete:11:11:11",
+                "success",
+                "source-close",
+            }
+        ),
+        new GeneratedTusEventCanaryCase(
+                "deferredLengthUpload",
+                "deferredLengthChunkedUpload",
+                new GeneratedTusProtocolContract.GeneratedTusClientConformanceEventPolicy(
+                        "exact-except-extra-progress",
+                        "milestone",
+                        "may-emit-extra-samples"
+                ),
+                new String[] {
+                "upload-url-available",
+                "progress:0:11",
+                "progress:5:11",
+                "chunk-complete:5:5:11",
+                "progress:5:11",
+                "progress:10:11",
+                "chunk-complete:5:10:11",
+                "progress:10:11",
+                "progress:11:11",
+                "chunk-complete:1:11:11",
                 "success",
                 "source-close",
             }

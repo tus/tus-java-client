@@ -78,12 +78,12 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 true,
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
-                                        "Upload-Offset",
-                                        "0"
-                                ),
-                                new GeneratedTusRuntimeEventHeader(
                                         "Content-Type",
                                         "application/offset+octet-stream"
+                                ),
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Offset",
+                                        "0"
                                 ),
                             },
                                 true,
@@ -150,12 +150,12 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 true,
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
-                                        "Upload-Offset",
-                                        "5"
-                                ),
-                                new GeneratedTusRuntimeEventHeader(
                                         "Content-Type",
                                         "application/offset+octet-stream"
+                                ),
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Offset",
+                                        "5"
                                 ),
                             },
                                 true,
@@ -223,12 +223,12 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 true,
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
-                                        "Upload-Offset",
-                                        "0"
-                                ),
-                                new GeneratedTusRuntimeEventHeader(
                                         "Content-Type",
                                         "application/offset+octet-stream"
+                                ),
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Offset",
+                                        "0"
                                 ),
                             },
                                 true,
@@ -296,16 +296,16 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 true,
                                 new GeneratedTusRuntimeEventHeader[] {
                                 new GeneratedTusRuntimeEventHeader(
+                                        "Content-Type",
+                                        "application/offset+octet-stream"
+                                ),
+                                new GeneratedTusRuntimeEventHeader(
                                         "Upload-Length",
                                         "11"
                                 ),
                                 new GeneratedTusRuntimeEventHeader(
                                         "Upload-Offset",
                                         "0"
-                                ),
-                                new GeneratedTusRuntimeEventHeader(
-                                        "Content-Type",
-                                        "application/offset+octet-stream"
                                 ),
                             },
                                 true,
@@ -321,6 +321,135 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                 "progress:0:11",
                 "progress:11:11",
                 "chunk-complete:11:11:11",
+            }
+        ),
+        new GeneratedTusRuntimeEventCase(
+                "deferredLengthChunkedUpload",
+                "exact-except-extra-progress",
+                true,
+                new GeneratedTusRuntimeBeforeStartAction[0],
+                new GeneratedTusRuntimeEventInput(
+                        "hello world",
+                        "deferred-chunked-contract",
+                        "absolute",
+                        false,
+                        5,
+                        null,
+                        new GeneratedTusRuntimeEventMetadata[] {
+                        new GeneratedTusRuntimeEventMetadata(
+                                "filename",
+                                "hello.txt"
+                        ),
+                    }
+                ),
+                new GeneratedTusRuntimeEventRequest[] {
+                        new GeneratedTusRuntimeEventRequest(
+                                "POST",
+                                "endpoint",
+                                201,
+                                true,
+                                new GeneratedTusRuntimeEventHeader[] {
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Defer-Length",
+                                        "1"
+                                ),
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Metadata",
+                                        "filename aGVsbG8udHh0"
+                                ),
+                            },
+                                true,
+                                new GeneratedTusRuntimeEventHeader[] {
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Location",
+                                        "https://tus.io/uploads/deferred-chunked-contract"
+                                ),
+                            }
+                        ),
+                        new GeneratedTusRuntimeEventRequest(
+                                "PATCH",
+                                "upload",
+                                204,
+                                true,
+                                new GeneratedTusRuntimeEventHeader[] {
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Content-Type",
+                                        "application/offset+octet-stream"
+                                ),
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Length",
+                                        "11"
+                                ),
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Offset",
+                                        "0"
+                                ),
+                            },
+                                true,
+                                new GeneratedTusRuntimeEventHeader[] {
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Offset",
+                                        "5"
+                                ),
+                            }
+                        ),
+                        new GeneratedTusRuntimeEventRequest(
+                                "PATCH",
+                                "upload",
+                                204,
+                                true,
+                                new GeneratedTusRuntimeEventHeader[] {
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Content-Type",
+                                        "application/offset+octet-stream"
+                                ),
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Offset",
+                                        "5"
+                                ),
+                            },
+                                true,
+                                new GeneratedTusRuntimeEventHeader[] {
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Offset",
+                                        "10"
+                                ),
+                            }
+                        ),
+                        new GeneratedTusRuntimeEventRequest(
+                                "PATCH",
+                                "upload",
+                                204,
+                                true,
+                                new GeneratedTusRuntimeEventHeader[] {
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Content-Type",
+                                        "application/offset+octet-stream"
+                                ),
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Offset",
+                                        "10"
+                                ),
+                            },
+                                true,
+                                new GeneratedTusRuntimeEventHeader[] {
+                                new GeneratedTusRuntimeEventHeader(
+                                        "Upload-Offset",
+                                        "11"
+                                ),
+                            }
+                        ),
+                },
+                new String[] {
+                "progress:0:11",
+                "progress:5:11",
+                "chunk-complete:5:5:11",
+                "progress:5:11",
+                "progress:10:11",
+                "chunk-complete:5:10:11",
+                "progress:10:11",
+                "progress:11:11",
+                "chunk-complete:1:11:11",
             }
         ),
     };
@@ -363,6 +492,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
 
             TusUploader uploader = uploaderFor(client, testCase);
             uploader.setChunkSize(testCase.input.chunkSize);
+            uploader.setRequestPayloadSize(testCase.input.chunkSize);
             uploader.setProgressListener(new TusUploader.ProgressListener() {
                 @Override
                 public void onProgress(long bytesSent, long bytesTotal) {
