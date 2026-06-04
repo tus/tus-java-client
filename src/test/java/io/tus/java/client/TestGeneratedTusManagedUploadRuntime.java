@@ -48,6 +48,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         false
                 ),
                 new GeneratedTusManagedUploadTransport(
+                        "pending",
                         "Location"
                 ),
                 new GeneratedTusManagedUploadOutcomeExpectations(
@@ -98,6 +99,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                 new GeneratedTusManagedUploadAttempt[] {
                         new GeneratedTusManagedUploadAttempt(
                                 0,
+                                "running",
                                 "failed",
                                 new GeneratedTusManagedUploadFailure(
                                         true,
@@ -167,6 +169,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         ),
                         new GeneratedTusManagedUploadAttempt(
                                 1,
+                                "running",
                                 "succeeded",
                                 null,
                                 new GeneratedTusManagedUploadRequest[] {
@@ -236,6 +239,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         false
                 ),
                 new GeneratedTusManagedUploadTransport(
+                        "pending",
                         "Location"
                 ),
                 new GeneratedTusManagedUploadOutcomeExpectations(
@@ -282,6 +286,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                 new GeneratedTusManagedUploadAttempt[] {
                         new GeneratedTusManagedUploadAttempt(
                                 0,
+                                "running",
                                 "failed",
                                 new GeneratedTusManagedUploadFailure(
                                         false,
@@ -329,6 +334,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         false
                 ),
                 new GeneratedTusManagedUploadTransport(
+                        "pending",
                         "Location"
                 ),
                 new GeneratedTusManagedUploadOutcomeExpectations(
@@ -382,6 +388,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                 new GeneratedTusManagedUploadAttempt[] {
                         new GeneratedTusManagedUploadAttempt(
                                 0,
+                                "running",
                                 "failed",
                                 new GeneratedTusManagedUploadFailure(
                                         false,
@@ -418,6 +425,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         ),
                         new GeneratedTusManagedUploadAttempt(
                                 1,
+                                "running",
                                 "failed",
                                 new GeneratedTusManagedUploadFailure(
                                         false,
@@ -454,6 +462,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         ),
                         new GeneratedTusManagedUploadAttempt(
                                 2,
+                                "running",
                                 "failed",
                                 new GeneratedTusManagedUploadFailure(
                                         false,
@@ -501,6 +510,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         false
                 ),
                 new GeneratedTusManagedUploadTransport(
+                        "pending",
                         "Location"
                 ),
                 new GeneratedTusManagedUploadOutcomeExpectations(
@@ -547,6 +557,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                 new GeneratedTusManagedUploadAttempt[] {
                         new GeneratedTusManagedUploadAttempt(
                                 0,
+                                "running",
                                 "failed",
                                 new GeneratedTusManagedUploadFailure(
                                         false,
@@ -585,7 +596,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
             File source = writeSourceFile(testCase);
             File ownedSource = ownedSourceFile(testCase, source);
             File stateFile = stateFile(testCase, source);
-            recordState(testCase, states, stateFile, "pending");
+            recordState(testCase, states, stateFile, testCase.initialState);
 
             final GeneratedTusManagedUploadUrlStore urlStore = new GeneratedTusManagedUploadUrlStore();
             final TusClient client = new TusClient();
@@ -700,7 +711,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
             protected void makeAttempt() throws ProtocolException, IOException {
                 GeneratedTusManagedUploadAttempt attempt = testCase.attempts[attemptIndex];
                 attemptIndex += 1;
-                recordState(testCase, states, stateFile, "running");
+                recordState(testCase, states, stateFile, attempt.stateBeforeAttempt);
 
                 try {
                     TusUpload upload = uploadFor(testCase, ownedSource);
@@ -795,7 +806,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
             if (source.exists() && !source.delete()) {
                 throw new IOException("Could not remove generated input source " + source);
             }
-            recordState(testCase, states, stateFile, "running");
+            recordState(testCase, states, stateFile, attempt.stateBeforeAttempt);
             try {
                 copyDurableSource(testCase, source, ownedSource);
             } catch (IOException error) {
@@ -1015,6 +1026,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
         final boolean useDurableOsScheduler;
         final boolean useFilesystemStateBackend;
         final boolean usePlatformKeyValueStateBackend;
+        final String initialState;
         final String locationHeaderName;
         final boolean expectDeferredNetworkResult;
         final boolean expectTerminalFailure;
@@ -1053,6 +1065,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
             this.useFilesystemStateBackend = runtimeCapabilities.useFilesystemStateBackend;
             this.usePlatformKeyValueStateBackend =
                     runtimeCapabilities.usePlatformKeyValueStateBackend;
+            this.initialState = transport.initialState;
             this.locationHeaderName = transport.locationHeaderName;
             this.expectDeferredNetworkResult = outcomeExpectations.expectDeferredNetworkResult;
             this.expectTerminalFailure = outcomeExpectations.expectTerminalFailure;
@@ -1122,9 +1135,11 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
     }
 
     private static final class GeneratedTusManagedUploadTransport {
+        final String initialState;
         final String locationHeaderName;
 
-        GeneratedTusManagedUploadTransport(String locationHeaderName) {
+        GeneratedTusManagedUploadTransport(String initialState, String locationHeaderName) {
+            this.initialState = initialState;
             this.locationHeaderName = locationHeaderName;
         }
     }
@@ -1208,16 +1223,19 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
     private static final class GeneratedTusManagedUploadAttempt {
         final int attemptIndex;
         final String stateAfterAttempt;
+        final String stateBeforeAttempt;
         final GeneratedTusManagedUploadFailure failure;
         final GeneratedTusManagedUploadRequest[] requests;
 
         GeneratedTusManagedUploadAttempt(
                 int attemptIndex,
+                String stateBeforeAttempt,
                 String stateAfterAttempt,
                 GeneratedTusManagedUploadFailure failure,
                 GeneratedTusManagedUploadRequest[] requests) {
             this.attemptIndex = attemptIndex;
             this.stateAfterAttempt = stateAfterAttempt;
+            this.stateBeforeAttempt = stateBeforeAttempt;
             this.failure = failure;
             this.requests = requests;
         }
