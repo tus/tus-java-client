@@ -89,7 +89,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                             }
                         ),
                         new GeneratedTusRuntimeEventRequest(
-                                "PATCH",
+                                "POST",
                                 "upload",
                                 204,
                                 true,
@@ -101,6 +101,10 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 new GeneratedTusRuntimeEventHeader(
                                         "Upload-Offset",
                                         "0"
+                                ),
+                                new GeneratedTusRuntimeEventHeader(
+                                        "X-HTTP-Method-Override",
+                                        "PATCH"
                                 ),
                             },
                                 true,
@@ -173,7 +177,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                             }
                         ),
                         new GeneratedTusRuntimeEventRequest(
-                                "PATCH",
+                                "POST",
                                 "upload",
                                 204,
                                 true,
@@ -185,6 +189,10 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 new GeneratedTusRuntimeEventHeader(
                                         "Upload-Offset",
                                         "5"
+                                ),
+                                new GeneratedTusRuntimeEventHeader(
+                                        "X-HTTP-Method-Override",
+                                        "PATCH"
                                 ),
                             },
                                 true,
@@ -258,7 +266,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                             }
                         ),
                         new GeneratedTusRuntimeEventRequest(
-                                "PATCH",
+                                "POST",
                                 "upload",
                                 204,
                                 true,
@@ -270,6 +278,10 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 new GeneratedTusRuntimeEventHeader(
                                         "Upload-Offset",
                                         "0"
+                                ),
+                                new GeneratedTusRuntimeEventHeader(
+                                        "X-HTTP-Method-Override",
+                                        "PATCH"
                                 ),
                             },
                                 true,
@@ -343,7 +355,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                             }
                         ),
                         new GeneratedTusRuntimeEventRequest(
-                                "PATCH",
+                                "POST",
                                 "upload",
                                 204,
                                 true,
@@ -359,6 +371,10 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                 new GeneratedTusRuntimeEventHeader(
                                         "Upload-Offset",
                                         "0"
+                                ),
+                                new GeneratedTusRuntimeEventHeader(
+                                        "X-HTTP-Method-Override",
+                                        "PATCH"
                                 ),
                             },
                                 true,
@@ -456,7 +472,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                             }
                         ),
                         new GeneratedTusRuntimeEventRequest(
-                                "PATCH",
+                                "POST",
                                 "upload",
                                 204,
                                 true,
@@ -469,6 +485,10 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                         "Upload-Offset",
                                         "0"
                                 ),
+                                new GeneratedTusRuntimeEventHeader(
+                                        "X-HTTP-Method-Override",
+                                        "PATCH"
+                                ),
                             },
                                 true,
                                 new GeneratedTusRuntimeEventHeader[] {
@@ -479,7 +499,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                             }
                         ),
                         new GeneratedTusRuntimeEventRequest(
-                                "PATCH",
+                                "POST",
                                 "upload",
                                 204,
                                 true,
@@ -492,6 +512,10 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                         "Upload-Offset",
                                         "5"
                                 ),
+                                new GeneratedTusRuntimeEventHeader(
+                                        "X-HTTP-Method-Override",
+                                        "PATCH"
+                                ),
                             },
                                 true,
                                 new GeneratedTusRuntimeEventHeader[] {
@@ -502,7 +526,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                             }
                         ),
                         new GeneratedTusRuntimeEventRequest(
-                                "PATCH",
+                                "POST",
                                 "upload",
                                 204,
                                 true,
@@ -519,6 +543,10 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                                         "Upload-Offset",
                                         "10"
                                 ),
+                                new GeneratedTusRuntimeEventHeader(
+                                        "X-HTTP-Method-Override",
+                                        "PATCH"
+                                ),
                             },
                                 true,
                                 new GeneratedTusRuntimeEventHeader[] {
@@ -529,15 +557,6 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
                             }
                         ),
                 }
-        ),
-    };
-    private static final GeneratedTusMethodOverride[] METHOD_OVERRIDES =
-            new GeneratedTusMethodOverride[] {
-        new GeneratedTusMethodOverride(
-                "PATCH",
-                "POST",
-                "X-HTTP-Method-Override",
-                "PATCH"
         ),
     };
 
@@ -740,23 +759,16 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
 
     private void registerResponses(GeneratedTusRuntimeEventCase testCase) throws Exception {
         for (GeneratedTusRuntimeEventRequest request : testCase.requests) {
-            mockServer.when(requestFor(testCase, request, request.method, null))
+            mockServer.when(requestFor(testCase, request))
                     .respond(responseFor(testCase, request));
-            GeneratedTusMethodOverride methodOverride = methodOverrideFor(request.method);
-            if (methodOverride != null) {
-                mockServer.when(requestFor(testCase, request, methodOverride.method, methodOverride))
-                        .respond(responseFor(testCase, request));
-            }
         }
     }
 
     private HttpRequest requestFor(
             GeneratedTusRuntimeEventCase testCase,
-            GeneratedTusRuntimeEventRequest request,
-            String method,
-            GeneratedTusMethodOverride methodOverride) throws Exception {
+            GeneratedTusRuntimeEventRequest request) throws Exception {
         HttpRequest httpRequest = new HttpRequest()
-                .withMethod(method)
+                .withMethod(request.method)
                 .withPath(pathFor(testCase, request));
         if (request.includesDefaultProtocolRequestHeaders) {
             for (Map.Entry<String, String> entry : TusProtocol.DEFAULT_REQUEST_HEADERS.entrySet()) {
@@ -766,20 +778,7 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         for (GeneratedTusRuntimeEventHeader header : request.requestHeaders) {
             httpRequest.withHeader(header.name, header.value);
         }
-        if (methodOverride != null) {
-            httpRequest.withHeader(methodOverride.headerName, methodOverride.headerValue);
-        }
         return httpRequest;
-    }
-
-    private GeneratedTusMethodOverride methodOverrideFor(String originalMethod) {
-        for (GeneratedTusMethodOverride methodOverride : METHOD_OVERRIDES) {
-            if (methodOverride.originalMethod.equals(originalMethod)) {
-                return methodOverride;
-            }
-        }
-
-        return null;
     }
 
     private String pathFor(
@@ -1103,24 +1102,6 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         GeneratedTusRuntimeEventMetadata(String name, String value) {
             this.name = name;
             this.value = value;
-        }
-    }
-
-    private static final class GeneratedTusMethodOverride {
-        final String originalMethod;
-        final String method;
-        final String headerName;
-        final String headerValue;
-
-        GeneratedTusMethodOverride(
-                String originalMethod,
-                String method,
-                String headerName,
-                String headerValue) {
-            this.originalMethod = originalMethod;
-            this.method = method;
-            this.headerName = headerName;
-            this.headerValue = headerValue;
         }
     }
 

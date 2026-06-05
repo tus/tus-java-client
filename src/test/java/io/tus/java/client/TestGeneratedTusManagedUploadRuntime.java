@@ -143,7 +143,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                                                 )
                                         ),
                                         new GeneratedTusManagedUploadRequest(
-                                                "PATCH",
+                                                "POST",
                                                 "upload",
                                                 7,
                                                 204,
@@ -157,6 +157,10 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                                                         new GeneratedTusManagedUploadHeader(
                                                                 "Upload-Offset",
                                                                 "0"
+                                                        ),
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "X-HTTP-Method-Override",
+                                                                "PATCH"
                                                         ),
                                                     }
                                                 ),
@@ -202,7 +206,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                                                 )
                                         ),
                                         new GeneratedTusManagedUploadRequest(
-                                                "PATCH",
+                                                "POST",
                                                 "upload",
                                                 7,
                                                 204,
@@ -216,6 +220,10 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                                                         new GeneratedTusManagedUploadHeader(
                                                                 "Upload-Offset",
                                                                 "7"
+                                                        ),
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "X-HTTP-Method-Override",
+                                                                "PATCH"
                                                         ),
                                                     }
                                                 ),
@@ -597,15 +605,6 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                 )
         ),
     };
-    private static final GeneratedTusMethodOverride[] METHOD_OVERRIDES =
-            new GeneratedTusMethodOverride[] {
-        new GeneratedTusMethodOverride(
-                "PATCH",
-                "POST",
-                "X-HTTP-Method-Override",
-                "PATCH"
-        ),
-    };
 
     /**
      * Verifies a durable source can retry, resume, finish, and clean up from contract data.
@@ -951,24 +950,17 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
     private void registerResponses(GeneratedTusManagedUploadRuntimeCase testCase) throws Exception {
         for (GeneratedTusManagedUploadAttempt attempt : testCase.attempts) {
             for (GeneratedTusManagedUploadRequest request : attempt.requests) {
-                mockServer.when(requestFor(testCase, request, request.method, null))
+                mockServer.when(requestFor(testCase, request))
                         .respond(responseFor(testCase, request));
-                GeneratedTusMethodOverride methodOverride = methodOverrideFor(request.method);
-                if (methodOverride != null) {
-                    mockServer.when(requestFor(testCase, request, methodOverride.method, methodOverride))
-                            .respond(responseFor(testCase, request));
-                }
             }
         }
     }
 
     private HttpRequest requestFor(
             GeneratedTusManagedUploadRuntimeCase testCase,
-            GeneratedTusManagedUploadRequest request,
-            String method,
-            GeneratedTusMethodOverride methodOverride) throws Exception {
+            GeneratedTusManagedUploadRequest request) throws Exception {
         HttpRequest httpRequest = new HttpRequest()
-                .withMethod(method)
+                .withMethod(request.method)
                 .withPath(pathFor(testCase, request));
         if (request.requestHeaders.includesDefaultProtocolHeaders) {
             for (Map.Entry<String, String> entry : TusProtocol.DEFAULT_REQUEST_HEADERS.entrySet()) {
@@ -978,20 +970,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
         for (GeneratedTusManagedUploadHeader header : request.requestHeaders.headers) {
             httpRequest.withHeader(header.name, header.value);
         }
-        if (methodOverride != null) {
-            httpRequest.withHeader(methodOverride.headerName, methodOverride.headerValue);
-        }
         return httpRequest;
-    }
-
-    private GeneratedTusMethodOverride methodOverrideFor(String originalMethod) {
-        for (GeneratedTusMethodOverride methodOverride : METHOD_OVERRIDES) {
-            if (methodOverride.originalMethod.equals(originalMethod)) {
-                return methodOverride;
-            }
-        }
-
-        return null;
     }
 
     private String pathFor(
@@ -1382,24 +1361,6 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
         GeneratedTusManagedUploadMetadata(String name, String value) {
             this.name = name;
             this.value = value;
-        }
-    }
-
-    private static final class GeneratedTusMethodOverride {
-        final String originalMethod;
-        final String method;
-        final String headerName;
-        final String headerValue;
-
-        GeneratedTusMethodOverride(
-                String originalMethod,
-                String method,
-                String headerName,
-                String headerValue) {
-            this.originalMethod = originalMethod;
-            this.method = method;
-            this.headerName = headerName;
-            this.headerValue = headerValue;
         }
     }
 
