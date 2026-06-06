@@ -26,6 +26,15 @@ import static org.junit.Assert.assertNull;
  * Tests generated TUS client runtime event fixtures against the real uploader.
  */
 public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
+    private static final boolean GENERATED_TUS_SUCCESS_REMOVE_STORED_URL_BEFORE_HOOK =
+            true;
+    private static final boolean GENERATED_TUS_SUCCESS_REMOVE_STORED_URL_REQUIRES_OPTION =
+            true;
+    private static final boolean GENERATED_TUS_URL_STORAGE_REMOVE_ON_SUCCESS_ENABLED =
+            true;
+    private static final boolean GENERATED_TUS_URL_STORAGE_REMOVE_ON_SUCCESS_REQUIRES_OPTION =
+            true;
+
     private static final GeneratedTusRuntimeEventCase[] CASES =
             new GeneratedTusRuntimeEventCase[] {
         new GeneratedTusRuntimeEventCase(
@@ -851,12 +860,29 @@ public class TestGeneratedTusRuntimeEvents extends MockServerProvider {
         }
 
         URL storedUrl = urlStore.get(testCase.input.storedUpload.fingerprint);
-        if (testCase.input.storedUpload.removeFingerprintOnSuccess) {
+        if (shouldRemoveStoredUploadOnSuccess(testCase.input.storedUpload)) {
             assertNull(testCase.scenarioId, storedUrl);
             return;
         }
 
         assertEquals(testCase.scenarioId, uploadUrlForUnchecked(testCase), storedUrl);
+    }
+
+    private boolean shouldRemoveStoredUploadOnSuccess(
+            GeneratedTusRuntimeEventStoredUpload storedUpload) {
+        if (!GENERATED_TUS_SUCCESS_REMOVE_STORED_URL_BEFORE_HOOK) {
+            return false;
+        }
+        if (!GENERATED_TUS_URL_STORAGE_REMOVE_ON_SUCCESS_ENABLED) {
+            return false;
+        }
+        if (
+                GENERATED_TUS_SUCCESS_REMOVE_STORED_URL_REQUIRES_OPTION
+                || GENERATED_TUS_URL_STORAGE_REMOVE_ON_SUCCESS_REQUIRES_OPTION) {
+            return storedUpload.removeFingerprintOnSuccess;
+        }
+
+        return true;
     }
 
     private URL uploadUrlForUnchecked(GeneratedTusRuntimeEventCase testCase) {

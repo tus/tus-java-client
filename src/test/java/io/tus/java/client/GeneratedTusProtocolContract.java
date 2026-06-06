@@ -181,6 +181,21 @@ final class GeneratedTusProtocolContract {
                         ),
                     }
                 ),
+                new GeneratedTusResponseContract(
+                        500,
+                        "empty",
+                        new GeneratedTusHeaderVariant[] {
+                        new GeneratedTusHeaderVariant(
+                                new GeneratedTusHeaderField[] {
+                                new GeneratedTusHeaderField(
+                                        "Tus-Resumable",
+                                        "tus-resumable",
+                                        true
+                                ),
+                            }
+                        ),
+                    }
+                ),
             }
         ),
         new GeneratedTusProtocolOperation(
@@ -301,6 +316,21 @@ final class GeneratedTusProtocolContract {
                         ),
                     }
                 ),
+                new GeneratedTusResponseContract(
+                        500,
+                        "empty",
+                        new GeneratedTusHeaderVariant[] {
+                        new GeneratedTusHeaderVariant(
+                                new GeneratedTusHeaderField[] {
+                                new GeneratedTusHeaderField(
+                                        "Tus-Resumable",
+                                        "tus-resumable",
+                                        true
+                                ),
+                            }
+                        ),
+                    }
+                ),
             }
         ),
         new GeneratedTusProtocolOperation(
@@ -326,6 +356,21 @@ final class GeneratedTusProtocolContract {
                 new GeneratedTusResponseContract[] {
                 new GeneratedTusResponseContract(
                         204,
+                        "empty",
+                        new GeneratedTusHeaderVariant[] {
+                        new GeneratedTusHeaderVariant(
+                                new GeneratedTusHeaderField[] {
+                                new GeneratedTusHeaderField(
+                                        "Tus-Resumable",
+                                        "tus-resumable",
+                                        true
+                                ),
+                            }
+                        ),
+                    }
+                ),
+                new GeneratedTusResponseContract(
+                        423,
                         "empty",
                         new GeneratedTusHeaderVariant[] {
                         new GeneratedTusHeaderVariant(

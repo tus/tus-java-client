@@ -80,6 +80,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         new GeneratedTusManagedUploadSourceExecution(
                                 true,
                                 false,
+                                -1,
                                 false
                         )
                 ),
@@ -281,6 +282,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         new GeneratedTusManagedUploadSourceExecution(
                                 true,
                                 false,
+                                -1,
                                 false
                         )
                 ),
@@ -389,6 +391,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         new GeneratedTusManagedUploadSourceExecution(
                                 true,
                                 false,
+                                -1,
                                 false
                         )
                 ),
@@ -442,7 +445,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                                                     }
                                                 ),
                                                 new GeneratedTusManagedUploadHeaderSet(
-                                                        false,
+                                                        true,
                                                         new GeneratedTusManagedUploadHeader[0]
                                                 )
                                         ),
@@ -479,7 +482,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                                                     }
                                                 ),
                                                 new GeneratedTusManagedUploadHeaderSet(
-                                                        false,
+                                                        true,
                                                         new GeneratedTusManagedUploadHeader[0]
                                                 )
                                         ),
@@ -516,7 +519,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                                                     }
                                                 ),
                                                 new GeneratedTusManagedUploadHeaderSet(
-                                                        false,
+                                                        true,
                                                         new GeneratedTusManagedUploadHeader[0]
                                                 )
                                         ),
@@ -564,6 +567,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                         new GeneratedTusManagedUploadSourceExecution(
                                 false,
                                 true,
+                                0,
                                 true
                         )
                 ),
@@ -825,7 +829,12 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
             return;
         }
         if (testCase.simulateMissingSourceBeforeDurableCopy) {
-            GeneratedTusManagedUploadAttempt attempt = testCase.attempts[0];
+            GeneratedTusManagedUploadAttempt attempt = testCase.sourcePreparationFailureAttempt;
+            if (attempt == null) {
+                throw new AssertionError(
+                        testCase.scenarioId
+                                + " is missing generated source preparation failure attempt");
+            }
             if (source.exists() && !source.delete()) {
                 throw new IOException("Could not remove generated input source " + source);
             }
@@ -1044,6 +1053,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
         final String offsetDiscoveryMethod;
         final GeneratedTusManagedUploadInput input;
         final GeneratedTusManagedUploadAttempt[] attempts;
+        final GeneratedTusManagedUploadAttempt sourcePreparationFailureAttempt;
 
         GeneratedTusManagedUploadRuntimeCase(
                 GeneratedTusManagedUploadRuntimeProfile profile,
@@ -1081,6 +1091,10 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
             this.offsetDiscoveryMethod = offsetDiscoveryMethod();
             this.input = workload.input;
             this.attempts = workload.attempts;
+            this.sourcePreparationFailureAttempt =
+                    execution.sourcePreparationFailureAttemptIndex < 0
+                            ? null
+                            : workload.attempts[execution.sourcePreparationFailureAttemptIndex];
         }
     }
 
@@ -1154,6 +1168,7 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
         final boolean networkConstraintSatisfied;
         final boolean prepareDurableSourceBeforeProtocol;
         final boolean simulateMissingSourceBeforeDurableCopy;
+        final int sourcePreparationFailureAttemptIndex;
         final boolean sourceUnavailableBeforeProtocol;
 
         GeneratedTusManagedUploadExecution(
@@ -1172,6 +1187,8 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
                     sourceExecution.prepareDurableSourceBeforeProtocol;
             this.simulateMissingSourceBeforeDurableCopy =
                     sourceExecution.simulateMissingSourceBeforeDurableCopy;
+            this.sourcePreparationFailureAttemptIndex =
+                    sourceExecution.sourcePreparationFailureAttemptIndex;
             this.sourceUnavailableBeforeProtocol = sourceExecution.sourceUnavailableBeforeProtocol;
         }
     }
@@ -1206,14 +1223,17 @@ public class TestGeneratedTusManagedUploadRuntime extends MockServerProvider {
     private static final class GeneratedTusManagedUploadSourceExecution {
         final boolean prepareDurableSourceBeforeProtocol;
         final boolean simulateMissingSourceBeforeDurableCopy;
+        final int sourcePreparationFailureAttemptIndex;
         final boolean sourceUnavailableBeforeProtocol;
 
         GeneratedTusManagedUploadSourceExecution(
                 boolean prepareDurableSourceBeforeProtocol,
                 boolean simulateMissingSourceBeforeDurableCopy,
+                int sourcePreparationFailureAttemptIndex,
                 boolean sourceUnavailableBeforeProtocol) {
             this.prepareDurableSourceBeforeProtocol = prepareDurableSourceBeforeProtocol;
             this.simulateMissingSourceBeforeDurableCopy = simulateMissingSourceBeforeDurableCopy;
+            this.sourcePreparationFailureAttemptIndex = sourcePreparationFailureAttemptIndex;
             this.sourceUnavailableBeforeProtocol = sourceUnavailableBeforeProtocol;
         }
     }
