@@ -9,6 +9,7 @@ import java.net.Proxy;
 import java.net.Proxy.Type;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.junit.Test;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -106,6 +108,57 @@ public class TestTusClient extends MockServerProvider {
         TusUploader uploader = client.createUpload(upload);
 
         assertEquals(uploader.getUploadURL(), new URL(mockServerURL + "/foo"));
+    }
+
+    /**
+     * Verifies if uploads can be created while sending data in the creation request.
+     * @throws IOException if upload data cannot be read.
+     * @throws ProtocolException if the upload cannot be constructed.
+     */
+    @Test
+    public void testCreateUploadWithData() throws IOException, ProtocolException {
+        byte[] content = new byte[] {
+                'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'
+        };
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files")
+                .withHeader("Connection", "keep-alive")
+                .withHeader("Content-Type", "application/offset+octet-stream")
+                .withHeader("Upload-Length", "10")
+                .withBody(Arrays.copyOfRange(content, 0, 4))))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
+                        .withStatusCode(201)
+                        .withHeader("Location", mockServerURL + "/foo")
+                        .withHeader("Upload-Offset", "4")));
+        mockServer.when(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files/foo"))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
+                        .withStatusCode(204)
+                        .withHeader("Upload-Offset", "10")));
+
+        TusClient client = new TusClient();
+        client.setUploadCreationURL(mockServerURL);
+        TusUpload upload = new TusUpload();
+        upload.setSize(content.length);
+        upload.setInputStream(new ByteArrayInputStream(content));
+
+        TusUploader uploader = client.createUploadWithData(upload, 4);
+        assertEquals(uploader.getUploadURL(), new URL(mockServerURL + "/foo"));
+        assertEquals(uploader.getOffset(), 4);
+
+        uploader.setChunkSize(6);
+        assertEquals(uploader.uploadChunk(), 6);
+        uploader.finish();
+        assertEquals(uploader.getOffset(), content.length);
+
+        HttpRequest[] patchRequests = mockServer.retrieveRecordedRequests(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files/foo"));
+        assertEquals(1, patchRequests.length);
+        assertTrue(patchRequests[0].containsHeader("X-HTTP-Method-Override"));
+        assertArrayEquals(Arrays.copyOfRange(content, 4, 10), patchRequests[0].getBodyAsRawBytes());
     }
 
     /**

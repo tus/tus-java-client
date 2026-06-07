@@ -1,13 +1,14 @@
 package io.tus.java.client;
 
-import java.net.Proxy;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
+import java.io.EOFException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.Proxy;
 import java.net.URL;
 import java.util.Map;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * This class is used for creating or resuming uploads.
@@ -238,22 +239,72 @@ public class TusClient {
      * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
      */
     public TusUploader createUpload(@NotNull TusUpload upload) throws ProtocolException, IOException {
+        return createUpload(upload, 0);
+    }
+
+    /**
+     * Create a new upload and send the first bytes in the creation request using the
+     * Creation With Upload extension. Before calling this function, an "upload creation URL"
+     * must be defined using {@link #setUploadCreationURL(URL)} or else this function will fail.
+     *
+     * @param upload The file for which a new upload will be created
+     * @param bytesToUpload Number of bytes to include in the creation request body
+     * @return Use {@link TusUploader} to upload any remaining file chunks.
+     * @throws ProtocolException Thrown if the remote server sent an unexpected response, e.g.
+     * wrong status codes or missing/invalid headers.
+     * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
+     */
+    public TusUploader createUploadWithData(
+            @NotNull TusUpload upload,
+            int bytesToUpload
+    ) throws ProtocolException, IOException {
+        if (bytesToUpload < 0) {
+            throw new IllegalArgumentException("creation upload byte count must not be negative");
+        }
+        if (bytesToUpload == 0) {
+            return createUpload(upload);
+        }
+        if (upload.isUploadLengthDeferred()) {
+            throw new IllegalArgumentException(
+                    "creation with upload requires a known upload length"
+            );
+        }
+        if (bytesToUpload > upload.getSize()) {
+            throw new IllegalArgumentException(
+                    "creation upload byte count "
+                            + bytesToUpload
+                            + " exceeds upload size "
+                            + upload.getSize()
+            );
+        }
+
+        return createUpload(upload, bytesToUpload);
+    }
+
+    private TusUploader createUpload(
+            @NotNull TusUpload upload,
+            int bytesToUpload
+    ) throws ProtocolException, IOException {
         HttpURLConnection connection = openConnection(uploadCreationURL);
         connection.setRequestMethod(TusProtocol.CREATE_UPLOAD_METHOD);
         prepareConnection(connection);
+        prepareUploadCreationHeaders(connection, upload);
 
-        String encodedMetadata = upload.getEncodedMetadata();
-        if (encodedMetadata.length() > 0) {
-            connection.setRequestProperty("Upload-Metadata", encodedMetadata);
+        if (bytesToUpload > 0) {
+            connection.setRequestProperty(
+                    TusProtocol.UPLOAD_BODY_CONTENT_TYPE_HEADER_NAME,
+                    TusProtocol.UPLOAD_BODY_CONTENT_TYPE
+            );
+            connection.setDoOutput(true);
+            connection.setFixedLengthStreamingMode(bytesToUpload);
         }
 
-        if (upload.isUploadLengthDeferred()) {
-            connection.addRequestProperty("Upload-Defer-Length", "1");
-        } else {
-            connection.addRequestProperty("Upload-Length", Long.toString(upload.getSize()));
-        }
         runBeforeRequest(TusProtocol.CREATE_UPLOAD_METHOD, connection);
-        connection.connect();
+        if (bytesToUpload > 0) {
+            writeUploadCreationData(connection, upload, bytesToUpload);
+        } else {
+            connection.connect();
+        }
 
         int responseCode = connection.getResponseCode();
         runAfterResponse(TusProtocol.CREATE_UPLOAD_METHOD, connection);
@@ -262,7 +313,7 @@ public class TusClient {
                     "unexpected status code (" + responseCode + ") while creating upload", connection);
         }
 
-        String urlStr = connection.getHeaderField("Location");
+        String urlStr = connection.getHeaderField(TusProtocol.LOCATION_HEADER_NAME);
         if (urlStr == null || urlStr.length() == 0) {
             throw new ProtocolException("missing upload URL in response for creating upload", connection);
         }
@@ -272,11 +323,96 @@ public class TusClient {
         // but there may be cases in which the POST request is redirected.
         URL uploadURL = new URL(connection.getURL(), urlStr);
 
+        long offset = bytesToUpload > 0
+                ? readUploadCreationOffset(connection, bytesToUpload)
+                : 0L;
+
         if (resumingEnabled) {
             urlStore.set(upload.getFingerprint(), uploadURL);
         }
 
-        return createUploader(upload, uploadURL, 0L);
+        return createUploader(upload, uploadURL, offset, bytesToUpload > 0);
+    }
+
+    private static void prepareUploadCreationHeaders(
+            @NotNull HttpURLConnection connection,
+            @NotNull TusUpload upload
+    ) {
+        String encodedMetadata = upload.getEncodedMetadata();
+        if (encodedMetadata.length() > 0) {
+            connection.setRequestProperty(TusProtocol.METADATA_HEADER_NAME, encodedMetadata);
+        }
+
+        if (upload.isUploadLengthDeferred()) {
+            connection.addRequestProperty(TusProtocol.UPLOAD_DEFER_LENGTH_HEADER_NAME, "1");
+        } else {
+            connection.addRequestProperty(
+                    TusProtocol.UPLOAD_LENGTH_HEADER_NAME,
+                    Long.toString(upload.getSize())
+            );
+        }
+    }
+
+    private static void writeUploadCreationData(
+            @NotNull HttpURLConnection connection,
+            @NotNull TusUpload upload,
+            int bytesToUpload
+    ) throws IOException {
+        TusInputStream input = upload.getTusInputStream();
+
+        byte[] buffer = new byte[Math.min(bytesToUpload, 8192)];
+        int bytesRemaining = bytesToUpload;
+        try (OutputStream output = connection.getOutputStream()) {
+            while (bytesRemaining > 0) {
+                int bytesRead = input.read(buffer, Math.min(buffer.length, bytesRemaining));
+                if (bytesRead == -1) {
+                    throw new EOFException(
+                            "upload source ended before creation request wrote "
+                                    + bytesToUpload
+                                    + " bytes"
+                    );
+                }
+
+                output.write(buffer, 0, bytesRead);
+                bytesRemaining -= bytesRead;
+            }
+        }
+    }
+
+    private static long readUploadCreationOffset(
+            @NotNull HttpURLConnection connection,
+            int bytesToUpload
+    ) throws ProtocolException {
+        String offsetStr = connection.getHeaderField(TusProtocol.UPLOAD_OFFSET_HEADER_NAME);
+        if (offsetStr == null || offsetStr.length() == 0) {
+            throw new ProtocolException(
+                    "missing upload offset in response for creating upload with data",
+                    connection
+            );
+        }
+
+        long offset;
+        try {
+            offset = Long.parseLong(offsetStr);
+        } catch (NumberFormatException e) {
+            throw new ProtocolException(
+                    "invalid upload offset in response for creating upload with data",
+                    connection
+            );
+        }
+
+        if (offset != bytesToUpload) {
+            throw new ProtocolException(
+                    "response contains different Upload-Offset value ("
+                            + offset
+                            + ") than expected ("
+                            + bytesToUpload
+                            + ")",
+                    connection
+            );
+        }
+
+        return offset;
     }
 
     /**
@@ -319,7 +455,25 @@ public class TusClient {
     @NotNull
     private TusUploader createUploader(@NotNull TusUpload upload, @NotNull URL uploadURL, long offset)
         throws IOException {
-        TusUploader uploader = new TusUploader(this, upload, uploadURL, upload.getTusInputStream(), offset);
+        return createUploader(upload, uploadURL, offset, false);
+    }
+
+    @NotNull
+    private TusUploader createUploader(
+            @NotNull TusUpload upload,
+            @NotNull URL uploadURL,
+            long offset,
+            boolean inputAlreadyAtOffset
+    )
+        throws IOException {
+        TusUploader uploader = new TusUploader(
+                this,
+                upload,
+                uploadURL,
+                upload.getTusInputStream(),
+                offset,
+                inputAlreadyAtOffset
+        );
         uploader.setProxy(proxy);
         return uploader;
     }
@@ -388,7 +542,7 @@ public class TusClient {
                     "unexpected status code (" + responseCode + ") while resuming upload", connection);
         }
 
-        String offsetStr = connection.getHeaderField("Upload-Offset");
+        String offsetStr = connection.getHeaderField(TusProtocol.UPLOAD_OFFSET_HEADER_NAME);
         if (offsetStr == null || offsetStr.length() == 0) {
             throw new ProtocolException("missing upload offset in response for resuming upload", connection);
         }

@@ -20,11 +20,18 @@ final class TusProtocol {
     static final String DEFAULT_PROTOCOL_VERSION = "1.0.0";
     static final Map<String, String> DEFAULT_REQUEST_HEADERS = defaultRequestHeaders();
     static final Map<String, String> DEFAULT_RESPONSE_HEADERS = defaultResponseHeaders();
+    static final String LOCATION_HEADER_NAME = "Location";
+    static final String METADATA_HEADER_NAME = "Upload-Metadata";
     static final String OFFSET_DISCOVERY_METHOD = "HEAD";
     static final String REQUEST_ID_HEADER_NAME = "X-Request-ID";
     static final int SUCCESS_RESPONSE_STATUS_CATEGORY = 200;
     static final String TERMINATE_UPLOAD_METHOD = "DELETE";
+    static final String UPLOAD_BODY_CONTENT_TYPE = "application/offset+octet-stream";
+    static final String UPLOAD_BODY_CONTENT_TYPE_HEADER_NAME = "Content-Type";
     static final String UPLOAD_CHUNK_METHOD = "PATCH";
+    static final String UPLOAD_DEFER_LENGTH_HEADER_NAME = "Upload-Defer-Length";
+    static final String UPLOAD_LENGTH_HEADER_NAME = "Upload-Length";
+    static final String UPLOAD_OFFSET_HEADER_NAME = "Upload-Offset";
 
     private TusProtocol() {
     }

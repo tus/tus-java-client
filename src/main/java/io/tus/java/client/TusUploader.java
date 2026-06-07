@@ -78,6 +78,18 @@ public class TusUploader {
      */
     public TusUploader(TusClient client, TusUpload upload, URL uploadURL, TusInputStream input, long offset)
         throws IOException {
+        this(client, upload, uploadURL, input, offset, false);
+    }
+
+    TusUploader(
+            TusClient client,
+            TusUpload upload,
+            URL uploadURL,
+            TusInputStream input,
+            long offset,
+            boolean inputAlreadyAtOffset
+    )
+        throws IOException {
         this.uploadURL = uploadURL;
         this.input = input;
         this.offset = offset;
@@ -85,7 +97,9 @@ public class TusUploader {
         this.upload = upload;
         uploadLengthDeclared = !upload.isUploadLengthDeferred();
 
-        input.seekTo(offset);
+        if (!inputAlreadyAtOffset) {
+            input.seekTo(offset);
+        }
 
         setChunkSize(2 * 1024 * 1024);
     }
@@ -108,12 +122,15 @@ public class TusUploader {
             connection = (HttpURLConnection) uploadURL.openConnection();
         }
         client.prepareConnection(connection);
-        connection.setRequestProperty("Upload-Offset", Long.toString(offset));
+        connection.setRequestProperty(TusProtocol.UPLOAD_OFFSET_HEADER_NAME, Long.toString(offset));
         if (shouldDeclareUploadLength()) {
-            connection.setRequestProperty("Upload-Length", Long.toString(upload.getSize()));
+            connection.setRequestProperty(TusProtocol.UPLOAD_LENGTH_HEADER_NAME, Long.toString(upload.getSize()));
             requestDeclaresUploadLength = true;
         }
-        connection.setRequestProperty("Content-Type", "application/offset+octet-stream");
+        connection.setRequestProperty(
+                TusProtocol.UPLOAD_BODY_CONTENT_TYPE_HEADER_NAME,
+                TusProtocol.UPLOAD_BODY_CONTENT_TYPE
+        );
         connection.setRequestProperty("Expect", "100-continue");
 
         try {
@@ -423,7 +440,10 @@ public class TusUploader {
                 }
 
                 // TODO detect changes and seek accordingly
-                long serverOffset = getHeaderFieldLong(currentConnection, "Upload-Offset");
+                long serverOffset = getHeaderFieldLong(
+                        currentConnection,
+                        TusProtocol.UPLOAD_OFFSET_HEADER_NAME
+                );
                 if (serverOffset == -1) {
                     throw new ProtocolException("response to PATCH request contains no or invalid Upload-Offset header",
                             currentConnection);
