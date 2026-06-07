@@ -139,6 +139,14 @@ final class Api2DevdockScenario {
         return stringMap(uploadConfig.getJSONObject("headers"));
     }
 
+    static boolean uploadAddRequestId(JSONObject uploadConfig) {
+        return uploadConfig.getBoolean("addRequestId");
+    }
+
+    static String uploadRequestIdHeaderName(JSONObject uploadConfig) {
+        return uploadConfig.getString("requestIdHeaderName");
+    }
+
     static UploadCallbacksPlan uploadCallbacks(JSONObject scenario) {
         return new UploadCallbacksPlan(
                 scenario.getJSONObject("upload").getJSONObject("uploadCallbacks")

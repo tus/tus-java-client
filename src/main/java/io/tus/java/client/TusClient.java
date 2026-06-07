@@ -23,6 +23,7 @@ public class TusClient {
     private Proxy proxy;
     private boolean resumingEnabled;
     private boolean removeFingerprintOnSuccessEnabled;
+    private boolean addRequestId;
     private TusURLStore urlStore;
     private Map<String, String> headers;
     private int connectTimeout = 5000;
@@ -163,6 +164,29 @@ public class TusClient {
     @Nullable
     public Map<String, String> getHeaders() {
         return headers;
+    }
+
+    /**
+     * Enable generated request IDs for every HTTP request made by this TusClient instance.
+     */
+    public void enableRequestIdHeader() {
+        addRequestId = true;
+    }
+
+    /**
+     * Disable generated request IDs for every HTTP request made by this TusClient instance.
+     */
+    public void disableRequestIdHeader() {
+        addRequestId = false;
+    }
+
+    /**
+     * Get the current generated request ID header setting.
+     *
+     * @return True if generated request IDs are enabled.
+     */
+    public boolean requestIdHeaderEnabled() {
+        return addRequestId;
     }
 
     /**
@@ -391,15 +415,7 @@ public class TusClient {
         connection.setInstanceFollowRedirects(Boolean.getBoolean("http.strictPostRedirect"));
 
         connection.setConnectTimeout(connectTimeout);
-        for (Map.Entry<String, String> entry : TusProtocol.DEFAULT_REQUEST_HEADERS.entrySet()) {
-            connection.addRequestProperty(entry.getKey(), entry.getValue());
-        }
-
-        if (headers != null) {
-            for (Map.Entry<String, String> entry : headers.entrySet()) {
-                connection.addRequestProperty(entry.getKey(), entry.getValue());
-            }
-        }
+        TusProtocol.prepareRequestHeaders(connection, headers, addRequestId);
     }
 
     final void runBeforeRequest(
