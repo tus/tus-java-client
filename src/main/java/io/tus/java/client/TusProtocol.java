@@ -16,12 +16,22 @@ import java.util.UUID;
  * Generated TUS protocol constants used by the runtime client.
  */
 final class TusProtocol {
+    static final String CREATE_UPLOAD_METHOD = "POST";
     static final String DEFAULT_PROTOCOL_VERSION = "1.0.0";
     static final Map<String, String> DEFAULT_REQUEST_HEADERS = defaultRequestHeaders();
     static final Map<String, String> DEFAULT_RESPONSE_HEADERS = defaultResponseHeaders();
+    static final String OFFSET_DISCOVERY_METHOD = "HEAD";
     static final String REQUEST_ID_HEADER_NAME = "X-Request-ID";
+    static final int SUCCESS_RESPONSE_STATUS_CATEGORY = 200;
+    static final String TERMINATE_UPLOAD_METHOD = "DELETE";
+    static final String UPLOAD_CHUNK_METHOD = "PATCH";
 
     private TusProtocol() {
+    }
+
+    static boolean isSuccessfulResponseStatus(int responseStatusCode) {
+        return responseStatusCode >= SUCCESS_RESPONSE_STATUS_CATEGORY
+                && responseStatusCode < SUCCESS_RESPONSE_STATUS_CATEGORY + 100;
     }
 
     static void prepareRequestHeaders(

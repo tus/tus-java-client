@@ -239,7 +239,7 @@ public class TusClient {
      */
     public TusUploader createUpload(@NotNull TusUpload upload) throws ProtocolException, IOException {
         HttpURLConnection connection = openConnection(uploadCreationURL);
-        connection.setRequestMethod("POST");
+        connection.setRequestMethod(TusProtocol.CREATE_UPLOAD_METHOD);
         prepareConnection(connection);
 
         String encodedMetadata = upload.getEncodedMetadata();
@@ -252,12 +252,12 @@ public class TusClient {
         } else {
             connection.addRequestProperty("Upload-Length", Long.toString(upload.getSize()));
         }
-        runBeforeRequest("POST", connection);
+        runBeforeRequest(TusProtocol.CREATE_UPLOAD_METHOD, connection);
         connection.connect();
 
         int responseCode = connection.getResponseCode();
-        runAfterResponse("POST", connection);
-        if (!(responseCode >= 200 && responseCode < 300)) {
+        runAfterResponse(TusProtocol.CREATE_UPLOAD_METHOD, connection);
+        if (!TusProtocol.isSuccessfulResponseStatus(responseCode)) {
             throw new ProtocolException(
                     "unexpected status code (" + responseCode + ") while creating upload", connection);
         }
@@ -277,6 +277,35 @@ public class TusClient {
         }
 
         return createUploader(upload, uploadURL, 0L);
+    }
+
+    /**
+     * Terminate an upload URL using the Termination extension.
+     *
+     * @param uploadURL The upload location URL to terminate.
+     * @return The completed HTTP connection.
+     * @throws ProtocolException Thrown if the remote server sent an unexpected response, e.g.
+     * wrong status codes.
+     * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
+     */
+    public HttpURLConnection terminateUpload(@NotNull URL uploadURL)
+            throws ProtocolException, IOException {
+        HttpURLConnection connection = openConnection(uploadURL);
+        connection.setRequestMethod(TusProtocol.TERMINATE_UPLOAD_METHOD);
+        prepareConnection(connection);
+
+        runBeforeRequest(TusProtocol.TERMINATE_UPLOAD_METHOD, connection);
+        connection.connect();
+
+        int responseCode = connection.getResponseCode();
+        runAfterResponse(TusProtocol.TERMINATE_UPLOAD_METHOD, connection);
+        if (!TusProtocol.isSuccessfulResponseStatus(responseCode)) {
+            throw new ProtocolException(
+                    "unexpected status code (" + responseCode + ") while terminating upload",
+                    connection);
+        }
+
+        return connection;
     }
 
     @NotNull
@@ -346,15 +375,15 @@ public class TusClient {
     public TusUploader beginOrResumeUploadFromURL(@NotNull TusUpload upload, @NotNull URL uploadURL) throws
             ProtocolException, IOException {
         HttpURLConnection connection = openConnection(uploadURL);
-        connection.setRequestMethod("HEAD");
+        connection.setRequestMethod(TusProtocol.OFFSET_DISCOVERY_METHOD);
         prepareConnection(connection);
 
-        runBeforeRequest("HEAD", connection);
+        runBeforeRequest(TusProtocol.OFFSET_DISCOVERY_METHOD, connection);
         connection.connect();
 
         int responseCode = connection.getResponseCode();
-        runAfterResponse("HEAD", connection);
-        if (!(responseCode >= 200 && responseCode < 300)) {
+        runAfterResponse(TusProtocol.OFFSET_DISCOVERY_METHOD, connection);
+        if (!TusProtocol.isSuccessfulResponseStatus(responseCode)) {
             throw new ProtocolException(
                     "unexpected status code (" + responseCode + ") while resuming upload", connection);
         }

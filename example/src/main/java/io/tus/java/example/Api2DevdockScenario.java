@@ -51,6 +51,22 @@ final class Api2DevdockScenario {
         }
     }
 
+    static final class TerminationPlan {
+        final int expectedVerificationStatus;
+        final String method;
+        final int minimumDeleteRequestCount;
+        final int stopAfterAcceptedBytes;
+        final String verificationMethod;
+
+        TerminationPlan(JSONObject termination) {
+            expectedVerificationStatus = termination.getInt("expectedVerificationStatus");
+            method = termination.getString("method");
+            minimumDeleteRequestCount = termination.getInt("minimumDeleteRequestCount");
+            stopAfterAcceptedBytes = termination.getInt("stopAfterAcceptedBytes");
+            verificationMethod = termination.getString("verificationMethod");
+        }
+    }
+
     static JSONObject loadScenario() throws IOException {
         String scenarioPath = System.getenv("API2_SDK_EXAMPLE_SCENARIO");
         if (scenarioPath == null || scenarioPath.isEmpty()) {
@@ -162,6 +178,10 @@ final class Api2DevdockScenario {
         return new UploadCallbacksPlan(
                 scenario.getJSONObject("upload").getJSONObject("uploadCallbacks")
         );
+    }
+
+    static TerminationPlan termination(JSONObject uploadConfig) {
+        return new TerminationPlan(uploadConfig.getJSONObject("termination"));
     }
 
     static String uploadCallbackEventKey(UploadCallbacksPlan plan, String... parts) {

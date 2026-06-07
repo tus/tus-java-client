@@ -117,16 +117,16 @@ public class TusUploader {
         connection.setRequestProperty("Expect", "100-continue");
 
         try {
-            connection.setRequestMethod("PATCH");
+            connection.setRequestMethod(TusProtocol.UPLOAD_CHUNK_METHOD);
             // Check whether we are running on a buggy JRE
         } catch (java.net.ProtocolException pe) {
             connection.setRequestMethod("POST");
-            connection.setRequestProperty("X-HTTP-Method-Override", "PATCH");
+            connection.setRequestProperty("X-HTTP-Method-Override", TusProtocol.UPLOAD_CHUNK_METHOD);
         }
 
         connection.setDoOutput(true);
         connection.setChunkedStreamingMode(0);
-        client.runBeforeRequest("PATCH", connection);
+        client.runBeforeRequest(TusProtocol.UPLOAD_CHUNK_METHOD, connection);
         try {
             output = connection.getOutputStream();
         } catch (java.net.ProtocolException pe) {
@@ -415,9 +415,9 @@ public class TusUploader {
             HttpURLConnection currentConnection = connection;
             try {
                 int responseCode = currentConnection.getResponseCode();
-                client.runAfterResponse("PATCH", currentConnection);
+                client.runAfterResponse(TusProtocol.UPLOAD_CHUNK_METHOD, currentConnection);
 
-                if (!(responseCode >= 200 && responseCode < 300)) {
+                if (!TusProtocol.isSuccessfulResponseStatus(responseCode)) {
                     throw new ProtocolException("unexpected status code (" + responseCode + ") while uploading chunk",
                             currentConnection);
                 }
