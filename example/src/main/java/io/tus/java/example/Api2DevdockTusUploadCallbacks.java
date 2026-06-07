@@ -110,6 +110,7 @@ public final class Api2DevdockTusUploadCallbacks {
             throw new IllegalStateException("upload callbacks TUS upload did not expose a URL");
         }
 
+        uploader.finish(false);
         events.add(Api2DevdockScenario.uploadCallbackEventKey(
                 callbacks,
                 callbacks.eventKinds.success
