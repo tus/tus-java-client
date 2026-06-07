@@ -7,10 +7,50 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 final class Api2DevdockScenario {
+    static final class UploadCallbackEventKinds {
+        final String chunkComplete;
+        final String progress;
+        final String sourceClose;
+        final String success;
+        final String uploadUrlAvailable;
+
+        UploadCallbackEventKinds(JSONObject eventKinds) {
+            chunkComplete = eventKinds.getString("chunkComplete");
+            progress = eventKinds.getString("progress");
+            sourceClose = eventKinds.getString("sourceClose");
+            success = eventKinds.getString("success");
+            uploadUrlAvailable = eventKinds.getString("uploadUrlAvailable");
+        }
+    }
+
+    static final class UploadCallbacksPlan {
+        final List<String> allowedExtraEventKeyPrefixes;
+        final List<List<String>> eventKeyAlternativeGroups;
+        final UploadCallbackEventKinds eventKinds;
+        final String eventKeyPartSeparator;
+        final List<String> eventKeys;
+        final String eventPolicyMatching;
+
+        UploadCallbacksPlan(JSONObject uploadCallbacks) {
+            allowedExtraEventKeyPrefixes = stringList(
+                    uploadCallbacks.getJSONArray("allowedExtraEventKeyPrefixes")
+            );
+            eventKeyAlternativeGroups = stringListList(
+                    uploadCallbacks.getJSONArray("eventKeyAlternativeGroups")
+            );
+            eventKinds = new UploadCallbackEventKinds(uploadCallbacks.getJSONObject("eventKinds"));
+            eventKeyPartSeparator = uploadCallbacks.getString("eventKeyPartSeparator");
+            eventKeys = stringList(uploadCallbacks.getJSONArray("eventKeys"));
+            eventPolicyMatching = uploadCallbacks.getString("eventPolicyMatching");
+        }
+    }
+
     static JSONObject loadScenario() throws IOException {
         String scenarioPath = System.getenv("API2_SDK_EXAMPLE_SCENARIO");
         if (scenarioPath == null || scenarioPath.isEmpty()) {
@@ -95,6 +135,80 @@ final class Api2DevdockScenario {
         return metadata;
     }
 
+    static UploadCallbacksPlan uploadCallbacks(JSONObject scenario) {
+        return new UploadCallbacksPlan(
+                scenario.getJSONObject("upload").getJSONObject("uploadCallbacks")
+        );
+    }
+
+    static String uploadCallbackEventKey(UploadCallbacksPlan plan, String... parts) {
+        final StringBuilder key = new StringBuilder();
+        for (int index = 0; index < parts.length; index++) {
+            if (index > 0) {
+                key.append(plan.eventKeyPartSeparator);
+            }
+            key.append(parts[index]);
+        }
+
+        return key.toString();
+    }
+
+    static String uploadCallbackEventKeyNumber(long value) {
+        return Long.toString(value);
+    }
+
+    static List<String> matchUploadCallbackEventKeys(
+            UploadCallbacksPlan plan,
+            List<String> actual
+    ) {
+        if (!"exact".equals(plan.eventPolicyMatching)
+                && !"exact-except-allowed-extra-events".equals(plan.eventPolicyMatching)) {
+            throw new IllegalArgumentException(
+                    "unsupported upload callback event policy " + plan.eventPolicyMatching
+            );
+        }
+
+        final List<String> matched = new ArrayList<String>();
+        int expectedIndex = 0;
+        for (String event : actual) {
+            if (expectedIndex < plan.eventKeys.size()
+                    && uploadCallbackEventMatchesExpected(plan, expectedIndex, event)) {
+                matched.add(plan.eventKeys.get(expectedIndex));
+                expectedIndex += 1;
+                continue;
+            }
+
+            if ("exact-except-allowed-extra-events".equals(plan.eventPolicyMatching)
+                    && hasAllowedUploadCallbackExtraEventPrefix(plan, event)) {
+                continue;
+            }
+
+            throw new IllegalStateException(
+                    "unexpected upload callback event "
+                            + event
+                            + " at expected index "
+                            + expectedIndex
+                            + "; expected "
+                            + plan.eventKeys
+                            + ", actual "
+                            + actual
+            );
+        }
+
+        if (expectedIndex != plan.eventKeys.size()) {
+            throw new IllegalStateException(
+                    "missing upload callback events after index "
+                            + expectedIndex
+                            + "; expected "
+                            + plan.eventKeys
+                            + ", actual "
+                            + actual
+            );
+        }
+
+        return matched;
+    }
+
     private static Object resolveValue(
             JSONObject valueSpec,
             JSONObject scenario,
@@ -144,6 +258,56 @@ final class Api2DevdockScenario {
         }
 
         return String.valueOf(value);
+    }
+
+    private static List<String> stringList(JSONArray values) {
+        final List<String> result = new ArrayList<String>();
+        for (int index = 0; index < values.length(); index++) {
+            result.add(values.getString(index));
+        }
+
+        return result;
+    }
+
+    private static List<List<String>> stringListList(JSONArray values) {
+        final List<List<String>> result = new ArrayList<List<String>>();
+        for (int index = 0; index < values.length(); index++) {
+            result.add(stringList(values.getJSONArray(index)));
+        }
+
+        return result;
+    }
+
+    private static boolean uploadCallbackEventMatchesExpected(
+            UploadCallbacksPlan plan,
+            int expectedIndex,
+            String event
+    ) {
+        if (plan.eventKeys.get(expectedIndex).equals(event)) {
+            return true;
+        }
+
+        final List<String> alternatives = plan.eventKeyAlternativeGroups.get(expectedIndex);
+        for (String alternative : alternatives) {
+            if (alternative.equals(event)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean hasAllowedUploadCallbackExtraEventPrefix(
+            UploadCallbacksPlan plan,
+            String event
+    ) {
+        for (String prefix : plan.allowedExtraEventKeyPrefixes) {
+            if (event.startsWith(prefix)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private Api2DevdockScenario() {
