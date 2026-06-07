@@ -126,6 +126,7 @@ public class TusUploader {
 
         connection.setDoOutput(true);
         connection.setChunkedStreamingMode(0);
+        client.runBeforeRequest("PATCH", connection);
         try {
             output = connection.getOutputStream();
         } catch (java.net.ProtocolException pe) {
@@ -411,35 +412,41 @@ public class TusUploader {
         }
 
         if (connection != null) {
-            int responseCode = connection.getResponseCode();
-            connection.disconnect();
+            HttpURLConnection currentConnection = connection;
+            try {
+                int responseCode = currentConnection.getResponseCode();
+                client.runAfterResponse("PATCH", currentConnection);
 
-            if (!(responseCode >= 200 && responseCode < 300)) {
-                throw new ProtocolException("unexpected status code (" + responseCode + ") while uploading chunk",
-                        connection);
-            }
+                if (!(responseCode >= 200 && responseCode < 300)) {
+                    throw new ProtocolException("unexpected status code (" + responseCode + ") while uploading chunk",
+                            currentConnection);
+                }
 
-            // TODO detect changes and seek accordingly
-            long serverOffset = getHeaderFieldLong(connection, "Upload-Offset");
-            if (serverOffset == -1) {
-                throw new ProtocolException("response to PATCH request contains no or invalid Upload-Offset header",
-                        connection);
-            }
-            if (offset != serverOffset) {
-                throw new ProtocolException(
-                        String.format("response contains different Upload-Offset value (%d) than expected (%d)",
-                                serverOffset,
-                                offset),
-                        connection);
-            }
+                // TODO detect changes and seek accordingly
+                long serverOffset = getHeaderFieldLong(currentConnection, "Upload-Offset");
+                if (serverOffset == -1) {
+                    throw new ProtocolException("response to PATCH request contains no or invalid Upload-Offset header",
+                            currentConnection);
+                }
+                if (offset != serverOffset) {
+                    throw new ProtocolException(
+                            String.format("response contains different Upload-Offset value (%d) than expected (%d)",
+                                    serverOffset,
+                                    offset),
+                            currentConnection);
+                }
 
-            if (requestDeclaresUploadLength) {
-                uploadLengthDeclared = true;
+                if (requestDeclaresUploadLength) {
+                    uploadLengthDeclared = true;
+                }
+                notifyChunkComplete(serverOffset - requestStartOffset, serverOffset);
+            } finally {
+                currentConnection.disconnect();
+                connection = null;
+                output = null;
+                requestDeclaresUploadLength = false;
+                requestProgressStarted = false;
             }
-            notifyChunkComplete(serverOffset - requestStartOffset, serverOffset);
-            connection = null;
-            requestDeclaresUploadLength = false;
-            requestProgressStarted = false;
         }
     }
 

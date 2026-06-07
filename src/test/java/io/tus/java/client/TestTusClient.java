@@ -8,8 +8,10 @@ import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.Proxy.Type;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -104,6 +106,55 @@ public class TestTusClient extends MockServerProvider {
         TusUploader uploader = client.createUpload(upload);
 
         assertEquals(uploader.getUploadURL(), new URL(mockServerURL + "/foo"));
+    }
+
+    /**
+     * Verifies if request lifecycle hooks run around upload creation.
+     * @throws IOException if upload data cannot be read.
+     * @throws ProtocolException if the upload cannot be constructed.
+     */
+    @Test
+    public void testCreateUploadRequestLifecycleHooks() throws IOException, ProtocolException {
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files")
+                .withHeader("X-Hook", "before")
+                .withHeader("Upload-Length", "10")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
+                        .withStatusCode(201)
+                        .withHeader("Location", mockServerURL + "/foo")));
+
+        final List<String> events = new ArrayList<String>();
+        TusClient client = new TusClient();
+        client.setUploadCreationURL(mockServerURL);
+        client.setRequestLifecycleHooks(new TusRequestLifecycleHooks(
+                new TusRequestLifecycleHooks.BeforeRequest() {
+                    @Override
+                    public void beforeRequest(TusRequestLifecycleHooks.RequestContext context) {
+                        events.add("before:" + context.getMethod());
+                        context.getConnection().addRequestProperty("X-Hook", "before");
+                    }
+                },
+                new TusRequestLifecycleHooks.AfterResponse() {
+                    @Override
+                    public void afterResponse(TusRequestLifecycleHooks.RequestContext context) throws IOException {
+                        events.add(
+                                "after:"
+                                        + context.getMethod()
+                                        + ":"
+                                        + context.getConnection().getResponseCode()
+                        );
+                    }
+                }
+        ));
+        TusUpload upload = new TusUpload();
+        upload.setSize(10);
+        upload.setInputStream(new ByteArrayInputStream(new byte[10]));
+        TusUploader uploader = client.createUpload(upload);
+
+        assertEquals(uploader.getUploadURL(), new URL(mockServerURL + "/foo"));
+        assertEquals("before:POST", events.get(0));
+        assertEquals("after:POST:201", events.get(1));
     }
 
     /**
@@ -265,6 +316,62 @@ public class TestTusClient extends MockServerProvider {
 
         assertEquals(uploader.getUploadURL(), new URL(mockServerURL.toString() + "/foo"));
         assertEquals(uploader.getOffset(), 3);
+    }
+
+    /**
+     * Verifies if request lifecycle hooks run around offset discovery.
+     * @throws ResumingNotEnabledException if resuming is disabled.
+     * @throws FingerprintNotFoundException if the stored URL is missing.
+     * @throws IOException if the request cannot be issued.
+     * @throws ProtocolException if the upload cannot be resumed.
+     */
+    @Test
+    public void testResumeUploadRequestLifecycleHooks() throws ResumingNotEnabledException,
+            FingerprintNotFoundException, IOException, ProtocolException {
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
+                .withMethod("HEAD")
+                .withPath("/files/foo")
+                .withHeader("X-Hook", "before")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
+                        .withStatusCode(204)
+                        .withHeader("Upload-Offset", "3")));
+
+        final List<String> events = new ArrayList<String>();
+        TusClient client = new TusClient();
+        client.setUploadCreationURL(mockServerURL);
+        client.enableResuming(new TestResumeUploadStore());
+        client.setRequestLifecycleHooks(new TusRequestLifecycleHooks(
+                new TusRequestLifecycleHooks.BeforeRequest() {
+                    @Override
+                    public void beforeRequest(TusRequestLifecycleHooks.RequestContext context) {
+                        events.add("before:" + context.getMethod());
+                        context.getConnection().addRequestProperty("X-Hook", "before");
+                    }
+                },
+                new TusRequestLifecycleHooks.AfterResponse() {
+                    @Override
+                    public void afterResponse(TusRequestLifecycleHooks.RequestContext context) throws IOException {
+                        events.add(
+                                "after:"
+                                        + context.getMethod()
+                                        + ":"
+                                        + context.getConnection().getResponseCode()
+                        );
+                    }
+                }
+        ));
+
+        TusUpload upload = new TusUpload();
+        upload.setSize(10);
+        upload.setInputStream(new ByteArrayInputStream(new byte[10]));
+        upload.setFingerprint("test-fingerprint");
+
+        TusUploader uploader = client.resumeUpload(upload);
+
+        assertEquals(uploader.getUploadURL(), new URL(mockServerURL.toString() + "/foo"));
+        assertEquals(uploader.getOffset(), 3);
+        assertEquals("before:HEAD", events.get(0));
+        assertEquals("after:HEAD:204", events.get(1));
     }
 
     /**

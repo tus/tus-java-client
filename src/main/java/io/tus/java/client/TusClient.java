@@ -26,6 +26,7 @@ public class TusClient {
     private TusURLStore urlStore;
     private Map<String, String> headers;
     private int connectTimeout = 5000;
+    private TusRequestLifecycleHooks requestLifecycleHooks;
 
     /**
      * Create a new tus client.
@@ -165,6 +166,25 @@ public class TusClient {
     }
 
     /**
+     * Set request lifecycle callbacks for every HTTP request/response pair.
+     *
+     * @param requestLifecycleHooks Hooks to invoke, or null to disable hooks.
+     */
+    public void setRequestLifecycleHooks(@Nullable TusRequestLifecycleHooks requestLifecycleHooks) {
+        this.requestLifecycleHooks = requestLifecycleHooks;
+    }
+
+    /**
+     * Get the configured request lifecycle callbacks.
+     *
+     * @return The configured lifecycle hooks or null.
+     */
+    @Nullable
+    public TusRequestLifecycleHooks getRequestLifecycleHooks() {
+        return requestLifecycleHooks;
+    }
+
+    /**
      * Sets the timeout for a Connection.
      * @param timeout in milliseconds
      */
@@ -208,9 +228,11 @@ public class TusClient {
         } else {
             connection.addRequestProperty("Upload-Length", Long.toString(upload.getSize()));
         }
+        runBeforeRequest("POST", connection);
         connection.connect();
 
         int responseCode = connection.getResponseCode();
+        runAfterResponse("POST", connection);
         if (!(responseCode >= 200 && responseCode < 300)) {
             throw new ProtocolException(
                     "unexpected status code (" + responseCode + ") while creating upload", connection);
@@ -303,9 +325,11 @@ public class TusClient {
         connection.setRequestMethod("HEAD");
         prepareConnection(connection);
 
+        runBeforeRequest("HEAD", connection);
         connection.connect();
 
         int responseCode = connection.getResponseCode();
+        runAfterResponse("HEAD", connection);
         if (!(responseCode >= 200 && responseCode < 300)) {
             throw new ProtocolException(
                     "unexpected status code (" + responseCode + ") while resuming upload", connection);
@@ -376,6 +400,26 @@ public class TusClient {
                 connection.addRequestProperty(entry.getKey(), entry.getValue());
             }
         }
+    }
+
+    void runBeforeRequest(@NotNull String method, @NotNull HttpURLConnection connection) throws IOException {
+        if (requestLifecycleHooks == null || requestLifecycleHooks.getBeforeRequest() == null) {
+            return;
+        }
+
+        requestLifecycleHooks.getBeforeRequest().beforeRequest(
+                new TusRequestLifecycleHooks.RequestContext(method, connection)
+        );
+    }
+
+    void runAfterResponse(@NotNull String method, @NotNull HttpURLConnection connection) throws IOException {
+        if (requestLifecycleHooks == null || requestLifecycleHooks.getAfterResponse() == null) {
+            return;
+        }
+
+        requestLifecycleHooks.getAfterResponse().afterResponse(
+                new TusRequestLifecycleHooks.RequestContext(method, connection)
+        );
     }
 
     /**
