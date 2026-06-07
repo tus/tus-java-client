@@ -402,7 +402,9 @@ public class TusClient {
         }
     }
 
-    void runBeforeRequest(@NotNull String method, @NotNull HttpURLConnection connection) throws IOException {
+    final void runBeforeRequest(
+            @NotNull String method, @NotNull HttpURLConnection connection
+    ) throws IOException {
         if (requestLifecycleHooks == null || requestLifecycleHooks.getBeforeRequest() == null) {
             return;
         }
@@ -412,7 +414,9 @@ public class TusClient {
         );
     }
 
-    void runAfterResponse(@NotNull String method, @NotNull HttpURLConnection connection) throws IOException {
+    final void runAfterResponse(
+            @NotNull String method, @NotNull HttpURLConnection connection
+    ) throws IOException {
         if (requestLifecycleHooks == null || requestLifecycleHooks.getAfterResponse() == null) {
             return;
         }
