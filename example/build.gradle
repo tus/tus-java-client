@@ -23,3 +23,9 @@ tasks.register('api2DevdockTusRetryOffsetRecovery', JavaExec) {
     mainClass = 'io.tus.java.example.Api2DevdockTusRetryOffsetRecovery'
     workingDir = rootProject.projectDir
 }
+
+tasks.register('api2DevdockTusRequestLifecycleHooks', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusRequestLifecycleHooks'
+    workingDir = rootProject.projectDir
+}
