@@ -30,6 +30,12 @@ tasks.register('api2DevdockTusRequestLifecycleHooks', JavaExec) {
     workingDir = rootProject.projectDir
 }
 
+tasks.register('api2DevdockTusCustomRequestHeaders', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusCustomRequestHeaders'
+    workingDir = rootProject.projectDir
+}
+
 tasks.register('api2DevdockTusUploadCallbacks', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'io.tus.java.example.Api2DevdockTusUploadCallbacks'

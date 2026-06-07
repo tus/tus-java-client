@@ -135,6 +135,10 @@ final class Api2DevdockScenario {
         return metadata;
     }
 
+    static Map<String, String> uploadHeaders(JSONObject uploadConfig) {
+        return stringMap(uploadConfig.getJSONObject("headers"));
+    }
+
     static UploadCallbacksPlan uploadCallbacks(JSONObject scenario) {
         return new UploadCallbacksPlan(
                 scenario.getJSONObject("upload").getJSONObject("uploadCallbacks")
@@ -264,6 +268,15 @@ final class Api2DevdockScenario {
         final List<String> result = new ArrayList<String>();
         for (int index = 0; index < values.length(); index++) {
             result.add(values.getString(index));
+        }
+
+        return result;
+    }
+
+    private static Map<String, String> stringMap(JSONObject values) {
+        final Map<String, String> result = new LinkedHashMap<String, String>();
+        for (String key : values.keySet()) {
+            result.put(key, values.getString(key));
         }
 
         return result;
