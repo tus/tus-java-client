@@ -139,6 +139,17 @@ final class Api2DevdockScenario {
         return stringMap(uploadConfig.getJSONObject("headers"));
     }
 
+    static Map<String, Map<String, String>> uploadBodyHeadersByMethod(JSONObject uploadConfig) {
+        final JSONObject bodyHeadersByMethod = uploadConfig.getJSONObject("bodyHeadersByMethod");
+        final Map<String, Map<String, String>> result =
+                new LinkedHashMap<String, Map<String, String>>();
+        for (String method : bodyHeadersByMethod.keySet()) {
+            result.put(method, stringMap(bodyHeadersByMethod.getJSONObject(method)));
+        }
+
+        return result;
+    }
+
     static boolean uploadAddRequestId(JSONObject uploadConfig) {
         return uploadConfig.getBoolean("addRequestId");
     }
