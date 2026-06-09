@@ -178,10 +178,10 @@ final class TusProtocol {
                 "tus-v1",
                 new ClientProtocolCompatibilityVersion(
                         stringMap(new String[][] {
-                                { "Tus-Resumable", "1.0.0" },
+                                {"Tus-Resumable", "1.0.0"},
                             }),
                         stringMap(new String[][] {
-                                { "Tus-Resumable", "1.0.0" },
+                                {"Tus-Resumable", "1.0.0"},
                             }),
                         "application/offset+octet-stream",
                         null
@@ -191,7 +191,7 @@ final class TusProtocol {
                 "ietf-draft-03",
                 new ClientProtocolCompatibilityVersion(
                         stringMap(new String[][] {
-                                { "Upload-Draft-Interop-Version", "5" },
+                                {"Upload-Draft-Interop-Version", "5"},
                             }),
                         stringMap(new String[0][0]),
                         null,
@@ -202,7 +202,7 @@ final class TusProtocol {
                 "ietf-draft-05",
                 new ClientProtocolCompatibilityVersion(
                         stringMap(new String[][] {
-                                { "Upload-Draft-Interop-Version", "6" },
+                                {"Upload-Draft-Interop-Version", "6"},
                             }),
                         stringMap(new String[0][0]),
                         "application/partial-upload",
