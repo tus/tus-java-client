@@ -116,7 +116,10 @@ public final class Api2DevdockTusAbortUpload {
                         activeUploader.set(uploader);
                         uploader.setChunkSize(content.length);
                         uploader.setRequestPayloadSize(content.length);
-                        while (uploader.uploadChunk() > -1) { }
+                        int uploadProgress = uploader.uploadChunk();
+                        while (uploadProgress > -1) {
+                            uploadProgress = uploader.uploadChunk();
+                        }
                         uploader.finish();
                         successCalled.set(true);
                     } catch (Exception error) {

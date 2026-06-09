@@ -562,7 +562,7 @@ public class TusUploader {
         }
     }
 
-    TusUpload getUpload() {
+    final TusUpload getUpload() {
         return upload;
     }
 
