@@ -40,9 +40,15 @@ final class TusProtocol {
     static final String DETAILED_ERROR_UNEXPECTED_CREATE_RESPONSE =
             "tus: unexpected response while creating upload";
     static final String DEFAULT_PROTOCOL_VERSION = "1.0.0";
+    static final String DEFAULT_CLIENT_PROTOCOL = "tus-v1";
     static final int DEFAULT_PARALLEL_UPLOADS = 1;
     static final Map<String, String> DEFAULT_REQUEST_HEADERS = defaultRequestHeaders();
     static final Map<String, String> DEFAULT_RESPONSE_HEADERS = defaultResponseHeaders();
+    static final String PROTOCOL_TUS_V1 = "tus-v1";
+    static final String PROTOCOL_IETF_DRAFT_03 = "ietf-draft-03";
+    static final String PROTOCOL_IETF_DRAFT_05 = "ietf-draft-05";
+    private static final Map<String, ClientProtocolCompatibilityVersion>
+            CLIENT_PROTOCOL_COMPATIBILITY_VERSIONS = clientProtocolCompatibilityVersions();
     static final String LOCATION_HEADER_NAME = "Location";
     static final String METADATA_HEADER_NAME = "Upload-Metadata";
     static final int MINIMUM_PARALLEL_UPLOADS = 2;
@@ -96,11 +102,60 @@ final class TusProtocol {
     static void prepareRequestHeaders(
             HttpURLConnection connection,
             Map<String, String> customHeaders,
-            boolean addRequestId
+            boolean addRequestId,
+            String protocolVersion
     ) {
-        addDefaultRequestHeaders(connection);
+        addProtocolRequestHeaders(connection, protocolVersion);
         addCustomRequestHeaders(connection, customHeaders);
         addRequestIdHeader(connection, addRequestId);
+    }
+
+    static boolean isSupportedProtocol(String protocolVersion) {
+        return clientProtocolCompatibilityVersionFor(protocolVersion) != null;
+    }
+
+    static String normalizeProtocol(String protocolVersion) {
+        if (protocolVersion == null
+                || protocolVersion.length() == 0
+                || DEFAULT_PROTOCOL_VERSION.equals(protocolVersion)) {
+            return DEFAULT_CLIENT_PROTOCOL;
+        }
+
+        if (!CLIENT_PROTOCOL_COMPATIBILITY_VERSIONS.containsKey(protocolVersion)) {
+            return null;
+        }
+
+        return protocolVersion;
+    }
+
+    static String protocolUploadBodyContentType(String protocolVersion) {
+        ClientProtocolCompatibilityVersion compatibilityVersion =
+                clientProtocolCompatibilityVersionFor(protocolVersion);
+        if (compatibilityVersion == null) {
+            return null;
+        }
+
+        return compatibilityVersion.uploadBodyContentType;
+    }
+
+    static String protocolUploadCompleteHeaderName(String protocolVersion) {
+        ClientProtocolCompatibilityVersion compatibilityVersion =
+                clientProtocolCompatibilityVersionFor(protocolVersion);
+        if (compatibilityVersion == null || compatibilityVersion.uploadCompleteHeader == null) {
+            return null;
+        }
+
+        return compatibilityVersion.uploadCompleteHeader.name;
+    }
+
+    static String protocolUploadCompleteHeaderValue(String protocolVersion, boolean done) {
+        ClientProtocolCompatibilityVersion compatibilityVersion =
+                clientProtocolCompatibilityVersionFor(protocolVersion);
+        if (compatibilityVersion == null || compatibilityVersion.uploadCompleteHeader == null) {
+            return null;
+        }
+
+        return compatibilityVersion.uploadCompleteHeader.value(done);
     }
 
     private static Map<String, String> defaultRequestHeaders() {
@@ -115,10 +170,83 @@ final class TusProtocol {
         return Collections.unmodifiableMap(result);
     }
 
-    private static void addDefaultRequestHeaders(HttpURLConnection connection) {
-        for (Map.Entry<String, String> entry : DEFAULT_REQUEST_HEADERS.entrySet()) {
+    private static Map<String, ClientProtocolCompatibilityVersion>
+            clientProtocolCompatibilityVersions() {
+        Map<String, ClientProtocolCompatibilityVersion> result =
+                new LinkedHashMap<String, ClientProtocolCompatibilityVersion>();
+        result.put(
+                "tus-v1",
+                new ClientProtocolCompatibilityVersion(
+                        stringMap(new String[][] {
+                                { "Tus-Resumable", "1.0.0" },
+                            }),
+                        stringMap(new String[][] {
+                                { "Tus-Resumable", "1.0.0" },
+                            }),
+                        "application/offset+octet-stream",
+                        null
+                )
+        );
+        result.put(
+                "ietf-draft-03",
+                new ClientProtocolCompatibilityVersion(
+                        stringMap(new String[][] {
+                                { "Upload-Draft-Interop-Version", "5" },
+                            }),
+                        stringMap(new String[0][0]),
+                        null,
+                        new UploadCompleteHeader("Upload-Complete", "?1", "?0")
+                )
+        );
+        result.put(
+                "ietf-draft-05",
+                new ClientProtocolCompatibilityVersion(
+                        stringMap(new String[][] {
+                                { "Upload-Draft-Interop-Version", "6" },
+                            }),
+                        stringMap(new String[0][0]),
+                        "application/partial-upload",
+                        new UploadCompleteHeader("Upload-Complete", "?1", "?0")
+                )
+        );
+        return Collections.unmodifiableMap(result);
+    }
+
+    private static Map<String, String> stringMap(String[][] entries) {
+        Map<String, String> result = new LinkedHashMap<String, String>();
+        for (String[] entry : entries) {
+            result.put(entry[0], entry[1]);
+        }
+
+        return Collections.unmodifiableMap(result);
+    }
+
+    private static void addProtocolRequestHeaders(
+            HttpURLConnection connection,
+            String protocolVersion
+    ) {
+        ClientProtocolCompatibilityVersion compatibilityVersion =
+                clientProtocolCompatibilityVersionFor(protocolVersion);
+        if (compatibilityVersion == null) {
+            throw new IllegalArgumentException(
+                    START_OPTION_VALIDATION_UNSUPPORTED_PROTOCOL_PREFIX + protocolVersion
+            );
+        }
+
+        for (Map.Entry<String, String> entry : compatibilityVersion.requestHeaders.entrySet()) {
             connection.addRequestProperty(entry.getKey(), entry.getValue());
         }
+    }
+
+    private static ClientProtocolCompatibilityVersion clientProtocolCompatibilityVersionFor(
+            String protocolVersion
+    ) {
+        String normalizedProtocol = normalizeProtocol(protocolVersion);
+        if (normalizedProtocol == null) {
+            return null;
+        }
+
+        return CLIENT_PROTOCOL_COMPATIBILITY_VERSIONS.get(normalizedProtocol);
     }
 
     private static void addCustomRequestHeaders(
@@ -140,5 +268,44 @@ final class TusProtocol {
         }
 
         connection.setRequestProperty(REQUEST_ID_HEADER_NAME, UUID.randomUUID().toString());
+    }
+
+    private static final class ClientProtocolCompatibilityVersion {
+        private final Map<String, String> requestHeaders;
+        private final Map<String, String> responseHeaders;
+        private final String uploadBodyContentType;
+        private final UploadCompleteHeader uploadCompleteHeader;
+
+        ClientProtocolCompatibilityVersion(
+                Map<String, String> requestHeaders,
+                Map<String, String> responseHeaders,
+                String uploadBodyContentType,
+                UploadCompleteHeader uploadCompleteHeader
+        ) {
+            this.requestHeaders = requestHeaders;
+            this.responseHeaders = responseHeaders;
+            this.uploadBodyContentType = uploadBodyContentType;
+            this.uploadCompleteHeader = uploadCompleteHeader;
+        }
+    }
+
+    private static final class UploadCompleteHeader {
+        private final String name;
+        private final String completeValue;
+        private final String incompleteValue;
+
+        UploadCompleteHeader(String name, String completeValue, String incompleteValue) {
+            this.name = name;
+            this.completeValue = completeValue;
+            this.incompleteValue = incompleteValue;
+        }
+
+        private String value(boolean done) {
+            if (done) {
+                return completeValue;
+            }
+
+            return incompleteValue;
+        }
     }
 }

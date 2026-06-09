@@ -72,6 +72,12 @@ tasks.register('api2DevdockTusParallelUploadConcat', JavaExec) {
     workingDir = rootProject.projectDir
 }
 
+tasks.register('api2DevdockTusProtocolVersionSelection', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusProtocolVersionSelection'
+    workingDir = rootProject.projectDir
+}
+
 tasks.register('api2DevdockTusRequestLifecycleHooks', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'io.tus.java.example.Api2DevdockTusRequestLifecycleHooks'

@@ -28,6 +28,7 @@ public class TusClient {
     private boolean addRequestId;
     private TusURLStore urlStore;
     private Map<String, String> headers;
+    private String protocol = TusProtocol.DEFAULT_CLIENT_PROTOCOL;
     private int connectTimeout = 5000;
     private TusRequestLifecycleHooks requestLifecycleHooks;
     private volatile HttpURLConnection currentConnection;
@@ -167,6 +168,31 @@ public class TusClient {
     @Nullable
     public Map<String, String> getHeaders() {
         return headers;
+    }
+
+    /**
+     * Select the TUS client protocol mode used for generated protocol headers.
+     *
+     * @param protocol The protocol mode, e.g. {@code tus-v1} or {@code ietf-draft-05}.
+     */
+    public void setProtocol(@Nullable String protocol) {
+        final String normalizedProtocol = TusProtocol.normalizeProtocol(protocol);
+        if (normalizedProtocol == null) {
+            throw new IllegalArgumentException(
+                    TusProtocol.START_OPTION_VALIDATION_UNSUPPORTED_PROTOCOL_PREFIX + protocol
+            );
+        }
+
+        this.protocol = normalizedProtocol;
+    }
+
+    /**
+     * Return the selected TUS client protocol mode.
+     *
+     * @return The selected protocol mode.
+     */
+    public String getProtocol() {
+        return protocol;
     }
 
     /**
@@ -363,10 +389,7 @@ public class TusClient {
         prepareUploadCreationHeaders(connection, upload);
 
         if (bytesToUpload > 0) {
-            connection.setRequestProperty(
-                    TusProtocol.UPLOAD_BODY_CONTENT_TYPE_HEADER_NAME,
-                    TusProtocol.UPLOAD_BODY_CONTENT_TYPE
-            );
+            prepareUploadBodyHeaders(connection, bytesToUpload >= upload.getSize());
             connection.setDoOutput(true);
             connection.setFixedLengthStreamingMode(bytesToUpload);
         }
@@ -533,6 +556,30 @@ public class TusClient {
         if (encodedMetadata.length() > 0) {
             connection.setRequestProperty(TusProtocol.METADATA_HEADER_NAME, encodedMetadata);
         }
+    }
+
+    private void prepareUploadBodyHeaders(
+            @NotNull HttpURLConnection connection,
+            boolean requestCompletesUpload
+    ) {
+        final String contentType = TusProtocol.protocolUploadBodyContentType(protocol);
+        if (contentType != null) {
+            connection.setRequestProperty(
+                    TusProtocol.UPLOAD_BODY_CONTENT_TYPE_HEADER_NAME,
+                    contentType
+            );
+        }
+
+        final String uploadCompleteHeaderName =
+                TusProtocol.protocolUploadCompleteHeaderName(protocol);
+        if (uploadCompleteHeaderName == null) {
+            return;
+        }
+
+        connection.setRequestProperty(
+                uploadCompleteHeaderName,
+                TusProtocol.protocolUploadCompleteHeaderValue(protocol, requestCompletesUpload)
+        );
     }
 
     private static String finalUploadConcatValue(@NotNull List<URL> uploadURLs) {
@@ -814,7 +861,7 @@ public class TusClient {
         connection.setInstanceFollowRedirects(Boolean.getBoolean("http.strictPostRedirect"));
 
         connection.setConnectTimeout(connectTimeout);
-        TusProtocol.prepareRequestHeaders(connection, headers, addRequestId);
+        TusProtocol.prepareRequestHeaders(connection, headers, addRequestId, protocol);
     }
 
     final void runBeforeRequest(

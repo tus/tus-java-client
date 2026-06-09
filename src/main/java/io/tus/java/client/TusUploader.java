@@ -129,10 +129,7 @@ public class TusUploader {
             connection.setRequestProperty(TusProtocol.UPLOAD_LENGTH_HEADER_NAME, Long.toString(upload.getSize()));
             requestDeclaresUploadLength = true;
         }
-        connection.setRequestProperty(
-                TusProtocol.UPLOAD_BODY_CONTENT_TYPE_HEADER_NAME,
-                TusProtocol.UPLOAD_BODY_CONTENT_TYPE
-        );
+        prepareUploadBodyHeaders(connection);
         connection.setRequestProperty("Expect", "100-continue");
 
         try {
@@ -234,6 +231,34 @@ public class TusUploader {
         }
 
         return offset + requestPayloadSize >= upload.getSize();
+    }
+
+    private void prepareUploadBodyHeaders(HttpURLConnection connection) {
+        final String contentType = TusProtocol.protocolUploadBodyContentType(client.getProtocol());
+        if (contentType != null) {
+            connection.setRequestProperty(
+                    TusProtocol.UPLOAD_BODY_CONTENT_TYPE_HEADER_NAME,
+                    contentType
+            );
+        }
+
+        final String uploadCompleteHeaderName =
+                TusProtocol.protocolUploadCompleteHeaderName(client.getProtocol());
+        if (uploadCompleteHeaderName == null) {
+            return;
+        }
+
+        connection.setRequestProperty(
+                uploadCompleteHeaderName,
+                TusProtocol.protocolUploadCompleteHeaderValue(
+                        client.getProtocol(),
+                        requestCompletesUpload()
+                )
+        );
+    }
+
+    private boolean requestCompletesUpload() {
+        return upload.getSize() > 0 && offset + requestPayloadSize >= upload.getSize();
     }
 
     /**

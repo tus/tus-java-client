@@ -12,7 +12,7 @@ final class TusStartOptionValidator {
             );
         }
 
-        if (!TusProtocol.DEFAULT_PROTOCOL_VERSION.equals(options.getProtocol())) {
+        if (!TusProtocol.isSupportedProtocol(options.getProtocol())) {
             throw new IllegalArgumentException(
                     TusProtocol.START_OPTION_VALIDATION_UNSUPPORTED_PROTOCOL_PREFIX
                             + options.getProtocol()
