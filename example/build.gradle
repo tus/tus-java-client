@@ -48,6 +48,12 @@ tasks.register('api2DevdockTusRetryStateTransitions', JavaExec) {
     workingDir = rootProject.projectDir
 }
 
+tasks.register('api2DevdockTusDetailedError', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusDetailedError'
+    workingDir = rootProject.projectDir
+}
+
 tasks.register('api2DevdockTusRequestLifecycleHooks', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'io.tus.java.example.Api2DevdockTusRequestLifecycleHooks'

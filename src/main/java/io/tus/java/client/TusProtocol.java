@@ -17,6 +17,20 @@ import java.util.UUID;
  */
 final class TusProtocol {
     static final String CREATE_UPLOAD_METHOD = "POST";
+    static final String DETAILED_ERROR_CAUSE_STRING_TEMPLATE =
+            "Error: {message}";
+    static final String DETAILED_ERROR_CAUSED_BY_TEMPLATE =
+            ", caused by {cause}";
+    static final String DETAILED_ERROR_CREATE_UPLOAD_REQUEST_FAILED =
+            "tus: failed to create upload";
+    static final String DETAILED_ERROR_EMPTY_RESPONSE_BODY =
+            "";
+    static final String DETAILED_ERROR_MISSING_VALUE =
+            "n/a";
+    static final String DETAILED_ERROR_REQUEST_CONTEXT_TEMPLATE =
+            ", originated from request (method: {method}, url: {url}, response code: {status}, response text: {body}, request id: {requestId})";
+    static final String DETAILED_ERROR_UNEXPECTED_CREATE_RESPONSE =
+            "tus: unexpected response while creating upload";
     static final String DEFAULT_PROTOCOL_VERSION = "1.0.0";
     static final Map<String, String> DEFAULT_REQUEST_HEADERS = defaultRequestHeaders();
     static final Map<String, String> DEFAULT_RESPONSE_HEADERS = defaultResponseHeaders();
@@ -39,6 +53,14 @@ final class TusProtocol {
     static boolean isSuccessfulResponseStatus(int responseStatusCode) {
         return responseStatusCode >= SUCCESS_RESPONSE_STATUS_CATEGORY
                 && responseStatusCode < SUCCESS_RESPONSE_STATUS_CATEGORY + 100;
+    }
+
+    static String formatDetailedErrorMessage(String template, Map<String, String> values) {
+        String result = template;
+        for (Map.Entry<String, String> entry : values.entrySet()) {
+            result = result.replace("{" + entry.getKey() + "}", entry.getValue());
+        }
+        return result;
     }
 
     static void prepareRequestHeaders(

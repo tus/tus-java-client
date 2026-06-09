@@ -300,17 +300,38 @@ public class TusClient {
         }
 
         runBeforeRequest(TusProtocol.CREATE_UPLOAD_METHOD, connection);
-        if (bytesToUpload > 0) {
-            writeUploadCreationData(connection, upload, bytesToUpload);
-        } else {
-            connection.connect();
+        TusRequestSnapshot requestSnapshot = TusRequestSnapshot.fromConnection(connection);
+        try {
+            if (bytesToUpload > 0) {
+                writeUploadCreationData(connection, upload, bytesToUpload);
+            } else {
+                connection.connect();
+            }
+        } catch (IOException error) {
+            throw TusDetailedErrors.requestException(
+                    TusProtocol.DETAILED_ERROR_CREATE_UPLOAD_REQUEST_FAILED,
+                    requestSnapshot,
+                    error
+            );
         }
 
-        int responseCode = connection.getResponseCode();
+        int responseCode;
+        try {
+            responseCode = connection.getResponseCode();
+        } catch (IOException error) {
+            throw TusDetailedErrors.requestException(
+                    TusProtocol.DETAILED_ERROR_CREATE_UPLOAD_REQUEST_FAILED,
+                    requestSnapshot,
+                    error
+            );
+        }
         runAfterResponse(TusProtocol.CREATE_UPLOAD_METHOD, connection);
         if (!TusProtocol.isSuccessfulResponseStatus(responseCode)) {
-            throw new ProtocolException(
-                    "unexpected status code (" + responseCode + ") while creating upload", connection);
+            throw TusDetailedErrors.responseException(
+                    TusProtocol.DETAILED_ERROR_UNEXPECTED_CREATE_RESPONSE,
+                    requestSnapshot,
+                    connection
+            );
         }
 
         String urlStr = connection.getHeaderField(TusProtocol.LOCATION_HEADER_NAME);
@@ -445,7 +466,7 @@ public class TusClient {
     }
 
     @NotNull
-    private HttpURLConnection openConnection(@NotNull URL uploadURL) throws IOException {
+    protected HttpURLConnection openConnection(@NotNull URL uploadURL) throws IOException {
         if (proxy != null) {
             return (HttpURLConnection) uploadURL.openConnection(proxy);
         }

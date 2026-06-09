@@ -301,6 +301,94 @@ public class TestTusClient extends MockServerProvider {
     }
 
     /**
+     * Tests if create-upload response failures expose detailed request and response context.
+     * @throws Exception if unreachable code has been reached.
+     */
+    @Test
+    public void testCreateUploadWithDetailedResponseError() throws Exception {
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files")
+                .withHeader("Upload-Length", "10")
+                .withHeader("X-Request-ID", "contract-request-id")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
+                        .withStatusCode(500)
+                        .withBody("server_error")));
+
+        Map<String, String> headers = new LinkedHashMap<String, String>();
+        headers.put("X-Request-ID", "contract-request-id");
+
+        TusClient client = new TusClient();
+        client.setHeaders(headers);
+        client.setUploadCreationURL(mockServerURL);
+        TusUpload upload = new TusUpload();
+        upload.setSize(10);
+        upload.setInputStream(new ByteArrayInputStream(new byte[10]));
+        try {
+            client.createUpload(upload);
+            throw new Exception("unreachable code reached");
+        } catch (TusResponseException error) {
+            assertEquals(
+                    "tus: unexpected response while creating upload, originated from request "
+                            + "(method: POST, url: "
+                            + mockServerURL
+                            + ", response code: 500, response text: server_error, request id: "
+                            + "contract-request-id)",
+                    error.getMessage()
+            );
+            assertNull(error.getCausingError());
+            assertEquals("POST", error.getOriginalRequestMethod());
+            assertEquals("contract-request-id", error.getOriginalRequestId());
+            assertEquals(mockServerURL, error.getOriginalRequestURL());
+            assertTrue(error.hasOriginalResponse());
+            assertEquals("server_error", error.getOriginalResponseBody());
+            assertEquals(500, error.getOriginalResponseStatus());
+        }
+    }
+
+    /**
+     * Tests if create-upload request failures expose detailed request context.
+     * @throws Exception if unreachable code has been reached.
+     */
+    @Test
+    public void testCreateUploadWithDetailedRequestError() throws Exception {
+        Map<String, String> headers = new LinkedHashMap<String, String>();
+        headers.put("X-Request-ID", "contract-request-id");
+
+        TusClient client = new TusClient() {
+            @Override
+            protected HttpURLConnection openConnection(URL uploadURL) {
+                return new FailingHttpURLConnection(uploadURL, "socket down");
+            }
+        };
+        client.setHeaders(headers);
+        client.setUploadCreationURL(mockServerURL);
+        TusUpload upload = new TusUpload();
+        upload.setSize(10);
+        upload.setInputStream(new ByteArrayInputStream(new byte[10]));
+        try {
+            client.createUpload(upload);
+            throw new Exception("unreachable code reached");
+        } catch (TusRequestException error) {
+            assertEquals(
+                    "tus: failed to create upload, caused by Error: socket down, "
+                            + "originated from request (method: POST, url: "
+                            + mockServerURL
+                            + ", response code: n/a, response text: n/a, request id: "
+                            + "contract-request-id)",
+                    error.getMessage()
+            );
+            assertEquals("socket down", error.getCausingError().getMessage());
+            assertEquals("POST", error.getOriginalRequestMethod());
+            assertEquals("contract-request-id", error.getOriginalRequestId());
+            assertEquals(mockServerURL, error.getOriginalRequestURL());
+            assertFalse(error.hasOriginalResponse());
+            assertEquals(TusProtocol.DETAILED_ERROR_MISSING_VALUE, error.getOriginalResponseBody());
+            assertEquals(-1, error.getOriginalResponseStatus());
+        }
+    }
+
+    /**
      * Tests if uploads with relative upload destinations are working.
      * @throws Exception
      */
@@ -722,5 +810,31 @@ public class TestTusClient extends MockServerProvider {
 
         assertNull(store.get("fingerprint"));
 
+    }
+
+    /**
+     * A mocked HttpURLConnection which fails while connecting.
+     */
+    private static final class FailingHttpURLConnection extends HttpURLConnection {
+        private final String errorMessage;
+
+        FailingHttpURLConnection(URL url, String errorMessage) {
+            super(url);
+            this.errorMessage = errorMessage;
+        }
+
+        @Override
+        public void connect() throws IOException {
+            throw new IOException(errorMessage);
+        }
+
+        @Override
+        public void disconnect() {
+        }
+
+        @Override
+        public boolean usingProxy() {
+            return false;
+        }
     }
 }
