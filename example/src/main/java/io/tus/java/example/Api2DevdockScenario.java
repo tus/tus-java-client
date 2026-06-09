@@ -99,12 +99,19 @@ final class Api2DevdockScenario {
 
     static byte[] conformanceInputSourceBytes(JSONObject conformanceScenario) {
         final JSONObject inputSource = conformanceScenario.getJSONObject("inputSource");
-        final String kind = inputSource.getString("kind");
-        if (!"blob".equals(kind)) {
-            throw new IllegalArgumentException("unsupported conformance input source kind " + kind);
+        if (!inputSource.has("content")) {
+            throw new IllegalArgumentException(
+                    "unsupported conformance input source kind "
+                            + inputSource.getString("kind")
+                            + " without content"
+            );
         }
 
         return inputSource.getString("content").getBytes(StandardCharsets.UTF_8);
+    }
+
+    static String conformanceInputSourceKind(JSONObject conformanceScenario) {
+        return conformanceScenario.getJSONObject("inputSource").getString("kind");
     }
 
     static Map<String, String> conformanceInputStringMapOption(

@@ -200,7 +200,7 @@ final class Api2DevdockTusConformanceServer implements AutoCloseable {
 
     private static byte[] inputSourceContent(JSONObject conformanceScenario) {
         final JSONObject inputSource = conformanceScenario.optJSONObject("inputSource");
-        if (inputSource == null || !"blob".equals(inputSource.optString("kind"))) {
+        if (inputSource == null || !inputSource.has("content")) {
             return null;
         }
 

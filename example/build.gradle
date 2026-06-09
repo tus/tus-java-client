@@ -78,6 +78,12 @@ tasks.register('api2DevdockTusProtocolVersionSelection', JavaExec) {
     workingDir = rootProject.projectDir
 }
 
+tasks.register('api2DevdockTusNodePathInputSource', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusNodePathInputSource'
+    workingDir = rootProject.projectDir
+}
+
 tasks.register('api2DevdockTusRequestLifecycleHooks', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'io.tus.java.example.Api2DevdockTusRequestLifecycleHooks'
