@@ -226,6 +226,16 @@ public class TusClient {
     }
 
     /**
+     * Validate TUS start options before issuing any HTTP request.
+     *
+     * @param options The start options to validate.
+     * @throws IllegalArgumentException Thrown when the options contain a known conflict.
+     */
+    public void validateStartOptions(@NotNull TusStartOptions options) {
+        TusStartOptionValidator.validate(options);
+    }
+
+    /**
      * Create a new upload using the Creation extension. Before calling this function, an "upload
      * creation URL" must be defined using {@link #setUploadCreationURL(URL)} or else this
      * function will fail.

@@ -389,6 +389,51 @@ public class TestTusClient extends MockServerProvider {
     }
 
     /**
+     * Tests if start option validation rejects parallel uploads with an upload URL.
+     * @throws MalformedURLException if the provided URL is malformed.
+     */
+    @Test
+    public void testValidateStartOptionsRejectsParallelUploadsWithUploadURL()
+            throws MalformedURLException {
+        TusStartOptions options = validStartOptions();
+        options.setParallelUploads(TusProtocol.MINIMUM_PARALLEL_UPLOADS);
+        options.setUploadURL(new URL("https://tus.io/uploads/start-validation-upload-url"));
+
+        try {
+            new TusClient().validateStartOptions(options);
+            fail("start option validation unexpectedly succeeded");
+        } catch (IllegalArgumentException error) {
+            assertEquals(
+                    TusProtocol.START_OPTION_VALIDATION_PARALLEL_UPLOADS_WITH_UPLOAD_URL,
+                    error.getMessage()
+            );
+        }
+    }
+
+    /**
+     * Tests if start option validation rejects parallel uploads with creation data.
+     * @throws MalformedURLException if the provided URL is malformed.
+     */
+    @Test
+    public void testValidateStartOptionsRejectsParallelUploadsWithUploadDataDuringCreation()
+            throws MalformedURLException {
+        TusStartOptions options = validStartOptions();
+        options.setParallelUploads(TusProtocol.MINIMUM_PARALLEL_UPLOADS);
+        options.setUploadDataDuringCreation(true);
+
+        try {
+            new TusClient().validateStartOptions(options);
+            fail("start option validation unexpectedly succeeded");
+        } catch (IllegalArgumentException error) {
+            assertEquals(
+                    TusProtocol
+                            .START_OPTION_VALIDATION_PARALLEL_UPLOADS_WITH_UPLOAD_DATA_DURING_CREATION,
+                    error.getMessage()
+            );
+        }
+    }
+
+    /**
      * Tests if uploads with relative upload destinations are working.
      * @throws Exception
      */
@@ -836,5 +881,16 @@ public class TestTusClient extends MockServerProvider {
         public boolean usingProxy() {
             return false;
         }
+    }
+
+    private static TusStartOptions validStartOptions() throws MalformedURLException {
+        TusUpload upload = new TusUpload();
+        upload.setSize(11);
+        upload.setInputStream(new ByteArrayInputStream(new byte[11]));
+
+        TusStartOptions options = new TusStartOptions();
+        options.setEndpointURL(new URL("https://tus.io/uploads"));
+        options.setUpload(upload);
+        return options;
     }
 }

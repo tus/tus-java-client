@@ -124,6 +124,53 @@ final class Api2DevdockScenario {
         return scalarString(conformanceInputOption(conformanceScenario, key));
     }
 
+    static boolean conformanceInputBooleanOption(
+            JSONObject conformanceScenario,
+            String key,
+            boolean defaultValue
+    ) {
+        final Object value = conformanceInputOptionOrNull(conformanceScenario, key);
+        if (value == null || JSONObject.NULL.equals(value)) {
+            return defaultValue;
+        }
+
+        if (!(value instanceof Boolean)) {
+            throw new IllegalArgumentException(
+                    "conformance input option " + key + " is not a boolean"
+            );
+        }
+
+        return ((Boolean) value).booleanValue();
+    }
+
+    static int conformanceInputIntegerOption(
+            JSONObject conformanceScenario,
+            String key,
+            int defaultValue
+    ) {
+        final Object value = conformanceInputOptionOrNull(conformanceScenario, key);
+        if (value == null || JSONObject.NULL.equals(value)) {
+            return defaultValue;
+        }
+
+        if (!(value instanceof Number)) {
+            throw new IllegalArgumentException(
+                    "conformance input option " + key + " is not a number"
+            );
+        }
+
+        return ((Number) value).intValue();
+    }
+
+    static String conformanceInputStringOptionOrNull(JSONObject conformanceScenario, String key) {
+        final Object value = conformanceInputOptionOrNull(conformanceScenario, key);
+        if (value == null || JSONObject.NULL.equals(value)) {
+            return null;
+        }
+
+        return scalarString(value);
+    }
+
     static byte[] scenarioBytes(JSONObject uploadConfig) {
         final JSONObject source = uploadConfig.getJSONObject("source");
         final String kind = source.getString("kind");
@@ -140,6 +187,15 @@ final class Api2DevdockScenario {
     }
 
     private static Object conformanceInputOption(JSONObject conformanceScenario, String key) {
+        final Object value = conformanceInputOptionOrNull(conformanceScenario, key);
+        if (value != null) {
+            return value;
+        }
+
+        throw new IllegalArgumentException("missing conformance input option " + key);
+    }
+
+    private static Object conformanceInputOptionOrNull(JSONObject conformanceScenario, String key) {
         final JSONArray entries = conformanceScenario.getJSONArray("inputOptionEntries");
         for (int index = 0; index < entries.length(); index++) {
             final JSONObject entry = entries.getJSONObject(index);
@@ -148,7 +204,7 @@ final class Api2DevdockScenario {
             }
         }
 
-        throw new IllegalArgumentException("missing conformance input option " + key);
+        return null;
     }
 
     private static JSONObject conformanceInputJSONObjectOption(

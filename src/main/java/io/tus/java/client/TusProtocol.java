@@ -32,12 +32,34 @@ final class TusProtocol {
     static final String DETAILED_ERROR_UNEXPECTED_CREATE_RESPONSE =
             "tus: unexpected response while creating upload";
     static final String DEFAULT_PROTOCOL_VERSION = "1.0.0";
+    static final int DEFAULT_PARALLEL_UPLOADS = 1;
     static final Map<String, String> DEFAULT_REQUEST_HEADERS = defaultRequestHeaders();
     static final Map<String, String> DEFAULT_RESPONSE_HEADERS = defaultResponseHeaders();
     static final String LOCATION_HEADER_NAME = "Location";
     static final String METADATA_HEADER_NAME = "Upload-Metadata";
+    static final int MINIMUM_PARALLEL_UPLOADS = 2;
     static final String OFFSET_DISCOVERY_METHOD = "HEAD";
     static final String REQUEST_ID_HEADER_NAME = "X-Request-ID";
+    static final String START_OPTION_VALIDATION_MISSING_ENDPOINT_OR_UPLOAD_URL =
+            "tus: neither an endpoint or an upload URL is provided";
+    static final String START_OPTION_VALIDATION_MISSING_INPUT =
+            "tus: no file or stream to upload provided";
+    static final String START_OPTION_VALIDATION_PARALLEL_BOUNDARIES_LENGTH_MISMATCH =
+            "tus: the `parallelUploadBoundaries` must have the same length as the value of `parallelUploads`";
+    static final String START_OPTION_VALIDATION_PARALLEL_BOUNDARIES_WITHOUT_PARALLEL_UPLOADS =
+            "tus: cannot use the `parallelUploadBoundaries` option when `parallelUploads` is disabled";
+    static final String START_OPTION_VALIDATION_PARALLEL_UPLOADS_WITH_DEFERRED_LENGTH =
+            "tus: cannot use the `uploadLengthDeferred` option when parallelUploads is enabled";
+    static final String START_OPTION_VALIDATION_PARALLEL_UPLOADS_WITH_UPLOAD_DATA_DURING_CREATION =
+            "tus: cannot use the `uploadDataDuringCreation` option when parallelUploads is enabled";
+    static final String START_OPTION_VALIDATION_PARALLEL_UPLOADS_WITH_UPLOAD_SIZE =
+            "tus: cannot use the `uploadSize` option when parallelUploads is enabled";
+    static final String START_OPTION_VALIDATION_PARALLEL_UPLOADS_WITH_UPLOAD_URL =
+            "tus: cannot use the `uploadUrl` option when parallelUploads is enabled";
+    static final String START_OPTION_VALIDATION_RETRY_DELAYS_NOT_ARRAY =
+            "tus: the `retryDelays` option must either be an array or null";
+    static final String START_OPTION_VALIDATION_UNSUPPORTED_PROTOCOL_PREFIX =
+            "tus: unsupported protocol ";
     static final int SUCCESS_RESPONSE_STATUS_CATEGORY = 200;
     static final String TERMINATE_UPLOAD_METHOD = "DELETE";
     static final String UPLOAD_BODY_CONTENT_TYPE = "application/offset+octet-stream";
