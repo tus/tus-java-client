@@ -29,6 +29,7 @@ public class TusClient {
     private Map<String, String> headers;
     private int connectTimeout = 5000;
     private TusRequestLifecycleHooks requestLifecycleHooks;
+    private volatile HttpURLConnection currentConnection;
 
     /**
      * Create a new tus client.
@@ -236,6 +237,38 @@ public class TusClient {
     }
 
     /**
+     * Abort the currently active request, if any.
+     */
+    public void abortUpload() {
+        abortCurrentRequest();
+    }
+
+    /**
+     * Abort an upload and optionally terminate the remote upload resource.
+     *
+     * @param uploader Uploader whose active request and upload URL should be aborted, or null to
+     *                 only abort the current request tracked by this client.
+     * @param terminateUpload True to issue a Termination request when the upload URL is known.
+     * @throws ProtocolException Thrown if the termination request receives an unexpected response.
+     * @throws IOException Thrown if the termination request fails.
+     */
+    public void abortUpload(@Nullable TusUploader uploader, boolean terminateUpload)
+            throws ProtocolException, IOException {
+        if (uploader == null) {
+            abortCurrentRequest();
+            return;
+        }
+
+        uploader.abort();
+        if (!terminateUpload) {
+            return;
+        }
+
+        terminateUpload(uploader.getUploadURL()).disconnect();
+        removeStoredUpload(uploader.getUpload());
+    }
+
+    /**
      * Create a new upload using the Creation extension. Before calling this function, an "upload
      * creation URL" must be defined using {@link #setUploadCreationURL(URL)} or else this
      * function will fail.
@@ -309,60 +342,65 @@ public class TusClient {
             connection.setFixedLengthStreamingMode(bytesToUpload);
         }
 
-        runBeforeRequest(TusProtocol.CREATE_UPLOAD_METHOD, connection);
-        TusRequestSnapshot requestSnapshot = TusRequestSnapshot.fromConnection(connection);
+        registerCurrentRequest(connection);
         try {
-            if (bytesToUpload > 0) {
-                writeUploadCreationData(connection, upload, bytesToUpload);
-            } else {
-                connection.connect();
+            runBeforeRequest(TusProtocol.CREATE_UPLOAD_METHOD, connection);
+            TusRequestSnapshot requestSnapshot = TusRequestSnapshot.fromConnection(connection);
+            try {
+                if (bytesToUpload > 0) {
+                    writeUploadCreationData(connection, upload, bytesToUpload);
+                } else {
+                    connection.connect();
+                }
+            } catch (IOException error) {
+                throw TusDetailedErrors.requestException(
+                        TusProtocol.DETAILED_ERROR_CREATE_UPLOAD_REQUEST_FAILED,
+                        requestSnapshot,
+                        error
+                );
             }
-        } catch (IOException error) {
-            throw TusDetailedErrors.requestException(
-                    TusProtocol.DETAILED_ERROR_CREATE_UPLOAD_REQUEST_FAILED,
-                    requestSnapshot,
-                    error
-            );
+
+            int responseCode;
+            try {
+                responseCode = connection.getResponseCode();
+            } catch (IOException error) {
+                throw TusDetailedErrors.requestException(
+                        TusProtocol.DETAILED_ERROR_CREATE_UPLOAD_REQUEST_FAILED,
+                        requestSnapshot,
+                        error
+                );
+            }
+            runAfterResponse(TusProtocol.CREATE_UPLOAD_METHOD, connection);
+            if (!TusProtocol.isSuccessfulResponseStatus(responseCode)) {
+                throw TusDetailedErrors.responseException(
+                        TusProtocol.DETAILED_ERROR_UNEXPECTED_CREATE_RESPONSE,
+                        requestSnapshot,
+                        connection
+                );
+            }
+
+            String urlStr = connection.getHeaderField(TusProtocol.LOCATION_HEADER_NAME);
+            if (urlStr == null || urlStr.length() == 0) {
+                throw new ProtocolException("missing upload URL in response for creating upload", connection);
+            }
+
+            // The upload URL must be relative to the URL of the request by which is was returned,
+            // not the upload creation URL. In most cases, there is no difference between those two
+            // but there may be cases in which the POST request is redirected.
+            URL uploadURL = new URL(connection.getURL(), urlStr);
+
+            long offset = bytesToUpload > 0
+                    ? readUploadCreationOffset(connection, bytesToUpload)
+                    : 0L;
+
+            if (resumingEnabled) {
+                urlStore.set(upload.getFingerprint(), uploadURL);
+            }
+
+            return createUploader(upload, uploadURL, offset, bytesToUpload > 0);
+        } finally {
+            clearCurrentRequest(connection);
         }
-
-        int responseCode;
-        try {
-            responseCode = connection.getResponseCode();
-        } catch (IOException error) {
-            throw TusDetailedErrors.requestException(
-                    TusProtocol.DETAILED_ERROR_CREATE_UPLOAD_REQUEST_FAILED,
-                    requestSnapshot,
-                    error
-            );
-        }
-        runAfterResponse(TusProtocol.CREATE_UPLOAD_METHOD, connection);
-        if (!TusProtocol.isSuccessfulResponseStatus(responseCode)) {
-            throw TusDetailedErrors.responseException(
-                    TusProtocol.DETAILED_ERROR_UNEXPECTED_CREATE_RESPONSE,
-                    requestSnapshot,
-                    connection
-            );
-        }
-
-        String urlStr = connection.getHeaderField(TusProtocol.LOCATION_HEADER_NAME);
-        if (urlStr == null || urlStr.length() == 0) {
-            throw new ProtocolException("missing upload URL in response for creating upload", connection);
-        }
-
-        // The upload URL must be relative to the URL of the request by which is was returned,
-        // not the upload creation URL. In most cases, there is no difference between those two
-        // but there may be cases in which the POST request is redirected.
-        URL uploadURL = new URL(connection.getURL(), urlStr);
-
-        long offset = bytesToUpload > 0
-                ? readUploadCreationOffset(connection, bytesToUpload)
-                : 0L;
-
-        if (resumingEnabled) {
-            urlStore.set(upload.getFingerprint(), uploadURL);
-        }
-
-        return createUploader(upload, uploadURL, offset, bytesToUpload > 0);
     }
 
     private static void prepareUploadCreationHeaders(
@@ -461,18 +499,23 @@ public class TusClient {
         connection.setRequestMethod(TusProtocol.TERMINATE_UPLOAD_METHOD);
         prepareConnection(connection);
 
-        runBeforeRequest(TusProtocol.TERMINATE_UPLOAD_METHOD, connection);
-        connection.connect();
+        registerCurrentRequest(connection);
+        try {
+            runBeforeRequest(TusProtocol.TERMINATE_UPLOAD_METHOD, connection);
+            connection.connect();
 
-        int responseCode = connection.getResponseCode();
-        runAfterResponse(TusProtocol.TERMINATE_UPLOAD_METHOD, connection);
-        if (!TusProtocol.isSuccessfulResponseStatus(responseCode)) {
-            throw new ProtocolException(
-                    "unexpected status code (" + responseCode + ") while terminating upload",
-                    connection);
+            int responseCode = connection.getResponseCode();
+            runAfterResponse(TusProtocol.TERMINATE_UPLOAD_METHOD, connection);
+            if (!TusProtocol.isSuccessfulResponseStatus(responseCode)) {
+                throw new ProtocolException(
+                        "unexpected status code (" + responseCode + ") while terminating upload",
+                        connection);
+            }
+
+            return connection;
+        } finally {
+            clearCurrentRequest(connection);
         }
-
-        return connection;
     }
 
     /**
@@ -575,23 +618,28 @@ public class TusClient {
         connection.setRequestMethod(TusProtocol.OFFSET_DISCOVERY_METHOD);
         prepareConnection(connection);
 
-        runBeforeRequest(TusProtocol.OFFSET_DISCOVERY_METHOD, connection);
-        connection.connect();
+        registerCurrentRequest(connection);
+        try {
+            runBeforeRequest(TusProtocol.OFFSET_DISCOVERY_METHOD, connection);
+            connection.connect();
 
-        int responseCode = connection.getResponseCode();
-        runAfterResponse(TusProtocol.OFFSET_DISCOVERY_METHOD, connection);
-        if (!TusProtocol.isSuccessfulResponseStatus(responseCode)) {
-            throw new ProtocolException(
-                    "unexpected status code (" + responseCode + ") while resuming upload", connection);
+            int responseCode = connection.getResponseCode();
+            runAfterResponse(TusProtocol.OFFSET_DISCOVERY_METHOD, connection);
+            if (!TusProtocol.isSuccessfulResponseStatus(responseCode)) {
+                throw new ProtocolException(
+                        "unexpected status code (" + responseCode + ") while resuming upload", connection);
+            }
+
+            String offsetStr = connection.getHeaderField(TusProtocol.UPLOAD_OFFSET_HEADER_NAME);
+            if (offsetStr == null || offsetStr.length() == 0) {
+                throw new ProtocolException("missing upload offset in response for resuming upload", connection);
+            }
+            long offset = Long.parseLong(offsetStr);
+
+            return createUploader(upload, uploadURL, offset);
+        } finally {
+            clearCurrentRequest(connection);
         }
-
-        String offsetStr = connection.getHeaderField(TusProtocol.UPLOAD_OFFSET_HEADER_NAME);
-        if (offsetStr == null || offsetStr.length() == 0) {
-            throw new ProtocolException("missing upload offset in response for resuming upload", connection);
-        }
-        long offset = Long.parseLong(offsetStr);
-
-        return createUploader(upload, uploadURL, offset);
     }
 
     /**
@@ -666,6 +714,31 @@ public class TusClient {
         requestLifecycleHooks.getAfterResponse().afterResponse(
                 new TusRequestLifecycleHooks.RequestContext(method, connection)
         );
+    }
+
+    final void registerCurrentRequest(@NotNull HttpURLConnection connection) {
+        currentConnection = connection;
+    }
+
+    final void clearCurrentRequest(@NotNull HttpURLConnection connection) {
+        if (currentConnection == connection) {
+            currentConnection = null;
+        }
+    }
+
+    private void abortCurrentRequest() {
+        HttpURLConnection connection = currentConnection;
+        if (connection != null) {
+            connection.disconnect();
+        }
+    }
+
+    private void removeStoredUpload(@NotNull TusUpload upload) {
+        if (!resumingEnabled) {
+            return;
+        }
+
+        urlStore.remove(upload.getFingerprint());
     }
 
     /**

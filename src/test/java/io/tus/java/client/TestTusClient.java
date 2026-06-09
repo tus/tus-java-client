@@ -703,6 +703,42 @@ public class TestTusClient extends MockServerProvider {
     }
 
     /**
+     * Tests if aborting with termination deletes the remote upload and removes stored fingerprints.
+     * @throws IOException if the upload cannot be constructed or terminated.
+     * @throws ProtocolException if the upload cannot be terminated.
+     */
+    @Test
+    public void testAbortUploadTerminatesAndRemovesFingerprint()
+            throws IOException, ProtocolException {
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
+                .withMethod("DELETE")
+                .withPath("/files/abort")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
+                        .withStatusCode(204)));
+
+        TusClient client = new TusClient();
+        TusURLStore store = new TusURLMemoryStore();
+        URL uploadURL = new URL(mockServerURL.toString() + "/abort");
+        store.set("fingerprint", uploadURL);
+        client.enableResuming(store);
+
+        TusUpload upload = new TusUpload();
+        upload.setSize(10);
+        upload.setInputStream(new ByteArrayInputStream(new byte[10]));
+        upload.setFingerprint("fingerprint");
+        TusUploader uploader = new TusUploader(client, upload, uploadURL, upload.getTusInputStream(), 0);
+
+        client.abortUpload(uploader, true);
+
+        assertTrue(uploader.isAborted());
+        assertNull(store.get("fingerprint"));
+        HttpRequest[] deleteRequests = mockServer.retrieveRecordedRequests(new HttpRequest()
+                .withMethod("DELETE")
+                .withPath("/files/abort"));
+        assertEquals(1, deleteRequests.length);
+    }
+
+    /**
      * Tests if connections are prepared correctly, which means all header are getting set.
      * @throws IOException
      */

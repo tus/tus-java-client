@@ -61,6 +61,7 @@ public class TusUploader {
     private boolean uploadLengthDeclared;
     private ProgressListener progressListener;
     private ChunkCompleteListener chunkCompleteListener;
+    private volatile boolean aborted;
 
     private HttpURLConnection connection;
     private OutputStream output;
@@ -122,6 +123,7 @@ public class TusUploader {
             connection = (HttpURLConnection) uploadURL.openConnection();
         }
         client.prepareConnection(connection);
+        client.registerCurrentRequest(connection);
         connection.setRequestProperty(TusProtocol.UPLOAD_OFFSET_HEADER_NAME, Long.toString(offset));
         if (shouldDeclareUploadLength()) {
             connection.setRequestProperty(TusProtocol.UPLOAD_LENGTH_HEADER_NAME, Long.toString(upload.getSize()));
@@ -144,6 +146,7 @@ public class TusUploader {
         connection.setDoOutput(true);
         connection.setChunkedStreamingMode(0);
         client.runBeforeRequest(TusProtocol.UPLOAD_CHUNK_METHOD, connection);
+        throwIfAborted();
         try {
             output = connection.getOutputStream();
         } catch (java.net.ProtocolException pe) {
@@ -266,11 +269,13 @@ public class TusUploader {
      *                      to the HTTP request.
      */
     public int uploadChunk() throws IOException, ProtocolException {
+        throwIfAborted();
         if (isUploadComplete()) {
             return -1;
         }
 
         openConnection();
+        throwIfAborted();
         notifyProgressAtRequestStart();
 
         int bytesToRead = Math.min(getChunkSize(), bytesRemainingForRequest);
@@ -284,8 +289,16 @@ public class TusUploader {
         // Do not write the entire buffer to the stream since the array will
         // be filled up with 0x00s if the number of read bytes is lower then
         // the chunk's size.
-        output.write(buffer, 0, bytesRead);
-        output.flush();
+        try {
+            output.write(buffer, 0, bytesRead);
+            output.flush();
+        } catch (IOException error) {
+            if (aborted) {
+                cleanupConnection();
+            }
+            throw error;
+        }
+        throwIfAborted();
 
         offset += bytesRead;
         bytesRemainingForRequest -= bytesRead;
@@ -324,11 +337,13 @@ public class TusUploader {
      *                      to the HTTP request.
      */
     @Deprecated public int uploadChunk(int chunkSize) throws IOException, ProtocolException {
+        throwIfAborted();
         if (isUploadComplete()) {
             return -1;
         }
 
         openConnection();
+        throwIfAborted();
 
         byte[] buf = new byte[chunkSize];
         int bytesRead = input.read(buf, chunkSize);
@@ -340,8 +355,16 @@ public class TusUploader {
         // Do not write the entire buffer to the stream since the array will
         // be filled up with 0x00s if the number of read bytes is lower then
         // the chunk's size.
-        output.write(buf, 0, bytesRead);
-        output.flush();
+        try {
+            output.write(buf, 0, bytesRead);
+            output.flush();
+        } catch (IOException error) {
+            if (aborted) {
+                cleanupConnection();
+            }
+            throw error;
+        }
+        throwIfAborted();
 
         offset += bytesRead;
 
@@ -365,6 +388,26 @@ public class TusUploader {
      */
     public URL getUploadURL() {
         return uploadURL;
+    }
+
+    /**
+     * Abort the active upload request, if any.
+     */
+    public void abort() {
+        aborted = true;
+        HttpURLConnection currentConnection = connection;
+        if (currentConnection != null) {
+            currentConnection.disconnect();
+        }
+    }
+
+    /**
+     * Get whether this uploader has been aborted.
+     *
+     * @return True when {@link #abort()} has been called.
+     */
+    public boolean isAborted() {
+        return aborted;
     }
 
     /**
@@ -424,13 +467,18 @@ public class TusUploader {
     }
 
     private void finishConnection() throws ProtocolException, IOException {
-        if (output != null) {
-            output.close();
+        if (aborted) {
+            cleanupConnection();
+            return;
         }
 
         if (connection != null) {
             HttpURLConnection currentConnection = connection;
             try {
+                if (output != null) {
+                    output.close();
+                }
+
                 int responseCode = currentConnection.getResponseCode();
                 client.runAfterResponse(TusProtocol.UPLOAD_CHUNK_METHOD, currentConnection);
 
@@ -461,13 +509,21 @@ public class TusUploader {
                 }
                 notifyChunkComplete(serverOffset - requestStartOffset, serverOffset);
             } finally {
-                currentConnection.disconnect();
-                connection = null;
-                output = null;
-                requestDeclaresUploadLength = false;
-                requestProgressStarted = false;
+                cleanupConnection();
             }
         }
+    }
+
+    private void cleanupConnection() {
+        HttpURLConnection currentConnection = connection;
+        if (currentConnection != null) {
+            currentConnection.disconnect();
+            client.clearCurrentRequest(currentConnection);
+        }
+        connection = null;
+        output = null;
+        requestDeclaresUploadLength = false;
+        requestProgressStarted = false;
     }
 
     private void notifyProgressAtRequestStart() {
@@ -503,6 +559,16 @@ public class TusUploader {
             return Long.parseLong(value);
         } catch (NumberFormatException e) {
             return -1;
+        }
+    }
+
+    TusUpload getUpload() {
+        return upload;
+    }
+
+    private void throwIfAborted() throws IOException {
+        if (aborted) {
+            throw new IOException("upload aborted");
         }
     }
 }

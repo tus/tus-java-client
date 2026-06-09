@@ -112,6 +112,27 @@ final class Api2DevdockScenario {
             String key
     ) {
         final JSONObject values = conformanceInputJSONObjectOption(conformanceScenario, key);
+        return scalarStringMap(values);
+    }
+
+    static Map<String, String> conformanceInputStringMapOptionOrEmpty(
+            JSONObject conformanceScenario,
+            String key
+    ) {
+        final Object value = conformanceInputOptionOrNull(conformanceScenario, key);
+        if (value == null || JSONObject.NULL.equals(value)) {
+            return new LinkedHashMap<String, String>();
+        }
+        if (!(value instanceof JSONObject)) {
+            throw new IllegalArgumentException(
+                    "conformance input option " + key + " is not an object"
+            );
+        }
+
+        return scalarStringMap((JSONObject) value);
+    }
+
+    private static Map<String, String> scalarStringMap(JSONObject values) {
         final Map<String, String> result = new LinkedHashMap<String, String>();
         for (String name : values.keySet()) {
             result.put(name, scalarString(values.get(name)));

@@ -16,20 +16,62 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 final class Api2DevdockTusConformanceServer implements AutoCloseable {
+    interface RequestAbortHandler {
+        void abortRequest(RequestAbortContext context) throws Exception;
+    }
+
+    static final class RequestAbortContext {
+        private final int requestIndex;
+        private final String method;
+        private final String url;
+
+        RequestAbortContext(int requestIndex, String method, String url) {
+            this.requestIndex = requestIndex;
+            this.method = method;
+            this.url = url;
+        }
+
+        int requestIndex() {
+            return requestIndex;
+        }
+
+        String method() {
+            return method;
+        }
+
+        String url() {
+            return url;
+        }
+    }
+
     private final URL endpointOrigin;
     private final List<JSONObject> requests;
     private final HttpServer server;
+    private final ExecutorService executor;
     private final List<String> errors;
     private final List<JSONObject> requestHeaders;
     private final List<String> requestMethods;
     private final List<String> requestUrls;
+    private final RequestAbortHandler requestAbortHandler;
     private int nextRequestIndex;
 
     Api2DevdockTusConformanceServer(JSONObject conformanceScenario, URL endpointOrigin)
             throws IOException {
+        this(conformanceScenario, endpointOrigin, null);
+    }
+
+    Api2DevdockTusConformanceServer(
+            JSONObject conformanceScenario,
+            URL endpointOrigin,
+            RequestAbortHandler requestAbortHandler
+    )
+            throws IOException {
         this.endpointOrigin = endpointOrigin;
+        this.requestAbortHandler = requestAbortHandler;
         this.requests = new ArrayList<JSONObject>();
         final JSONArray requestArray = conformanceScenario.getJSONArray("requests");
         for (int index = 0; index < requestArray.length(); index++) {
@@ -40,12 +82,14 @@ final class Api2DevdockTusConformanceServer implements AutoCloseable {
         this.requestMethods = new ArrayList<String>();
         this.requestUrls = new ArrayList<String>();
         this.server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        this.executor = Executors.newCachedThreadPool();
         server.createContext("/", new HttpHandler() {
             @Override
             public void handle(HttpExchange exchange) throws IOException {
                 handleRequest(exchange);
             }
         });
+        server.setExecutor(executor);
         server.start();
     }
 
@@ -68,6 +112,10 @@ final class Api2DevdockTusConformanceServer implements AutoCloseable {
                         + requests.size()
                         + " conformance request(s), got "
                         + nextRequestIndex
+                        + "; observed methods "
+                        + requestMethods
+                        + "; observed URLs "
+                        + requestUrls
         );
     }
 
@@ -101,12 +149,17 @@ final class Api2DevdockTusConformanceServer implements AutoCloseable {
     @Override
     public void close() {
         server.stop(0);
+        executor.shutdownNow();
     }
 
     private void handleRequest(HttpExchange exchange) throws IOException {
         try {
             final byte[] body = readRequestBody(exchange);
             final int requestIndex = observeRequest(exchange, body);
+            if (requests.get(requestIndex).optBoolean("abort", false)) {
+                abortRequest(exchange, requestIndex);
+                return;
+            }
             writeResponse(exchange, requests.get(requestIndex));
         } catch (Exception error) {
             errors.add(error.getMessage());
@@ -116,6 +169,19 @@ final class Api2DevdockTusConformanceServer implements AutoCloseable {
                 responseBody.write(body);
             }
         }
+    }
+
+    private void abortRequest(HttpExchange exchange, int requestIndex) throws Exception {
+        if (requestAbortHandler == null) {
+            throw new IllegalStateException("request " + requestIndex + " expected abort handler");
+        }
+
+        requestAbortHandler.abortRequest(new RequestAbortContext(
+                requestIndex,
+                requestMethods.get(requestIndex),
+                requestUrls.get(requestIndex)
+        ));
+        exchange.close();
     }
 
     private int observeRequest(HttpExchange exchange, byte[] body) throws IOException {

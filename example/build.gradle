@@ -54,6 +54,12 @@ tasks.register('api2DevdockTusDetailedError', JavaExec) {
     workingDir = rootProject.projectDir
 }
 
+tasks.register('api2DevdockTusAbortUpload', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusAbortUpload'
+    workingDir = rootProject.projectDir
+}
+
 tasks.register('api2DevdockTusStartOptionValidation', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'io.tus.java.example.Api2DevdockTusStartOptionValidation'
