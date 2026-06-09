@@ -22,6 +22,7 @@ final class Api2DevdockTusConformanceServer implements AutoCloseable {
     private final List<JSONObject> requests;
     private final HttpServer server;
     private final List<String> errors;
+    private final List<JSONObject> requestHeaders;
     private final List<String> requestMethods;
     private final List<String> requestUrls;
     private int nextRequestIndex;
@@ -35,6 +36,7 @@ final class Api2DevdockTusConformanceServer implements AutoCloseable {
             requests.add(requestArray.getJSONObject(index));
         }
         this.errors = new ArrayList<String>();
+        this.requestHeaders = new ArrayList<JSONObject>();
         this.requestMethods = new ArrayList<String>();
         this.requestUrls = new ArrayList<String>();
         this.server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
@@ -49,6 +51,10 @@ final class Api2DevdockTusConformanceServer implements AutoCloseable {
 
     URL endpointUrl() throws IOException {
         return localUrl(endpointOrigin.toString());
+    }
+
+    URL localUrlFor(String canonicalUrl) throws IOException {
+        return localUrl(canonicalUrl);
     }
 
     void assertExhausted() {
@@ -87,6 +93,7 @@ final class Api2DevdockTusConformanceServer implements AutoCloseable {
 
     JSONObject result() {
         return new JSONObject()
+                .put("requestHeaders", new JSONArray(requestHeaders))
                 .put("requestMethods", new JSONArray(requestMethods))
                 .put("requestUrls", new JSONArray(requestUrls));
     }
@@ -156,14 +163,12 @@ final class Api2DevdockTusConformanceServer implements AutoCloseable {
                             + body.length
             );
         }
-        assertHeaders(
-                requestIndex,
-                requestPlan.getJSONObject("effectiveHeaders"),
-                exchange.getRequestHeaders()
-        );
+        final JSONObject expectedHeaders = requestPlan.getJSONObject("effectiveHeaders");
+        assertHeaders(requestIndex, expectedHeaders, exchange.getRequestHeaders());
 
         requestMethods.add(exchange.getRequestMethod());
         requestUrls.add(actualUrl);
+        requestHeaders.add(capturedHeaders(expectedHeaders, exchange.getRequestHeaders()));
         nextRequestIndex += 1;
 
         return requestIndex;
@@ -188,6 +193,18 @@ final class Api2DevdockTusConformanceServer implements AutoCloseable {
                             + actualValue
             );
         }
+    }
+
+    private JSONObject capturedHeaders(JSONObject expectedHeaders, Headers actualHeaders) {
+        final JSONObject result = new JSONObject();
+        for (String name : expectedHeaders.keySet()) {
+            final String value = actualHeaders.getFirst(name);
+            if (value != null) {
+                result.put(name, value);
+            }
+        }
+
+        return result;
     }
 
     private void writeResponse(HttpExchange exchange, JSONObject requestPlan) throws IOException {
