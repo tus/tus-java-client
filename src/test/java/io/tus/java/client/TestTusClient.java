@@ -242,6 +242,79 @@ public class TestTusClient extends MockServerProvider {
     }
 
     /**
+     * Verifies if partial uploads can be created using the Concatenation extension.
+     * @throws IOException if upload data cannot be read.
+     * @throws ProtocolException if the upload cannot be constructed.
+     */
+    @Test
+    public void testCreatePartialUpload() throws IOException, ProtocolException {
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files")
+                .withHeader("Upload-Concat", "partial")
+                .withHeader("Upload-Metadata", "test d29ybGQ=")
+                .withHeader("Upload-Length", "5")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
+                        .withStatusCode(201)
+                        .withHeader("Location", mockServerURL + "/part-1")));
+
+        Map<String, String> metadata = new LinkedHashMap<String, String>();
+        metadata.put("test", "world");
+
+        TusClient client = new TusClient();
+        client.setUploadCreationURL(mockServerURL);
+        TusUpload upload = new TusUpload();
+        upload.setSize(5);
+        upload.setInputStream(new ByteArrayInputStream(new byte[5]));
+        upload.setMetadata(metadata);
+        TusUploader uploader = client.createPartialUpload(upload);
+
+        assertEquals(new URL(mockServerURL + "/part-1"), uploader.getUploadURL());
+    }
+
+    /**
+     * Verifies if partial uploads can be concatenated into a final upload.
+     * @throws IOException if the request cannot be issued.
+     * @throws ProtocolException if the final upload cannot be constructed.
+     */
+    @Test
+    public void testConcatenateUploads() throws IOException, ProtocolException {
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files")
+                .withHeader(
+                        "Upload-Concat",
+                        "final;"
+                                + mockServerURL
+                                + "/part-1 "
+                                + mockServerURL
+                                + "/part-2"
+                )
+                .withHeader("Upload-Metadata", "foo aGVsbG8=")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
+                        .withStatusCode(201)
+                        .withHeader("Location", mockServerURL + "/final")));
+
+        Map<String, String> metadata = new LinkedHashMap<String, String>();
+        metadata.put("foo", "hello");
+
+        TusClient client = new TusClient();
+        client.setUploadCreationURL(mockServerURL);
+        URL uploadURL = client.concatenateUploads(Arrays.asList(
+                new URL(mockServerURL + "/part-1"),
+                new URL(mockServerURL + "/part-2")
+        ), metadata);
+
+        HttpRequest[] requests = mockServer.retrieveRecordedRequests(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files"));
+
+        assertEquals(new URL(mockServerURL + "/final"), uploadURL);
+        assertEquals(1, requests.length);
+        assertFalse(requests[0].containsHeader("Upload-Length"));
+    }
+
+    /**
      * Verifies if uploads can be created with the tus client through a proxy.
      * @throws IOException if upload data cannot be read.
      * @throws ProtocolException if the upload cannot be constructed.

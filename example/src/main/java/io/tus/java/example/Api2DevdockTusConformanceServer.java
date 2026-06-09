@@ -49,15 +49,22 @@ final class Api2DevdockTusConformanceServer implements AutoCloseable {
     }
 
     private final URL endpointOrigin;
+    private final byte[] inputSourceContent;
     private final List<JSONObject> requests;
+    private final boolean[] observedRequests;
+    private final List<RequestGate> requestGates;
     private final HttpServer server;
     private final ExecutorService executor;
     private final List<String> errors;
-    private final List<JSONObject> requestHeaders;
-    private final List<String> requestMethods;
-    private final List<String> requestUrls;
+    private final JSONObject[] absentHeaderPresence;
+    private final Integer[] requestBodySizes;
+    private final Integer[] requestBodyStarts;
+    private final JSONObject[] requestHeaders;
+    private final String[] requestMethods;
+    private final String[] requestUrls;
     private final RequestAbortHandler requestAbortHandler;
-    private int nextRequestIndex;
+    private int nextSequentialRequestIndex;
+    private int observedRequestCount;
 
     Api2DevdockTusConformanceServer(JSONObject conformanceScenario, URL endpointOrigin)
             throws IOException {
@@ -72,15 +79,21 @@ final class Api2DevdockTusConformanceServer implements AutoCloseable {
             throws IOException {
         this.endpointOrigin = endpointOrigin;
         this.requestAbortHandler = requestAbortHandler;
+        this.inputSourceContent = inputSourceContent(conformanceScenario);
         this.requests = new ArrayList<JSONObject>();
         final JSONArray requestArray = conformanceScenario.getJSONArray("requests");
         for (int index = 0; index < requestArray.length(); index++) {
             requests.add(requestArray.getJSONObject(index));
         }
+        this.observedRequests = new boolean[requests.size()];
+        this.requestGates = requestGates(conformanceScenario);
         this.errors = new ArrayList<String>();
-        this.requestHeaders = new ArrayList<JSONObject>();
-        this.requestMethods = new ArrayList<String>();
-        this.requestUrls = new ArrayList<String>();
+        this.absentHeaderPresence = new JSONObject[requests.size()];
+        this.requestBodySizes = new Integer[requests.size()];
+        this.requestBodyStarts = new Integer[requests.size()];
+        this.requestHeaders = new JSONObject[requests.size()];
+        this.requestMethods = new String[requests.size()];
+        this.requestUrls = new String[requests.size()];
         this.server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         this.executor = Executors.newCachedThreadPool();
         server.createContext("/", new HttpHandler() {
@@ -103,7 +116,7 @@ final class Api2DevdockTusConformanceServer implements AutoCloseable {
 
     void assertExhausted() {
         assertNoErrors();
-        if (nextRequestIndex == requests.size()) {
+        if (observedRequestCount == requests.size()) {
             return;
         }
 
@@ -111,11 +124,11 @@ final class Api2DevdockTusConformanceServer implements AutoCloseable {
                 "expected "
                         + requests.size()
                         + " conformance request(s), got "
-                        + nextRequestIndex
+                        + observedRequestCount
                         + "; observed methods "
-                        + requestMethods
+                        + observedStrings(requestMethods)
                         + "; observed URLs "
-                        + requestUrls
+                        + observedStrings(requestUrls)
         );
     }
 
@@ -128,7 +141,7 @@ final class Api2DevdockTusConformanceServer implements AutoCloseable {
     }
 
     String canonicalUrl(String actualUrl) {
-        return actualUrl.replace(localOrigin(), canonicalOrigin());
+        return canonicalValue(actualUrl);
     }
 
     String errorSummary() {
@@ -141,15 +154,85 @@ final class Api2DevdockTusConformanceServer implements AutoCloseable {
 
     JSONObject result() {
         return new JSONObject()
-                .put("requestHeaders", new JSONArray(requestHeaders))
-                .put("requestMethods", new JSONArray(requestMethods))
-                .put("requestUrls", new JSONArray(requestUrls));
+                .put("absentHeaderPresence", observedObjects(absentHeaderPresence))
+                .put("requestBodySizes", observedIntegers(requestBodySizes))
+                .put("requestBodyStarts", observedIntegers(requestBodyStarts))
+                .put("requestHeaders", observedObjects(requestHeaders))
+                .put("requestMethods", observedStrings(requestMethods))
+                .put("requestUrls", observedStrings(requestUrls));
     }
 
     @Override
     public void close() {
         server.stop(0);
         executor.shutdownNow();
+    }
+
+    private static List<RequestGate> requestGates(JSONObject conformanceScenario) {
+        final List<RequestGate> result = new ArrayList<RequestGate>();
+        final JSONObject execution = conformanceScenario.optJSONObject("execution");
+        if (execution == null) {
+            return result;
+        }
+
+        final JSONArray gates = execution.optJSONArray("serverRequestGates");
+        if (gates == null) {
+            return result;
+        }
+
+        for (int index = 0; index < gates.length(); index++) {
+            result.add(new RequestGate(gates.getJSONObject(index)));
+        }
+
+        return result;
+    }
+
+    private JSONArray observedIntegers(Integer[] values) {
+        final JSONArray result = new JSONArray();
+        for (int index = 0; index < values.length; index++) {
+            if (observedRequests[index]) {
+                result.put(values[index] == null ? JSONObject.NULL : values[index]);
+            }
+        }
+
+        return result;
+    }
+
+    private static byte[] inputSourceContent(JSONObject conformanceScenario) {
+        final JSONObject inputSource = conformanceScenario.optJSONObject("inputSource");
+        if (inputSource == null || !"blob".equals(inputSource.optString("kind"))) {
+            return null;
+        }
+
+        return inputSource.getString("content").getBytes(StandardCharsets.UTF_8);
+    }
+
+    private void awaitRequestGate(int requestIndex) throws InterruptedException {
+        for (RequestGate gate : requestGates) {
+            gate.awaitIfHeld(requestIndex);
+        }
+    }
+
+    private JSONArray observedStrings(String[] values) {
+        final JSONArray result = new JSONArray();
+        for (int index = 0; index < values.length; index++) {
+            if (observedRequests[index]) {
+                result.put(values[index]);
+            }
+        }
+
+        return result;
+    }
+
+    private JSONArray observedObjects(JSONObject[] values) {
+        final JSONArray result = new JSONArray();
+        for (int index = 0; index < values.length; index++) {
+            if (observedRequests[index]) {
+                result.put(values[index]);
+            }
+        }
+
+        return result;
     }
 
     private void handleRequest(HttpExchange exchange) throws IOException {
@@ -160,6 +243,7 @@ final class Api2DevdockTusConformanceServer implements AutoCloseable {
                 abortRequest(exchange, requestIndex);
                 return;
             }
+            awaitRequestGate(requestIndex);
             writeResponse(exchange, requests.get(requestIndex));
         } catch (Exception error) {
             errors.add(error.getMessage());
@@ -178,14 +262,14 @@ final class Api2DevdockTusConformanceServer implements AutoCloseable {
 
         requestAbortHandler.abortRequest(new RequestAbortContext(
                 requestIndex,
-                requestMethods.get(requestIndex),
-                requestUrls.get(requestIndex)
+                requestMethods[requestIndex],
+                requestUrls[requestIndex]
         ));
         exchange.close();
     }
 
-    private int observeRequest(HttpExchange exchange, byte[] body) throws IOException {
-        if (nextRequestIndex >= requests.size()) {
+    private synchronized int observeRequest(HttpExchange exchange, byte[] body) throws IOException {
+        if (observedRequestCount >= requests.size()) {
             throw new IllegalStateException(
                     "unexpected request "
                             + exchange.getRequestMethod()
@@ -194,9 +278,98 @@ final class Api2DevdockTusConformanceServer implements AutoCloseable {
             );
         }
 
-        final int requestIndex = nextRequestIndex;
-        final JSONObject requestPlan = requests.get(requestIndex);
         final String actualUrl = canonicalRequestUrl(exchange.getRequestURI());
+        final int requestIndex = matchingRequestIndex(exchange, actualUrl, body);
+        if (requestIndex < 0) {
+            throw new IllegalStateException(
+                    "unexpected request "
+                            + exchange.getRequestMethod()
+                            + " "
+                            + actualUrl
+                            + "; next planned request "
+                            + nextSequentialRequestIndex
+            );
+        }
+        final JSONObject requestPlan = requests.get(requestIndex);
+        assertRequestMatchesPlan(requestIndex, requestPlan, exchange, actualUrl, body);
+        assertRequestBodyContent(requestIndex, requestPlan, body);
+        assertAbsentHeaders(requestIndex, requestPlan, exchange.getRequestHeaders());
+        final JSONObject expectedHeaders = requestPlan.getJSONObject("effectiveHeaders");
+        assertHeaders(requestIndex, expectedHeaders, exchange.getRequestHeaders());
+
+        absentHeaderPresence[requestIndex] = capturedAbsentHeaderPresence(
+                requestPlan,
+                exchange.getRequestHeaders()
+        );
+        requestBodySizes[requestIndex] = requestPlan.isNull("bodySize")
+                ? null
+                : Integer.valueOf(body.length);
+        requestBodyStarts[requestIndex] = requestPlan.has("bodyStart") && !requestPlan.isNull("bodyStart")
+                ? Integer.valueOf(requestPlan.getInt("bodyStart"))
+                : null;
+        requestMethods[requestIndex] = exchange.getRequestMethod();
+        requestUrls[requestIndex] = actualUrl;
+        requestHeaders[requestIndex] = capturedHeaders(expectedHeaders, exchange.getRequestHeaders());
+        observedRequests[requestIndex] = true;
+        observedRequestCount += 1;
+        while (
+                nextSequentialRequestIndex < observedRequests.length
+                        && observedRequests[nextSequentialRequestIndex]
+        ) {
+            nextSequentialRequestIndex += 1;
+        }
+
+        return requestIndex;
+    }
+
+    private int matchingRequestIndex(
+            HttpExchange exchange,
+            String actualUrl,
+            byte[] body
+    ) {
+        if (requestMatchesPlan(nextSequentialRequestIndex, exchange, actualUrl, body)) {
+            return nextSequentialRequestIndex;
+        }
+
+        for (RequestGate gate : requestGates) {
+            final int requestIndex = gate.matchingHeldRequestIndex(
+                    observedRequests,
+                    requests,
+                    exchange,
+                    actualUrl,
+                    body
+            );
+            if (requestIndex >= 0) {
+                return requestIndex;
+            }
+        }
+
+        return -1;
+    }
+
+    private boolean requestMatchesPlan(
+            int requestIndex,
+            HttpExchange exchange,
+            String actualUrl,
+            byte[] body
+    ) {
+        if (requestIndex < 0 || requestIndex >= requests.size() || observedRequests[requestIndex]) {
+            return false;
+        }
+
+        final JSONObject requestPlan = requests.get(requestIndex);
+        return requestPlan.getString("effectiveMethod").equals(exchange.getRequestMethod())
+                && requestPlan.getString("expectedUrl").equals(actualUrl)
+                && (requestPlan.isNull("bodySize") || body.length == requestPlan.getInt("bodySize"));
+    }
+
+    private void assertRequestMatchesPlan(
+            int requestIndex,
+            JSONObject requestPlan,
+            HttpExchange exchange,
+            String actualUrl,
+            byte[] body
+    ) {
         final String expectedUrl = requestPlan.getString("expectedUrl");
         final String expectedMethod = requestPlan.getString("effectiveMethod");
         if (!expectedMethod.equals(exchange.getRequestMethod())) {
@@ -229,20 +402,62 @@ final class Api2DevdockTusConformanceServer implements AutoCloseable {
                             + body.length
             );
         }
-        final JSONObject expectedHeaders = requestPlan.getJSONObject("effectiveHeaders");
-        assertHeaders(requestIndex, expectedHeaders, exchange.getRequestHeaders());
+    }
 
-        requestMethods.add(exchange.getRequestMethod());
-        requestUrls.add(actualUrl);
-        requestHeaders.add(capturedHeaders(expectedHeaders, exchange.getRequestHeaders()));
-        nextRequestIndex += 1;
+    private void assertRequestBodyContent(int requestIndex, JSONObject requestPlan, byte[] body) {
+        if (!requestPlan.has("bodyStart") || requestPlan.isNull("bodyStart") || inputSourceContent == null) {
+            return;
+        }
 
-        return requestIndex;
+        final int bodyStart = requestPlan.getInt("bodyStart");
+        if (bodyStart + body.length > inputSourceContent.length) {
+            throw new IllegalStateException(
+                    "request "
+                            + requestIndex
+                            + " body range "
+                            + bodyStart
+                            + ".."
+                            + (bodyStart + body.length)
+                            + " exceeds input source length "
+                            + inputSourceContent.length
+            );
+        }
+        for (int index = 0; index < body.length; index++) {
+            final byte expected = inputSourceContent[bodyStart + index];
+            if (body[index] == expected) {
+                continue;
+            }
+
+            throw new IllegalStateException(
+                    "request "
+                            + requestIndex
+                            + " body byte "
+                            + index
+                            + " expected "
+                            + expected
+                            + ", got "
+                            + body[index]
+            );
+        }
+    }
+
+    private void assertAbsentHeaders(int requestIndex, JSONObject requestPlan, Headers actualHeaders) {
+        final JSONArray absentHeaders = requestPlan.getJSONArray("absentHeaders");
+        for (int index = 0; index < absentHeaders.length(); index++) {
+            final String name = absentHeaders.getString(index);
+            if (actualHeaders.getFirst(name) == null) {
+                continue;
+            }
+
+            throw new IllegalStateException(
+                    "request " + requestIndex + " expected header " + name + " to be absent"
+            );
+        }
     }
 
     private void assertHeaders(int requestIndex, JSONObject expectedHeaders, Headers actualHeaders) {
         for (String name : expectedHeaders.keySet()) {
-            final String expectedValue = expectedHeaders.getString(name);
+            final String expectedValue = localValue(expectedHeaders.getString(name));
             final String actualValue = actualHeaders.getFirst(name);
             if (expectedValue.equals(actualValue)) {
                 continue;
@@ -266,8 +481,22 @@ final class Api2DevdockTusConformanceServer implements AutoCloseable {
         for (String name : expectedHeaders.keySet()) {
             final String value = actualHeaders.getFirst(name);
             if (value != null) {
-                result.put(name, value);
+                result.put(name, canonicalValue(value));
             }
+        }
+
+        return result;
+    }
+
+    private JSONObject capturedAbsentHeaderPresence(
+            JSONObject requestPlan,
+            Headers actualHeaders
+    ) {
+        final JSONObject result = new JSONObject();
+        final JSONArray absentHeaders = requestPlan.getJSONArray("absentHeaders");
+        for (int index = 0; index < absentHeaders.length(); index++) {
+            final String name = absentHeaders.getString(index);
+            result.put(name, actualHeaders.getFirst(name) != null);
         }
 
         return result;
@@ -302,6 +531,10 @@ final class Api2DevdockTusConformanceServer implements AutoCloseable {
         return value.replace(canonicalOrigin(), localOrigin());
     }
 
+    private String canonicalValue(String value) {
+        return value.replace(localOrigin(), canonicalOrigin());
+    }
+
     private String canonicalRequestUrl(URI requestUri) throws IOException {
         return new URL(endpointOrigin, requestUri.toString()).toString();
     }
@@ -324,6 +557,115 @@ final class Api2DevdockTusConformanceServer implements AutoCloseable {
     private String localOrigin() {
         final InetSocketAddress address = server.getAddress();
         return "http://" + address.getHostString() + ":" + address.getPort();
+    }
+
+    private static final class RequestGate {
+        private final List<Integer> heldRequestIndexes;
+        private final List<Integer> releaseAfterRequestIndexes;
+        private final long timeoutMs;
+        private final List<Integer> arrivedRequestIndexes;
+        private boolean released;
+
+        RequestGate(JSONObject gate) {
+            if (!"release-after-all-started".equals(gate.getString("kind"))) {
+                throw new IllegalArgumentException(
+                        "unsupported conformance server request gate " + gate.getString("kind")
+                );
+            }
+
+            heldRequestIndexes = integerList(gate.getJSONArray("heldRequestIndexes"));
+            releaseAfterRequestIndexes = integerList(gate.getJSONArray("releaseAfterRequestIndexes"));
+            timeoutMs = gate.getLong("timeoutMs");
+            arrivedRequestIndexes = new ArrayList<Integer>();
+        }
+
+        int matchingHeldRequestIndex(
+                boolean[] observedRequests,
+                List<JSONObject> requests,
+                HttpExchange exchange,
+                String actualUrl,
+                byte[] body
+        ) {
+            for (Integer requestIndex : heldRequestIndexes) {
+                final int index = requestIndex.intValue();
+                if (index < 0 || index >= requests.size() || observedRequests[index]) {
+                    continue;
+                }
+
+                final JSONObject requestPlan = requests.get(index);
+                if (!requestPlan.getString("effectiveMethod").equals(exchange.getRequestMethod())) {
+                    continue;
+                }
+                if (!requestPlan.getString("expectedUrl").equals(actualUrl)) {
+                    continue;
+                }
+                if (!requestPlan.isNull("bodySize") && body.length != requestPlan.getInt("bodySize")) {
+                    continue;
+                }
+
+                return index;
+            }
+
+            return -1;
+        }
+
+        synchronized void awaitIfHeld(int requestIndex) throws InterruptedException {
+            if (!contains(heldRequestIndexes, requestIndex)) {
+                return;
+            }
+
+            if (!contains(arrivedRequestIndexes, requestIndex)) {
+                arrivedRequestIndexes.add(Integer.valueOf(requestIndex));
+            }
+            if (containsAll(arrivedRequestIndexes, releaseAfterRequestIndexes)) {
+                released = true;
+                notifyAll();
+                return;
+            }
+
+            final long deadline = System.currentTimeMillis() + timeoutMs;
+            while (!released) {
+                final long remainingMs = deadline - System.currentTimeMillis();
+                if (remainingMs <= 0) {
+                    throw new IllegalStateException(
+                            "timed out waiting for conformance request gate; arrived "
+                                    + arrivedRequestIndexes
+                                    + ", expected "
+                                    + releaseAfterRequestIndexes
+                    );
+                }
+                wait(remainingMs);
+            }
+        }
+
+        private static List<Integer> integerList(JSONArray values) {
+            final List<Integer> result = new ArrayList<Integer>();
+            for (int index = 0; index < values.length(); index++) {
+                result.add(Integer.valueOf(values.getInt(index)));
+            }
+
+            return result;
+        }
+
+        private static boolean contains(List<Integer> values, int expected) {
+            for (Integer value : values) {
+                if (value.intValue() == expected) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static boolean containsAll(List<Integer> values, List<Integer> expectedValues) {
+            for (Integer expected : expectedValues) {
+                if (!contains(values, expected.intValue())) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 
     private Api2DevdockTusConformanceServer() {

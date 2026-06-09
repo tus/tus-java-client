@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -286,6 +287,20 @@ public class TusClient {
     }
 
     /**
+     * Create a partial upload using the Concatenation extension.
+     *
+     * @param upload The partial upload source.
+     * @return Use {@link TusUploader} to upload the partial file bytes.
+     * @throws ProtocolException Thrown if the remote server sent an unexpected response, e.g.
+     * wrong status codes or missing/invalid headers.
+     * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
+     */
+    public TusUploader createPartialUpload(@NotNull TusUpload upload)
+            throws ProtocolException, IOException {
+        return createUpload(upload, 0, true);
+    }
+
+    /**
      * Create a new upload and send the first bytes in the creation request using the
      * Creation With Upload extension. Before calling this function, an "upload creation URL"
      * must be defined using {@link #setUploadCreationURL(URL)} or else this function will fail.
@@ -328,9 +343,23 @@ public class TusClient {
             @NotNull TusUpload upload,
             int bytesToUpload
     ) throws ProtocolException, IOException {
+        return createUpload(upload, bytesToUpload, false);
+    }
+
+    private TusUploader createUpload(
+            @NotNull TusUpload upload,
+            int bytesToUpload,
+            boolean partialUpload
+    ) throws ProtocolException, IOException {
         HttpURLConnection connection = openConnection(uploadCreationURL);
         connection.setRequestMethod(TusProtocol.CREATE_UPLOAD_METHOD);
         prepareConnection(connection);
+        if (partialUpload) {
+            connection.setRequestProperty(
+                    TusProtocol.CONCATENATION_HEADER_NAME,
+                    TusProtocol.CONCATENATION_PARTIAL_VALUE
+            );
+        }
         prepareUploadCreationHeaders(connection, upload);
 
         if (bytesToUpload > 0) {
@@ -403,6 +432,80 @@ public class TusClient {
         }
     }
 
+    /**
+     * Create the final upload resource by concatenating partial upload URLs.
+     *
+     * @param uploadURLs Partial upload URLs in concatenation order.
+     * @param metadata Metadata for the final upload, or null.
+     * @return The final upload URL.
+     * @throws ProtocolException Thrown if the remote server sent an unexpected response, e.g.
+     * wrong status codes or missing/invalid headers.
+     * @throws IOException Thrown if an exception occurs while issuing the HTTP request.
+     */
+    public URL concatenateUploads(
+            @NotNull List<URL> uploadURLs,
+            @Nullable Map<String, String> metadata
+    ) throws ProtocolException, IOException {
+        if (uploadURLs.isEmpty()) {
+            throw new IllegalArgumentException("at least one partial upload URL is required");
+        }
+
+        HttpURLConnection connection = openConnection(uploadCreationURL);
+        connection.setRequestMethod(TusProtocol.CREATE_UPLOAD_METHOD);
+        prepareConnection(connection);
+        connection.setRequestProperty(
+                TusProtocol.CONCATENATION_HEADER_NAME,
+                finalUploadConcatValue(uploadURLs)
+        );
+        prepareUploadMetadataHeaders(connection, metadata);
+
+        registerCurrentRequest(connection);
+        try {
+            runBeforeRequest(TusProtocol.CREATE_UPLOAD_METHOD, connection);
+            TusRequestSnapshot requestSnapshot = TusRequestSnapshot.fromConnection(connection);
+            try {
+                connection.connect();
+            } catch (IOException error) {
+                throw TusDetailedErrors.requestException(
+                        TusProtocol.DETAILED_ERROR_CREATE_UPLOAD_REQUEST_FAILED,
+                        requestSnapshot,
+                        error
+                );
+            }
+
+            int responseCode;
+            try {
+                responseCode = connection.getResponseCode();
+            } catch (IOException error) {
+                throw TusDetailedErrors.requestException(
+                        TusProtocol.DETAILED_ERROR_CREATE_UPLOAD_REQUEST_FAILED,
+                        requestSnapshot,
+                        error
+                );
+            }
+            runAfterResponse(TusProtocol.CREATE_UPLOAD_METHOD, connection);
+            if (!TusProtocol.isSuccessfulResponseStatus(responseCode)) {
+                throw TusDetailedErrors.responseException(
+                        TusProtocol.DETAILED_ERROR_UNEXPECTED_CREATE_RESPONSE,
+                        requestSnapshot,
+                        connection
+                );
+            }
+
+            String urlStr = connection.getHeaderField(TusProtocol.LOCATION_HEADER_NAME);
+            if (urlStr == null || urlStr.length() == 0) {
+                throw new ProtocolException(
+                        "missing upload URL in response for concatenating uploads",
+                        connection
+                );
+            }
+
+            return new URL(connection.getURL(), urlStr);
+        } finally {
+            clearCurrentRequest(connection);
+        }
+    }
+
     private static void prepareUploadCreationHeaders(
             @NotNull HttpURLConnection connection,
             @NotNull TusUpload upload
@@ -420,6 +523,28 @@ public class TusClient {
                     Long.toString(upload.getSize())
             );
         }
+    }
+
+    private static void prepareUploadMetadataHeaders(
+            @NotNull HttpURLConnection connection,
+            @Nullable Map<String, String> metadata
+    ) {
+        String encodedMetadata = TusUpload.encodeMetadata(metadata);
+        if (encodedMetadata.length() > 0) {
+            connection.setRequestProperty(TusProtocol.METADATA_HEADER_NAME, encodedMetadata);
+        }
+    }
+
+    private static String finalUploadConcatValue(@NotNull List<URL> uploadURLs) {
+        StringBuilder value = new StringBuilder(TusProtocol.CONCATENATION_FINAL_PREFIX);
+        for (int index = 0; index < uploadURLs.size(); index++) {
+            if (index > 0) {
+                value.append(TusProtocol.CONCATENATION_UPLOAD_URL_SEPARATOR);
+            }
+            value.append(uploadURLs.get(index).toString());
+        }
+
+        return value.toString();
     }
 
     private static void writeUploadCreationData(

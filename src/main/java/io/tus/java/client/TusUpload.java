@@ -150,6 +150,10 @@ public class TusUpload {
      * @return Encoded metadata
      */
     public String getEncodedMetadata() {
+        return encodeMetadata(metadata);
+    }
+
+    static String encodeMetadata(Map<String, String> metadata) {
         if (metadata == null || metadata.size() == 0) {
             return "";
         }

@@ -16,6 +16,14 @@ import java.util.UUID;
  * Generated TUS protocol constants used by the runtime client.
  */
 final class TusProtocol {
+    static final String CONCATENATION_FINAL_PREFIX =
+            "final;";
+    static final String CONCATENATION_HEADER_NAME =
+            "Upload-Concat";
+    static final String CONCATENATION_PARTIAL_VALUE =
+            "partial";
+    static final String CONCATENATION_UPLOAD_URL_SEPARATOR =
+            " ";
     static final String CREATE_UPLOAD_METHOD = "POST";
     static final String DETAILED_ERROR_CAUSE_STRING_TEMPLATE =
             "Error: {message}";
