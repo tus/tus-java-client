@@ -15,6 +15,12 @@ import java.net.URL;
 import java.util.Map;
 
 public final class Api2DevdockTusDetailedError {
+    /**
+     * Run the API2 devdock detailed-error scenario.
+     *
+     * @param args Unused command-line arguments.
+     * @throws Exception Thrown when the scenario cannot be executed.
+     */
     public static void main(String[] args) throws Exception {
         final JSONObject scenario = Api2DevdockScenario.loadScenario();
         final JSONObject result = uploadExpectingDetailedError(

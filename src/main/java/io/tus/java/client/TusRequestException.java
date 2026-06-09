@@ -6,7 +6,7 @@ import java.net.URL;
 /**
  * An {@link IOException} with TUS request context.
  */
-public class TusRequestException extends IOException implements TusDetailedError {
+public final class TusRequestException extends IOException implements TusDetailedError {
     private final TusRequestSnapshot snapshot;
 
     TusRequestException(String message, TusRequestSnapshot snapshot, IOException cause) {

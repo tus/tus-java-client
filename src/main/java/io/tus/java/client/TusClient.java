@@ -465,6 +465,18 @@ public class TusClient {
         return connection;
     }
 
+    /**
+     * Opens the HTTP connection used by this client.
+     *
+     * <p>Subclasses may override this method to provide a custom transport for tests or specialized
+     * environments. Implementations should return a fresh {@link HttpURLConnection} for the given
+     * URL and must not connect it; callers configure headers, method, and hooks after this method
+     * returns.
+     *
+     * @param uploadURL The request URL.
+     * @return A new, unconnected HTTP connection.
+     * @throws IOException Thrown if a connection cannot be opened.
+     */
     @NotNull
     protected HttpURLConnection openConnection(@NotNull URL uploadURL) throws IOException {
         if (proxy != null) {

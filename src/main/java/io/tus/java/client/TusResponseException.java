@@ -6,7 +6,7 @@ import java.net.URL;
 /**
  * A {@link ProtocolException} with TUS request and response context.
  */
-public class TusResponseException extends ProtocolException implements TusDetailedError {
+public final class TusResponseException extends ProtocolException implements TusDetailedError {
     private final String responseBody;
     private final int responseStatus;
     private final TusRequestSnapshot snapshot;
