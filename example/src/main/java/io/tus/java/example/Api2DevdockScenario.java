@@ -93,6 +93,37 @@ final class Api2DevdockScenario {
         return scenario.getJSONObject("prepared").getJSONObject("createResponse");
     }
 
+    static JSONObject conformanceScenario(JSONObject scenario) {
+        return scenario.getJSONObject("conformanceScenario");
+    }
+
+    static byte[] conformanceInputSourceBytes(JSONObject conformanceScenario) {
+        final JSONObject inputSource = conformanceScenario.getJSONObject("inputSource");
+        final String kind = inputSource.getString("kind");
+        if (!"blob".equals(kind)) {
+            throw new IllegalArgumentException("unsupported conformance input source kind " + kind);
+        }
+
+        return inputSource.getString("content").getBytes(StandardCharsets.UTF_8);
+    }
+
+    static Map<String, String> conformanceInputStringMapOption(
+            JSONObject conformanceScenario,
+            String key
+    ) {
+        final JSONObject values = conformanceInputJSONObjectOption(conformanceScenario, key);
+        final Map<String, String> result = new LinkedHashMap<String, String>();
+        for (String name : values.keySet()) {
+            result.put(name, scalarString(values.get(name)));
+        }
+
+        return result;
+    }
+
+    static String conformanceInputStringOption(JSONObject conformanceScenario, String key) {
+        return scalarString(conformanceInputOption(conformanceScenario, key));
+    }
+
     static byte[] scenarioBytes(JSONObject uploadConfig) {
         final JSONObject source = uploadConfig.getJSONObject("source");
         final String kind = source.getString("kind");
@@ -106,6 +137,32 @@ final class Api2DevdockScenario {
         }
 
         return source.getString("value").getBytes(StandardCharsets.UTF_8);
+    }
+
+    private static Object conformanceInputOption(JSONObject conformanceScenario, String key) {
+        final JSONArray entries = conformanceScenario.getJSONArray("inputOptionEntries");
+        for (int index = 0; index < entries.length(); index++) {
+            final JSONObject entry = entries.getJSONObject(index);
+            if (key.equals(entry.getString("key"))) {
+                return entry.get("value");
+            }
+        }
+
+        throw new IllegalArgumentException("missing conformance input option " + key);
+    }
+
+    private static JSONObject conformanceInputJSONObjectOption(
+            JSONObject conformanceScenario,
+            String key
+    ) {
+        final Object value = conformanceInputOption(conformanceScenario, key);
+        if (!(value instanceof JSONObject)) {
+            throw new IllegalArgumentException(
+                    "conformance input option " + key + " is not an object"
+            );
+        }
+
+        return (JSONObject) value;
     }
 
     static int fixedChunkSizeBytes(JSONObject uploadConfig) {
