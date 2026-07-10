@@ -1,11 +1,14 @@
 package io.tus.java.client;
 
+import java.io.InputStream;
 import java.util.Map;
+import java.util.Scanner;
 
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the generated API2 protocol contract canary.
@@ -75,6 +78,45 @@ public class TestGeneratedTusProtocolContract {
         assertContains(feature.operationIds, "patchTusUpload");
         assertContains(feature.primitives, "store-resume-url");
         assertContains(feature.primitives, "emit-progress");
+    }
+
+    /**
+     * Verifies this SDK-owned harness stays connected to api2's canonical contract fixture.
+     */
+    @Test
+    public void testSdkHarnessReferencesCanonicalContractFixture() {
+        String contractJson = canonicalContractJson();
+
+        for (GeneratedTusProtocolContract.GeneratedTusProtocolOperation operation
+                : GeneratedTusProtocolContract.OPERATIONS) {
+            assertCanonicalValue(contractJson, "operationId", operation.operationId);
+        }
+        for (GeneratedTusProtocolContract.GeneratedTusClientFeature feature
+                : GeneratedTusProtocolContract.CLIENT_FEATURES) {
+            assertCanonicalValue(contractJson, "featureId", feature.featureId);
+        }
+        for (GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario scenario
+                : GeneratedTusClientConformanceScenarios.CLIENT_CONFORMANCE_SCENARIOS) {
+            assertCanonicalValue(contractJson, "scenarioId", scenario.scenarioId);
+        }
+        for (GeneratedTusProtocolContract.GeneratedTusManagedUploadProofCase proofCase
+                : GeneratedTusProtocolContract.MANAGED_UPLOAD_PROOF_CASES) {
+            assertCanonicalValue(contractJson, "scenarioId", proofCase.scenarioId);
+        }
+    }
+
+    private static String canonicalContractJson() {
+        InputStream input = TestGeneratedTusProtocolContract.class.getResourceAsStream(
+                "/api2_tus_contract.json");
+        assertNotNull(input);
+
+        try (Scanner scanner = new Scanner(input, "UTF-8").useDelimiter("\\A")) {
+            return scanner.hasNext() ? scanner.next() : "";
+        }
+    }
+
+    private static void assertCanonicalValue(String contractJson, String key, String value) {
+        assertTrue(contractJson.contains("\"" + key + "\": \"" + value + "\""));
     }
 
     private static GeneratedTusProtocolContract.GeneratedTusProtocolOperation findOperation(
