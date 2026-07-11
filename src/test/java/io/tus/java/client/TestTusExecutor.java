@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -74,6 +76,74 @@ public class TestTusExecutor {
         exec.setDelays(new int[]{1, 2, 3});
         assertTrue(exec.makeAttempts());
         assertEquals(exec.getCalls(), 1);
+    }
+
+    /**
+     * Tests if retry decisions and schedules can be observed, and progress can reset retry state.
+     * @throws Exception
+     */
+    @Test
+    public void testRetryHooksAndReset() throws Exception {
+        final List<String> events = new ArrayList<String>();
+        CountingExecutor exec = new CountingExecutor() {
+            @Override
+            protected void makeAttempt() throws ProtocolException, IOException {
+                super.makeAttempt();
+                if (getCalls() == 1) {
+                    throw new IOException();
+                }
+                if (getCalls() == 2) {
+                    resetRetryAttempts();
+                    throw new IOException();
+                }
+            }
+
+            @Override
+            protected boolean shouldRetry(IOException exception, int retryAttempt) {
+                events.add("should-retry:" + retryAttempt);
+                return true;
+            }
+
+            @Override
+            protected void onRetryScheduled(int retryAttempt, int delayMillis) {
+                events.add("retry-schedule:" + retryAttempt + ":" + delayMillis);
+            }
+        };
+
+        exec.setDelays(new int[]{1, 2, 3});
+        assertTrue(exec.makeAttempts());
+        assertEquals(exec.getCalls(), 3);
+        assertEquals(events.size(), 4);
+        assertEquals(events.get(0), "should-retry:0");
+        assertEquals(events.get(1), "retry-schedule:0:1");
+        assertEquals(events.get(2), "should-retry:0");
+        assertEquals(events.get(3), "retry-schedule:0:1");
+    }
+
+    /**
+     * Tests if retry hooks can stop retrying I/O failures.
+     * @throws Exception
+     */
+    @Test(expected = IOException.class)
+    public void testRetryHookCanStopIoRetry() throws Exception {
+        CountingExecutor exec = new CountingExecutor() {
+            @Override
+            protected void makeAttempt() throws ProtocolException, IOException {
+                super.makeAttempt();
+                throw new IOException();
+            }
+
+            @Override
+            protected boolean shouldRetry(IOException exception, int retryAttempt) {
+                return false;
+            }
+        };
+
+        try {
+            exec.makeAttempts();
+        } finally {
+            assertEquals(exec.getCalls(), 1);
+        }
     }
 
 

@@ -21,6 +21,31 @@ import java.net.URLConnection;
  * </ol>
  */
 public class TusUploader {
+    /**
+     * Callback for upload progress events.
+     */
+    public interface ProgressListener {
+        /**
+         * Called when upload progress changes.
+         * @param bytesSent Bytes accepted locally for the upload.
+         * @param bytesTotal Total upload size.
+         */
+        void onProgress(long bytesSent, long bytesTotal);
+    }
+
+    /**
+     * Callback for accepted chunk events.
+     */
+    public interface ChunkCompleteListener {
+        /**
+         * Called after the server accepts an upload request.
+         * @param chunkSize Bytes accepted by the completed request.
+         * @param bytesAccepted Total bytes accepted by the server.
+         * @param bytesTotal Total upload size.
+         */
+        void onChunkComplete(long chunkSize, long bytesAccepted, long bytesTotal);
+    }
+
     private URL uploadURL;
     private Proxy proxy;
     private TusInputStream input;
@@ -30,6 +55,13 @@ public class TusUploader {
     private byte[] buffer;
     private int requestPayloadSize = 10 * 1024 * 1024;
     private int bytesRemainingForRequest;
+    private long requestStartOffset;
+    private boolean requestDeclaresUploadLength;
+    private boolean requestProgressStarted;
+    private boolean uploadLengthDeclared;
+    private ProgressListener progressListener;
+    private ChunkCompleteListener chunkCompleteListener;
+    private volatile boolean aborted;
 
     private HttpURLConnection connection;
     private OutputStream output;
@@ -47,13 +79,28 @@ public class TusUploader {
      */
     public TusUploader(TusClient client, TusUpload upload, URL uploadURL, TusInputStream input, long offset)
         throws IOException {
+        this(client, upload, uploadURL, input, offset, false);
+    }
+
+    TusUploader(
+            TusClient client,
+            TusUpload upload,
+            URL uploadURL,
+            TusInputStream input,
+            long offset,
+            boolean inputAlreadyAtOffset
+    )
+        throws IOException {
         this.uploadURL = uploadURL;
         this.input = input;
         this.offset = offset;
         this.client = client;
         this.upload = upload;
+        uploadLengthDeclared = !upload.isUploadLengthDeferred();
 
-        input.seekTo(offset);
+        if (!inputAlreadyAtOffset) {
+            input.seekTo(offset);
+        }
 
         setChunkSize(2 * 1024 * 1024);
     }
@@ -65,6 +112,9 @@ public class TusUploader {
         }
 
         bytesRemainingForRequest = requestPayloadSize;
+        requestDeclaresUploadLength = false;
+        requestStartOffset = offset;
+        requestProgressStarted = false;
         input.mark(requestPayloadSize);
 
         if (proxy != null) {
@@ -73,20 +123,27 @@ public class TusUploader {
             connection = (HttpURLConnection) uploadURL.openConnection();
         }
         client.prepareConnection(connection);
-        connection.setRequestProperty("Upload-Offset", Long.toString(offset));
-        connection.setRequestProperty("Content-Type", "application/offset+octet-stream");
+        client.registerCurrentRequest(connection);
+        connection.setRequestProperty(TusProtocol.UPLOAD_OFFSET_HEADER_NAME, Long.toString(offset));
+        if (shouldDeclareUploadLength()) {
+            connection.setRequestProperty(TusProtocol.UPLOAD_LENGTH_HEADER_NAME, Long.toString(upload.getSize()));
+            requestDeclaresUploadLength = true;
+        }
+        prepareUploadBodyHeaders(connection);
         connection.setRequestProperty("Expect", "100-continue");
 
         try {
-            connection.setRequestMethod("PATCH");
+            connection.setRequestMethod(TusProtocol.UPLOAD_CHUNK_METHOD);
             // Check whether we are running on a buggy JRE
         } catch (java.net.ProtocolException pe) {
             connection.setRequestMethod("POST");
-            connection.setRequestProperty("X-HTTP-Method-Override", "PATCH");
+            connection.setRequestProperty("X-HTTP-Method-Override", TusProtocol.UPLOAD_CHUNK_METHOD);
         }
 
         connection.setDoOutput(true);
         connection.setChunkedStreamingMode(0);
+        client.runBeforeRequest(TusProtocol.UPLOAD_CHUNK_METHOD, connection);
+        throwIfAborted();
         try {
             output = connection.getOutputStream();
         } catch (java.net.ProtocolException pe) {
@@ -168,6 +225,60 @@ public class TusUploader {
         return requestPayloadSize;
     }
 
+    private boolean shouldDeclareUploadLength() {
+        if (uploadLengthDeclared) {
+            return false;
+        }
+
+        return offset + requestPayloadSize >= upload.getSize();
+    }
+
+    private void prepareUploadBodyHeaders(HttpURLConnection connection) {
+        final String contentType = TusProtocol.protocolUploadBodyContentType(client.getProtocol());
+        if (contentType != null) {
+            connection.setRequestProperty(
+                    TusProtocol.UPLOAD_BODY_CONTENT_TYPE_HEADER_NAME,
+                    contentType
+            );
+        }
+
+        final String uploadCompleteHeaderName =
+                TusProtocol.protocolUploadCompleteHeaderName(client.getProtocol());
+        if (uploadCompleteHeaderName == null) {
+            return;
+        }
+
+        connection.setRequestProperty(
+                uploadCompleteHeaderName,
+                TusProtocol.protocolUploadCompleteHeaderValue(
+                        client.getProtocol(),
+                        requestCompletesUpload()
+                )
+        );
+    }
+
+    private boolean requestCompletesUpload() {
+        return upload.getSize() > 0 && offset + requestPayloadSize >= upload.getSize();
+    }
+
+    /**
+     * Set the listener used for upload progress events.
+     *
+     * @param listener Progress listener or null to disable events.
+     */
+    public void setProgressListener(ProgressListener listener) {
+        progressListener = listener;
+    }
+
+    /**
+     * Set the listener used for accepted chunk events.
+     *
+     * @param listener Chunk-complete listener or null to disable events.
+     */
+    public void setChunkCompleteListener(ChunkCompleteListener listener) {
+        chunkCompleteListener = listener;
+    }
+
     /**
      * Upload a part of the file by reading a chunk from the InputStream and writing
      * it to the HTTP request's body. If the number of available bytes is lower than the chunk's
@@ -183,7 +294,14 @@ public class TusUploader {
      *                      to the HTTP request.
      */
     public int uploadChunk() throws IOException, ProtocolException {
+        throwIfAborted();
+        if (isUploadComplete()) {
+            return -1;
+        }
+
         openConnection();
+        throwIfAborted();
+        notifyProgressAtRequestStart();
 
         int bytesToRead = Math.min(getChunkSize(), bytesRemainingForRequest);
 
@@ -196,11 +314,20 @@ public class TusUploader {
         // Do not write the entire buffer to the stream since the array will
         // be filled up with 0x00s if the number of read bytes is lower then
         // the chunk's size.
-        output.write(buffer, 0, bytesRead);
-        output.flush();
+        try {
+            output.write(buffer, 0, bytesRead);
+            output.flush();
+        } catch (IOException error) {
+            if (aborted) {
+                cleanupConnection();
+            }
+            throw error;
+        }
+        throwIfAborted();
 
         offset += bytesRead;
         bytesRemainingForRequest -= bytesRead;
+        notifyProgress(offset);
 
         if (bytesRemainingForRequest <= 0) {
             finishConnection();
@@ -235,7 +362,13 @@ public class TusUploader {
      *                      to the HTTP request.
      */
     @Deprecated public int uploadChunk(int chunkSize) throws IOException, ProtocolException {
+        throwIfAborted();
+        if (isUploadComplete()) {
+            return -1;
+        }
+
         openConnection();
+        throwIfAborted();
 
         byte[] buf = new byte[chunkSize];
         int bytesRead = input.read(buf, chunkSize);
@@ -247,8 +380,16 @@ public class TusUploader {
         // Do not write the entire buffer to the stream since the array will
         // be filled up with 0x00s if the number of read bytes is lower then
         // the chunk's size.
-        output.write(buf, 0, bytesRead);
-        output.flush();
+        try {
+            output.write(buf, 0, bytesRead);
+            output.flush();
+        } catch (IOException error) {
+            if (aborted) {
+                cleanupConnection();
+            }
+            throw error;
+        }
+        throwIfAborted();
 
         offset += bytesRead;
 
@@ -272,6 +413,26 @@ public class TusUploader {
      */
     public URL getUploadURL() {
         return uploadURL;
+    }
+
+    /**
+     * Abort the active upload request, if any.
+     */
+    public void abort() {
+        aborted = true;
+        HttpURLConnection currentConnection = connection;
+        if (currentConnection != null) {
+            currentConnection.disconnect();
+        }
+    }
+
+    /**
+     * Get whether this uploader has been aborted.
+     *
+     * @return True when {@link #abort()} has been called.
+     */
+    public boolean isAborted() {
+        return aborted;
     }
 
     /**
@@ -331,34 +492,85 @@ public class TusUploader {
     }
 
     private void finishConnection() throws ProtocolException, IOException {
-        if (output != null) {
-            output.close();
+        if (aborted) {
+            cleanupConnection();
+            return;
         }
 
         if (connection != null) {
-            int responseCode = connection.getResponseCode();
-            connection.disconnect();
+            HttpURLConnection currentConnection = connection;
+            try {
+                if (output != null) {
+                    output.close();
+                }
 
-            if (!(responseCode >= 200 && responseCode < 300)) {
-                throw new ProtocolException("unexpected status code (" + responseCode + ") while uploading chunk",
-                        connection);
-            }
+                int responseCode = currentConnection.getResponseCode();
+                client.runAfterResponse(TusProtocol.UPLOAD_CHUNK_METHOD, currentConnection);
 
-            // TODO detect changes and seek accordingly
-            long serverOffset = getHeaderFieldLong(connection, "Upload-Offset");
-            if (serverOffset == -1) {
-                throw new ProtocolException("response to PATCH request contains no or invalid Upload-Offset header",
-                        connection);
-            }
-            if (offset != serverOffset) {
-                throw new ProtocolException(
-                        String.format("response contains different Upload-Offset value (%d) than expected (%d)",
-                                serverOffset,
-                                offset),
-                        connection);
-            }
+                if (!TusProtocol.isSuccessfulResponseStatus(responseCode)) {
+                    throw new ProtocolException("unexpected status code (" + responseCode + ") while uploading chunk",
+                            currentConnection);
+                }
 
-            connection = null;
+                // TODO detect changes and seek accordingly
+                long serverOffset = getHeaderFieldLong(
+                        currentConnection,
+                        TusProtocol.UPLOAD_OFFSET_HEADER_NAME
+                );
+                if (serverOffset == -1) {
+                    throw new ProtocolException("response to PATCH request contains no or invalid Upload-Offset header",
+                            currentConnection);
+                }
+                if (offset != serverOffset) {
+                    throw new ProtocolException(
+                            String.format("response contains different Upload-Offset value (%d) than expected (%d)",
+                                    serverOffset,
+                                    offset),
+                            currentConnection);
+                }
+
+                if (requestDeclaresUploadLength) {
+                    uploadLengthDeclared = true;
+                }
+                notifyChunkComplete(serverOffset - requestStartOffset, serverOffset);
+            } finally {
+                cleanupConnection();
+            }
+        }
+    }
+
+    private void cleanupConnection() {
+        HttpURLConnection currentConnection = connection;
+        if (currentConnection != null) {
+            currentConnection.disconnect();
+            client.clearCurrentRequest(currentConnection);
+        }
+        connection = null;
+        output = null;
+        requestDeclaresUploadLength = false;
+        requestProgressStarted = false;
+    }
+
+    private void notifyProgressAtRequestStart() {
+        if (!requestProgressStarted) {
+            notifyProgress(offset);
+            requestProgressStarted = true;
+        }
+    }
+
+    private void notifyProgress(long bytesSent) {
+        if (progressListener != null) {
+            progressListener.onProgress(bytesSent, upload.getSize());
+        }
+    }
+
+    private boolean isUploadComplete() {
+        return upload.getSize() > 0 && offset >= upload.getSize();
+    }
+
+    private void notifyChunkComplete(long chunkSize, long bytesAccepted) {
+        if (chunkCompleteListener != null) {
+            chunkCompleteListener.onChunkComplete(chunkSize, bytesAccepted, upload.getSize());
         }
     }
 
@@ -372,6 +584,16 @@ public class TusUploader {
             return Long.parseLong(value);
         } catch (NumberFormatException e) {
             return -1;
+        }
+    }
+
+    final TusUpload getUpload() {
+        return upload;
+    }
+
+    private void throwIfAborted() throws IOException {
+        if (aborted) {
+            throw new IOException("upload aborted");
         }
     }
 }
