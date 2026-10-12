@@ -1,11 +1,13 @@
 name: Lint Java Code
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
   pull_request:
     types:
       - opened
+      - ready_for_review
       - synchronize
       - unlabeled
 jobs:

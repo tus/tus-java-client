@@ -2,5 +2,132 @@ apply plugin: 'java'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'org.json:json:20240303'
     implementation rootProject
+}
+
+tasks.register('api2DevdockTusUpload', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusUpload'
+    workingDir = rootProject.projectDir
+}
+
+tasks.register('api2DevdockTusResumeUpload', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusResumeUpload'
+    workingDir = rootProject.projectDir
+}
+
+tasks.register('api2DevdockTusFileUrlStorageBackend', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusFileUrlStorageBackend'
+    workingDir = rootProject.projectDir
+}
+
+tasks.register('api2DevdockTusCreationWithUpload', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusCreationWithUpload'
+    workingDir = rootProject.projectDir
+}
+
+tasks.register('api2DevdockTusDeferredLengthUpload', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusDeferredLengthUpload'
+    workingDir = rootProject.projectDir
+}
+
+tasks.register('api2DevdockTusRetryOffsetRecovery', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusRetryOffsetRecovery'
+    workingDir = rootProject.projectDir
+}
+
+tasks.register('api2DevdockTusRetryStateTransitions', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusRetryStateTransitions'
+    workingDir = rootProject.projectDir
+}
+
+tasks.register('api2DevdockTusDetailedError', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusDetailedError'
+    workingDir = rootProject.projectDir
+}
+
+tasks.register('api2DevdockTusAbortUpload', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusAbortUpload'
+    workingDir = rootProject.projectDir
+}
+
+tasks.register('api2DevdockTusStartOptionValidation', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusStartOptionValidation'
+    workingDir = rootProject.projectDir
+}
+
+tasks.register('api2DevdockTusParallelUploadConcat', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusParallelUploadConcat'
+    workingDir = rootProject.projectDir
+}
+
+tasks.register('api2DevdockTusProtocolVersionSelection', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusProtocolVersionSelection'
+    workingDir = rootProject.projectDir
+}
+
+tasks.register('api2DevdockTusNodePathInputSource', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusNodePathInputSource'
+    workingDir = rootProject.projectDir
+}
+
+tasks.register('api2DevdockTusRequestLifecycleHooks', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusRequestLifecycleHooks'
+    workingDir = rootProject.projectDir
+}
+
+tasks.register('api2DevdockTusUploadBodyHeaders', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusUploadBodyHeaders'
+    workingDir = rootProject.projectDir
+}
+
+tasks.register('api2DevdockTusCustomRequestHeaders', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusCustomRequestHeaders'
+    workingDir = rootProject.projectDir
+}
+
+tasks.register('api2DevdockTusRequestIdHeaders', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusRequestIdHeaders'
+    workingDir = rootProject.projectDir
+}
+
+tasks.register('api2DevdockTusTerminateUpload', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusTerminateUpload'
+    workingDir = rootProject.projectDir
+}
+
+tasks.register('api2DevdockTusUploadCallbacks', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusUploadCallbacks'
+    workingDir = rootProject.projectDir
+}
+
+tasks.register('api2DevdockTusRelativeLocationResolution', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusRelativeLocationResolution'
+    workingDir = rootProject.projectDir
+}
+
+tasks.register('api2DevdockTusOverridePatchMethod', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.tus.java.example.Api2DevdockTusOverridePatchMethod'
+    workingDir = rootProject.projectDir
 }

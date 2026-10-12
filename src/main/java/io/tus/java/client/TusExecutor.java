@@ -32,6 +32,7 @@ import java.io.IOException;
  */
 public abstract class TusExecutor {
     private int[] delays = new int[]{500, 1000, 2000, 3000};
+    private int retryAttempt;
 
     /**
      * Set the delays at which TusExecutor will issue a retry if {@link #makeAttempt()} throws an
@@ -77,10 +78,8 @@ public abstract class TusExecutor {
      * @throws IOException
      */
     public boolean makeAttempts() throws ProtocolException, IOException {
-        int attempt = -1;
+        retryAttempt = 0;
         while (true) {
-            attempt++;
-
             try {
                 makeAttempt();
                 // Returning true is the signal that the makeAttempt() function exited without
@@ -88,26 +87,34 @@ public abstract class TusExecutor {
                 return true;
             } catch (ProtocolException e) {
                 // Do not attempt a retry, if the Exception suggests so.
-                if (!e.shouldRetry()) {
+                if (!shouldRetry(e, retryAttempt)) {
                     throw e;
                 }
 
-                if (attempt >= delays.length) {
+                if (retryAttempt >= delays.length) {
                     // We exceeds the number of maximum retries. In this case the latest exception
                     // is thrown.
                     throw e;
                 }
             }  catch (IOException e) {
-                if (attempt >= delays.length) {
+                if (!shouldRetry(e, retryAttempt)) {
+                    throw e;
+                }
+
+                if (retryAttempt >= delays.length) {
                     // We exceeds the number of maximum retries. In this case the latest exception
                     // is thrown.
                     throw e;
                 }
             }
 
+            int delay = delays[retryAttempt];
+            onRetryScheduled(retryAttempt, delay);
+            retryAttempt++;
+
             try {
                 // Sleep for the specified delay before attempting the next retry.
-                Thread.sleep(delays[attempt]);
+                Thread.sleep(delay);
             } catch (InterruptedException e) {
                 // If we get interrupted while waiting for the next retry, the user has cancelled
                 // the upload willingly and we return false as a signal.
@@ -115,6 +122,44 @@ public abstract class TusExecutor {
             }
         }
     }
+
+    /**
+     * Reset the retry attempt counter. Call this from {@link #makeAttempt()} after observing accepted
+     * server-side upload progress, so later retry decisions start from the first retry delay again.
+     */
+    protected void resetRetryAttempts() {
+        retryAttempt = 0;
+    }
+
+    /**
+     * Decide whether a protocol failure should be retried.
+     *
+     * @param exception Protocol failure from the current attempt.
+     * @param retryAttempt Zero-based retry attempt since the last successful progress reset.
+     * @return {@code true} if another attempt should be scheduled.
+     */
+    protected boolean shouldRetry(ProtocolException exception, int retryAttempt) {
+        return exception.shouldRetry();
+    }
+
+    /**
+     * Decide whether an I/O failure should be retried.
+     *
+     * @param exception I/O failure from the current attempt.
+     * @param retryAttempt Zero-based retry attempt since the last successful progress reset.
+     * @return {@code true} if another attempt should be scheduled.
+     */
+    protected boolean shouldRetry(IOException exception, int retryAttempt) {
+        return true;
+    }
+
+    /**
+     * Observe a scheduled retry.
+     *
+     * @param retryAttempt Zero-based retry attempt since the last successful progress reset.
+     * @param delayMillis Delay in milliseconds before the next attempt.
+     */
+    protected void onRetryScheduled(int retryAttempt, int delayMillis) { }
 
     /**
      * This method must be implemented by the specific caller. It will be invoked once or multiple

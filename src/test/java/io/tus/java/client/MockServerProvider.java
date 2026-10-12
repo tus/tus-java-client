@@ -3,9 +3,12 @@ package io.tus.java.client;
 import org.junit.After;
 import org.junit.Before;
 import org.mockserver.client.MockServerClient;
+import org.mockserver.model.HttpRequest;
+import org.mockserver.model.HttpResponse;
 import org.mockserver.socket.PortFactory;
 
 import java.net.URL;
+import java.util.Map;
 
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 
@@ -35,5 +38,19 @@ public class MockServerProvider {
     @After
     public void tearDown() {
         mockServer.stop();
+    }
+
+    protected final HttpRequest withDefaultProtocolRequestHeaders(HttpRequest request) {
+        for (Map.Entry<String, String> entry : TusProtocol.DEFAULT_REQUEST_HEADERS.entrySet()) {
+            request.withHeader(entry.getKey(), entry.getValue());
+        }
+        return request;
+    }
+
+    protected final HttpResponse withDefaultProtocolResponseHeaders(HttpResponse response) {
+        for (Map.Entry<String, String> entry : TusProtocol.DEFAULT_RESPONSE_HEADERS.entrySet()) {
+            response.withHeader(entry.getKey(), entry.getValue());
+        }
+        return response;
     }
 }

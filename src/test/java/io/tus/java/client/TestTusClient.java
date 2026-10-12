@@ -8,14 +8,18 @@ import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.Proxy.Type;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -81,17 +85,15 @@ public class TestTusClient extends MockServerProvider {
      */
     @Test
     public void testCreateUpload() throws IOException, ProtocolException {
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("POST")
                 .withPath("/files")
                 .withHeader("Connection", "keep-alive")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
                 .withHeader("Upload-Metadata", "foo aGVsbG8=,bar d29ybGQ=")
-                .withHeader("Upload-Length", "10"))
-                .respond(new HttpResponse()
+                .withHeader("Upload-Length", "10")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(201)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Location", mockServerURL + "/foo"));
+                        .withHeader("Location", mockServerURL + "/foo")));
 
         Map<String, String> metadata = new LinkedHashMap<String, String>();
         metadata.put("foo", "hello");
@@ -107,6 +109,211 @@ public class TestTusClient extends MockServerProvider {
 
         assertEquals(uploader.getUploadURL(), new URL(mockServerURL + "/foo"));
     }
+
+    /**
+     * Verifies if uploads can be created while sending data in the creation request.
+     * @throws IOException if upload data cannot be read.
+     * @throws ProtocolException if the upload cannot be constructed.
+     */
+    @Test
+    public void testCreateUploadWithData() throws IOException, ProtocolException {
+        byte[] content = new byte[] {
+                'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'
+        };
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files")
+                .withHeader("Connection", "keep-alive")
+                .withHeader("Content-Type", "application/offset+octet-stream")
+                .withHeader("Upload-Length", "10")
+                .withBody(Arrays.copyOfRange(content, 0, 4))))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
+                        .withStatusCode(201)
+                        .withHeader("Location", mockServerURL + "/foo")
+                        .withHeader("Upload-Offset", "4")));
+        mockServer.when(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files/foo"))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
+                        .withStatusCode(204)
+                        .withHeader("Upload-Offset", "10")));
+
+        TusClient client = new TusClient();
+        client.setUploadCreationURL(mockServerURL);
+        TusUpload upload = new TusUpload();
+        upload.setSize(content.length);
+        upload.setInputStream(new ByteArrayInputStream(content));
+
+        TusUploader uploader = client.createUploadWithData(upload, 4);
+        assertEquals(uploader.getUploadURL(), new URL(mockServerURL + "/foo"));
+        assertEquals(uploader.getOffset(), 4);
+
+        uploader.setChunkSize(6);
+        assertEquals(uploader.uploadChunk(), 6);
+        uploader.finish();
+        assertEquals(uploader.getOffset(), content.length);
+
+        HttpRequest[] patchRequests = mockServer.retrieveRecordedRequests(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files/foo"));
+        assertEquals(1, patchRequests.length);
+        assertTrue(patchRequests[0].containsHeader("X-HTTP-Method-Override"));
+        assertArrayEquals(Arrays.copyOfRange(content, 4, 10), patchRequests[0].getBodyAsRawBytes());
+    }
+
+    /**
+     * Verifies if request lifecycle hooks run around upload creation.
+     * @throws IOException if upload data cannot be read.
+     * @throws ProtocolException if the upload cannot be constructed.
+     */
+    @Test
+    public void testCreateUploadRequestLifecycleHooks() throws IOException, ProtocolException {
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files")
+                .withHeader("X-Hook", "before")
+                .withHeader("Upload-Length", "10")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
+                        .withStatusCode(201)
+                        .withHeader("Location", mockServerURL + "/foo")));
+
+        final List<String> events = new ArrayList<String>();
+        TusClient client = new TusClient();
+        client.setUploadCreationURL(mockServerURL);
+        client.setRequestLifecycleHooks(new TusRequestLifecycleHooks(
+                new TusRequestLifecycleHooks.BeforeRequest() {
+                    @Override
+                    public void beforeRequest(TusRequestLifecycleHooks.RequestContext context) {
+                        events.add("before:" + context.getMethod());
+                        context.getConnection().addRequestProperty("X-Hook", "before");
+                    }
+                },
+                new TusRequestLifecycleHooks.AfterResponse() {
+                    @Override
+                    public void afterResponse(TusRequestLifecycleHooks.RequestContext context) throws IOException {
+                        events.add(
+                                "after:"
+                                        + context.getMethod()
+                                        + ":"
+                                        + context.getConnection().getResponseCode()
+                        );
+                    }
+                }
+        ));
+        TusUpload upload = new TusUpload();
+        upload.setSize(10);
+        upload.setInputStream(new ByteArrayInputStream(new byte[10]));
+        TusUploader uploader = client.createUpload(upload);
+
+        assertEquals(uploader.getUploadURL(), new URL(mockServerURL + "/foo"));
+        assertEquals("before:POST", events.get(0));
+        assertEquals("after:POST:201", events.get(1));
+    }
+
+    /**
+     * Verifies if uploads can be created with deferred upload length.
+     * @throws IOException if upload data cannot be read.
+     * @throws ProtocolException if the upload cannot be constructed.
+     */
+    @Test
+    public void testCreateUploadWithDeferredLength() throws IOException, ProtocolException {
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files")
+                .withHeader("Upload-Defer-Length", "1")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
+                        .withStatusCode(201)
+                        .withHeader("Location", mockServerURL + "/foo")));
+
+        TusClient client = new TusClient();
+        client.setUploadCreationURL(mockServerURL);
+        TusUpload upload = new TusUpload();
+        upload.setSize(10);
+        upload.setUploadLengthDeferred(true);
+        upload.setInputStream(new ByteArrayInputStream(new byte[10]));
+        TusUploader uploader = client.createUpload(upload);
+        HttpRequest[] requests = mockServer.retrieveRecordedRequests(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files"));
+
+        assertEquals(uploader.getUploadURL(), new URL(mockServerURL + "/foo"));
+        assertEquals(1, requests.length);
+        assertFalse(requests[0].containsHeader("Upload-Length"));
+    }
+
+    /**
+     * Verifies if partial uploads can be created using the Concatenation extension.
+     * @throws IOException if upload data cannot be read.
+     * @throws ProtocolException if the upload cannot be constructed.
+     */
+    @Test
+    public void testCreatePartialUpload() throws IOException, ProtocolException {
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files")
+                .withHeader("Upload-Concat", "partial")
+                .withHeader("Upload-Metadata", "test d29ybGQ=")
+                .withHeader("Upload-Length", "5")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
+                        .withStatusCode(201)
+                        .withHeader("Location", mockServerURL + "/part-1")));
+
+        Map<String, String> metadata = new LinkedHashMap<String, String>();
+        metadata.put("test", "world");
+
+        TusClient client = new TusClient();
+        client.setUploadCreationURL(mockServerURL);
+        TusUpload upload = new TusUpload();
+        upload.setSize(5);
+        upload.setInputStream(new ByteArrayInputStream(new byte[5]));
+        upload.setMetadata(metadata);
+        TusUploader uploader = client.createPartialUpload(upload);
+
+        assertEquals(new URL(mockServerURL + "/part-1"), uploader.getUploadURL());
+    }
+
+    /**
+     * Verifies if partial uploads can be concatenated into a final upload.
+     * @throws IOException if the request cannot be issued.
+     * @throws ProtocolException if the final upload cannot be constructed.
+     */
+    @Test
+    public void testConcatenateUploads() throws IOException, ProtocolException {
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files")
+                .withHeader(
+                        "Upload-Concat",
+                        "final;"
+                                + mockServerURL
+                                + "/part-1 "
+                                + mockServerURL
+                                + "/part-2"
+                )
+                .withHeader("Upload-Metadata", "foo aGVsbG8=")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
+                        .withStatusCode(201)
+                        .withHeader("Location", mockServerURL + "/final")));
+
+        Map<String, String> metadata = new LinkedHashMap<String, String>();
+        metadata.put("foo", "hello");
+
+        TusClient client = new TusClient();
+        client.setUploadCreationURL(mockServerURL);
+        URL uploadURL = client.concatenateUploads(Arrays.asList(
+                new URL(mockServerURL + "/part-1"),
+                new URL(mockServerURL + "/part-2")
+        ), metadata);
+
+        HttpRequest[] requests = mockServer.retrieveRecordedRequests(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files"));
+
+        assertEquals(new URL(mockServerURL + "/final"), uploadURL);
+        assertEquals(1, requests.length);
+        assertFalse(requests[0].containsHeader("Upload-Length"));
+    }
+
     /**
      * Verifies if uploads can be created with the tus client through a proxy.
      * @throws IOException if upload data cannot be read.
@@ -114,17 +321,15 @@ public class TestTusClient extends MockServerProvider {
      */
     @Test
     public void testCreateUploadWithProxy() throws IOException, ProtocolException {
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("POST")
                 .withPath("/files")
                 .withHeader("Proxy-Connection", "keep-alive")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
                 .withHeader("Upload-Metadata", "foo aGVsbG8=,bar d29ybGQ=")
-                .withHeader("Upload-Length", "11"))
-                .respond(new HttpResponse()
+                .withHeader("Upload-Length", "11")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(201)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Location", mockServerURL + "/foo"));
+                        .withHeader("Location", mockServerURL + "/foo")));
 
         Map<String, String> metadata = new LinkedHashMap<String, String>();
         metadata.put("foo", "hello");
@@ -148,14 +353,12 @@ public class TestTusClient extends MockServerProvider {
      */
     @Test
     public void testCreateUploadWithMissingLocationHeader() throws Exception {
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("POST")
                 .withPath("/files")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                .withHeader("Upload-Length", "10"))
-                .respond(new HttpResponse()
-                        .withStatusCode(201)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION));
+                .withHeader("Upload-Length", "10")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
+                        .withStatusCode(201)));
 
         TusClient client = new TusClient();
         client.setUploadCreationURL(mockServerURL);
@@ -171,6 +374,139 @@ public class TestTusClient extends MockServerProvider {
     }
 
     /**
+     * Tests if create-upload response failures expose detailed request and response context.
+     * @throws Exception if unreachable code has been reached.
+     */
+    @Test
+    public void testCreateUploadWithDetailedResponseError() throws Exception {
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
+                .withMethod("POST")
+                .withPath("/files")
+                .withHeader("Upload-Length", "10")
+                .withHeader("X-Request-ID", "contract-request-id")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
+                        .withStatusCode(500)
+                        .withBody("server_error")));
+
+        Map<String, String> headers = new LinkedHashMap<String, String>();
+        headers.put("X-Request-ID", "contract-request-id");
+
+        TusClient client = new TusClient();
+        client.setHeaders(headers);
+        client.setUploadCreationURL(mockServerURL);
+        TusUpload upload = new TusUpload();
+        upload.setSize(10);
+        upload.setInputStream(new ByteArrayInputStream(new byte[10]));
+        try {
+            client.createUpload(upload);
+            throw new Exception("unreachable code reached");
+        } catch (TusResponseException error) {
+            assertEquals(
+                    "tus: unexpected response while creating upload, originated from request "
+                            + "(method: POST, url: "
+                            + mockServerURL
+                            + ", response code: 500, response text: server_error, request id: "
+                            + "contract-request-id)",
+                    error.getMessage()
+            );
+            assertNull(error.getCausingError());
+            assertEquals("POST", error.getOriginalRequestMethod());
+            assertEquals("contract-request-id", error.getOriginalRequestId());
+            assertEquals(mockServerURL, error.getOriginalRequestURL());
+            assertTrue(error.hasOriginalResponse());
+            assertEquals("server_error", error.getOriginalResponseBody());
+            assertEquals(500, error.getOriginalResponseStatus());
+        }
+    }
+
+    /**
+     * Tests if create-upload request failures expose detailed request context.
+     * @throws Exception if unreachable code has been reached.
+     */
+    @Test
+    public void testCreateUploadWithDetailedRequestError() throws Exception {
+        Map<String, String> headers = new LinkedHashMap<String, String>();
+        headers.put("X-Request-ID", "contract-request-id");
+
+        TusClient client = new TusClient() {
+            @Override
+            protected HttpURLConnection openConnection(URL uploadURL) {
+                return new FailingHttpURLConnection(uploadURL, "socket down");
+            }
+        };
+        client.setHeaders(headers);
+        client.setUploadCreationURL(mockServerURL);
+        TusUpload upload = new TusUpload();
+        upload.setSize(10);
+        upload.setInputStream(new ByteArrayInputStream(new byte[10]));
+        try {
+            client.createUpload(upload);
+            throw new Exception("unreachable code reached");
+        } catch (TusRequestException error) {
+            assertEquals(
+                    "tus: failed to create upload, caused by Error: socket down, "
+                            + "originated from request (method: POST, url: "
+                            + mockServerURL
+                            + ", response code: n/a, response text: n/a, request id: "
+                            + "contract-request-id)",
+                    error.getMessage()
+            );
+            assertEquals("socket down", error.getCausingError().getMessage());
+            assertEquals("POST", error.getOriginalRequestMethod());
+            assertEquals("contract-request-id", error.getOriginalRequestId());
+            assertEquals(mockServerURL, error.getOriginalRequestURL());
+            assertFalse(error.hasOriginalResponse());
+            assertEquals(TusProtocol.DETAILED_ERROR_MISSING_VALUE, error.getOriginalResponseBody());
+            assertEquals(-1, error.getOriginalResponseStatus());
+        }
+    }
+
+    /**
+     * Tests if start option validation rejects parallel uploads with an upload URL.
+     * @throws MalformedURLException if the provided URL is malformed.
+     */
+    @Test
+    public void testValidateStartOptionsRejectsParallelUploadsWithUploadURL()
+            throws MalformedURLException {
+        TusStartOptions options = validStartOptions();
+        options.setParallelUploads(TusProtocol.MINIMUM_PARALLEL_UPLOADS);
+        options.setUploadURL(new URL("https://tus.io/uploads/start-validation-upload-url"));
+
+        try {
+            new TusClient().validateStartOptions(options);
+            fail("start option validation unexpectedly succeeded");
+        } catch (IllegalArgumentException error) {
+            assertEquals(
+                    TusProtocol.START_OPTION_VALIDATION_PARALLEL_UPLOADS_WITH_UPLOAD_URL,
+                    error.getMessage()
+            );
+        }
+    }
+
+    /**
+     * Tests if start option validation rejects parallel uploads with creation data.
+     * @throws MalformedURLException if the provided URL is malformed.
+     */
+    @Test
+    public void testValidateStartOptionsRejectsParallelUploadsWithUploadDataDuringCreation()
+            throws MalformedURLException {
+        TusStartOptions options = validStartOptions();
+        options.setParallelUploads(TusProtocol.MINIMUM_PARALLEL_UPLOADS);
+        options.setUploadDataDuringCreation(true);
+
+        try {
+            new TusClient().validateStartOptions(options);
+            fail("start option validation unexpectedly succeeded");
+        } catch (IllegalArgumentException error) {
+            assertEquals(
+                    TusProtocol
+                            .START_OPTION_VALIDATION_PARALLEL_UPLOADS_WITH_UPLOAD_DATA_DURING_CREATION,
+                    error.getMessage()
+            );
+        }
+    }
+
+    /**
      * Tests if uploads with relative upload destinations are working.
      * @throws Exception
      */
@@ -180,24 +516,21 @@ public class TestTusClient extends MockServerProvider {
         System.setProperty("http.strictPostRedirect", "true");
 
         // Attempt a real redirect
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("POST")
                 .withPath("/filesRedirect")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                .withHeader("Upload-Length", "10"))
+                .withHeader("Upload-Length", "10")))
                 .respond(new HttpResponse()
                         .withStatusCode(301)
                         .withHeader("Location", mockServerURL + "Redirected/"));
 
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("POST")
                 .withPath("/filesRedirected/")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                .withHeader("Upload-Length", "10"))
-                .respond(new HttpResponse()
+                .withHeader("Upload-Length", "10")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(201)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Location", "foo"));
+                        .withHeader("Location", "foo")));
 
         TusClient client = new TusClient();
         client.setUploadCreationURL(new URL(mockServerURL + "Redirect"));
@@ -222,14 +555,12 @@ public class TestTusClient extends MockServerProvider {
     @Test
     public void testResumeUpload() throws ResumingNotEnabledException, FingerprintNotFoundException, IOException,
             ProtocolException {
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("HEAD")
-                .withPath("/files/foo")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION))
-                .respond(new HttpResponse()
+                .withPath("/files/foo")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(204)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Upload-Offset", "3"));
+                        .withHeader("Upload-Offset", "3")));
 
         TusClient client = new TusClient();
         client.setUploadCreationURL(mockServerURL);
@@ -244,6 +575,62 @@ public class TestTusClient extends MockServerProvider {
 
         assertEquals(uploader.getUploadURL(), new URL(mockServerURL.toString() + "/foo"));
         assertEquals(uploader.getOffset(), 3);
+    }
+
+    /**
+     * Verifies if request lifecycle hooks run around offset discovery.
+     * @throws ResumingNotEnabledException if resuming is disabled.
+     * @throws FingerprintNotFoundException if the stored URL is missing.
+     * @throws IOException if the request cannot be issued.
+     * @throws ProtocolException if the upload cannot be resumed.
+     */
+    @Test
+    public void testResumeUploadRequestLifecycleHooks() throws ResumingNotEnabledException,
+            FingerprintNotFoundException, IOException, ProtocolException {
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
+                .withMethod("HEAD")
+                .withPath("/files/foo")
+                .withHeader("X-Hook", "before")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
+                        .withStatusCode(204)
+                        .withHeader("Upload-Offset", "3")));
+
+        final List<String> events = new ArrayList<String>();
+        TusClient client = new TusClient();
+        client.setUploadCreationURL(mockServerURL);
+        client.enableResuming(new TestResumeUploadStore());
+        client.setRequestLifecycleHooks(new TusRequestLifecycleHooks(
+                new TusRequestLifecycleHooks.BeforeRequest() {
+                    @Override
+                    public void beforeRequest(TusRequestLifecycleHooks.RequestContext context) {
+                        events.add("before:" + context.getMethod());
+                        context.getConnection().addRequestProperty("X-Hook", "before");
+                    }
+                },
+                new TusRequestLifecycleHooks.AfterResponse() {
+                    @Override
+                    public void afterResponse(TusRequestLifecycleHooks.RequestContext context) throws IOException {
+                        events.add(
+                                "after:"
+                                        + context.getMethod()
+                                        + ":"
+                                        + context.getConnection().getResponseCode()
+                        );
+                    }
+                }
+        ));
+
+        TusUpload upload = new TusUpload();
+        upload.setSize(10);
+        upload.setInputStream(new ByteArrayInputStream(new byte[10]));
+        upload.setFingerprint("test-fingerprint");
+
+        TusUploader uploader = client.resumeUpload(upload);
+
+        assertEquals(uploader.getUploadURL(), new URL(mockServerURL.toString() + "/foo"));
+        assertEquals(uploader.getOffset(), 3);
+        assertEquals("before:HEAD", events.get(0));
+        assertEquals("after:HEAD:204", events.get(1));
     }
 
     /**
@@ -275,16 +662,14 @@ public class TestTusClient extends MockServerProvider {
      */
     @Test
     public void testResumeOrCreateUpload() throws IOException, ProtocolException {
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("POST")
                 .withPath("/files")
                 .withHeader("Connection", "keep-alive")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                .withHeader("Upload-Length", "10"))
-                .respond(new HttpResponse()
+                .withHeader("Upload-Length", "10")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(201)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Location", mockServerURL + "/foo"));
+                        .withHeader("Location", mockServerURL + "/foo")));
 
         TusClient client = new TusClient();
         client.setUploadCreationURL(mockServerURL);
@@ -304,16 +689,14 @@ public class TestTusClient extends MockServerProvider {
      */
     @Test
     public void testResumeOrCreateUploadWithProxy() throws IOException, ProtocolException {
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("POST")
                 .withPath("/files")
                 .withHeader("Proxy-Connection", "keep-alive")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                .withHeader("Upload-Length", "11"))
-                .respond(new HttpResponse()
+                .withHeader("Upload-Length", "11")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(201)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Location", mockServerURL + "/foo"));
+                        .withHeader("Location", mockServerURL + "/foo")));
 
         TusClient client = new TusClient();
         client.setUploadCreationURL(mockServerURL);
@@ -335,22 +718,19 @@ public class TestTusClient extends MockServerProvider {
      */
     @Test
     public void testResumeOrCreateUploadNotFound() throws IOException, ProtocolException {
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("HEAD")
-                .withPath("/files/not_found")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION))
+                .withPath("/files/not_found")))
                 .respond(new HttpResponse()
                         .withStatusCode(404));
 
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("POST")
                 .withPath("/files")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                .withHeader("Upload-Length", "10"))
-                .respond(new HttpResponse()
+                .withHeader("Upload-Length", "10")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(201)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Location", mockServerURL + "/foo"));
+                        .withHeader("Location", mockServerURL + "/foo")));
 
         TusClient client = new TusClient();
         client.setUploadCreationURL(mockServerURL);
@@ -375,14 +755,12 @@ public class TestTusClient extends MockServerProvider {
      */
     @Test
     public void testBeginOrResumeUploadFromURL() throws IOException, ProtocolException {
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("HEAD")
-                .withPath("/files/fooFromURL")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION))
-                .respond(new HttpResponse()
+                .withPath("/files/fooFromURL")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(204)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Upload-Offset", "3"));
+                        .withHeader("Upload-Offset", "3")));
 
         TusClient client = new TusClient();
         URL uploadURL = new URL(mockServerURL.toString() + "/fooFromURL");
@@ -398,6 +776,42 @@ public class TestTusClient extends MockServerProvider {
     }
 
     /**
+     * Tests if aborting with termination deletes the remote upload and removes stored fingerprints.
+     * @throws IOException if the upload cannot be constructed or terminated.
+     * @throws ProtocolException if the upload cannot be terminated.
+     */
+    @Test
+    public void testAbortUploadTerminatesAndRemovesFingerprint()
+            throws IOException, ProtocolException {
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
+                .withMethod("DELETE")
+                .withPath("/files/abort")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
+                        .withStatusCode(204)));
+
+        TusClient client = new TusClient();
+        TusURLStore store = new TusURLMemoryStore();
+        URL uploadURL = new URL(mockServerURL.toString() + "/abort");
+        store.set("fingerprint", uploadURL);
+        client.enableResuming(store);
+
+        TusUpload upload = new TusUpload();
+        upload.setSize(10);
+        upload.setInputStream(new ByteArrayInputStream(new byte[10]));
+        upload.setFingerprint("fingerprint");
+        TusUploader uploader = new TusUploader(client, upload, uploadURL, upload.getTusInputStream(), 0);
+
+        client.abortUpload(uploader, true);
+
+        assertTrue(uploader.isAborted());
+        assertNull(store.get("fingerprint"));
+        HttpRequest[] deleteRequests = mockServer.retrieveRecordedRequests(new HttpRequest()
+                .withMethod("DELETE")
+                .withPath("/files/abort"));
+        assertEquals(1, deleteRequests.length);
+    }
+
+    /**
      * Tests if connections are prepared correctly, which means all header are getting set.
      * @throws IOException
      */
@@ -407,7 +821,9 @@ public class TestTusClient extends MockServerProvider {
         TusClient client = new TusClient();
         client.prepareConnection(connection);
 
-        assertEquals(connection.getRequestProperty("Tus-Resumable"), TusClient.TUS_VERSION);
+        for (Map.Entry<String, String> entry : TusProtocol.DEFAULT_REQUEST_HEADERS.entrySet()) {
+            assertEquals(entry.getValue(), connection.getRequestProperty(entry.getKey()));
+        }
     }
 
     /**
@@ -471,24 +887,21 @@ public class TestTusClient extends MockServerProvider {
         assertTrue(connection.getInstanceFollowRedirects());
 
         // Attempt a real redirect
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("POST")
                 .withPath("/filesRedirect")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                .withHeader("Upload-Length", "10"))
+                .withHeader("Upload-Length", "10")))
                 .respond(new HttpResponse()
                         .withStatusCode(301)
                         .withHeader("Location", mockServerURL + "Redirected"));
 
-        mockServer.when(new HttpRequest()
+        mockServer.when(withDefaultProtocolRequestHeaders(new HttpRequest()
                 .withMethod("POST")
                 .withPath("/filesRedirected")
-                .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                .withHeader("Upload-Length", "10"))
-                .respond(new HttpResponse()
+                .withHeader("Upload-Length", "10")))
+                .respond(withDefaultProtocolResponseHeaders(new HttpResponse()
                         .withStatusCode(201)
-                        .withHeader("Tus-Resumable", TusClient.TUS_VERSION)
-                        .withHeader("Location", mockServerURL + "/foo"));
+                        .withHeader("Location", mockServerURL + "/foo")));
 
         client.setUploadCreationURL(new URL(mockServerURL + "Redirect"));
         TusUpload upload = new TusUpload();
@@ -551,5 +964,42 @@ public class TestTusClient extends MockServerProvider {
 
         assertNull(store.get("fingerprint"));
 
+    }
+
+    /**
+     * A mocked HttpURLConnection which fails while connecting.
+     */
+    private static final class FailingHttpURLConnection extends HttpURLConnection {
+        private final String errorMessage;
+
+        FailingHttpURLConnection(URL url, String errorMessage) {
+            super(url);
+            this.errorMessage = errorMessage;
+        }
+
+        @Override
+        public void connect() throws IOException {
+            throw new IOException(errorMessage);
+        }
+
+        @Override
+        public void disconnect() {
+        }
+
+        @Override
+        public boolean usingProxy() {
+            return false;
+        }
+    }
+
+    private static TusStartOptions validStartOptions() throws MalformedURLException {
+        TusUpload upload = new TusUpload();
+        upload.setSize(11);
+        upload.setInputStream(new ByteArrayInputStream(new byte[11]));
+
+        TusStartOptions options = new TusStartOptions();
+        options.setEndpointURL(new URL("https://tus.io/uploads"));
+        options.setUpload(upload);
+        return options;
     }
 }

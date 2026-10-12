@@ -1,0 +1,198 @@
+package io.tus.java.client;
+
+import java.io.InputStream;
+import java.util.Map;
+import java.util.Scanner;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+/**
+ * Tests the generated API2 protocol contract canary.
+ */
+public class TestGeneratedTusProtocolContract {
+
+    /**
+     * Verifies the runtime constant is sourced from the generated protocol fixture.
+     */
+    @Test
+    public void testDefaultProtocolVersionMatchesRuntimeConstant() {
+        String generatedDefault = null;
+        int defaultCount = 0;
+
+        for (GeneratedTusProtocolContract.GeneratedTusWireVersion wireVersion
+                : GeneratedTusProtocolContract.WIRE_VERSIONS) {
+            if (wireVersion.defaultVersion) {
+                defaultCount++;
+                generatedDefault = wireVersion.value;
+            }
+        }
+
+        assertEquals(1, defaultCount);
+        assertEquals(generatedDefault, TusProtocol.DEFAULT_PROTOCOL_VERSION);
+        assertEquals(generatedDefault, TusClient.TUS_VERSION);
+        assertEquals(
+                generatedDefault,
+                onlyGeneratedProtocolHeader(TusProtocol.DEFAULT_REQUEST_HEADERS));
+        assertEquals(
+                generatedDefault,
+                onlyGeneratedProtocolHeader(TusProtocol.DEFAULT_RESPONSE_HEADERS));
+    }
+
+    /**
+     * Verifies generated request-header variants retain creation requirements.
+     */
+    @Test
+    public void testCreateUploadOperationKeepsRequiredHeaders() {
+        GeneratedTusProtocolContract.GeneratedTusProtocolOperation operation =
+                findOperation("createTusUpload");
+
+        assertEquals("POST", operation.method);
+        assertEquals("/resumable/files/", operation.path);
+        assertRequiredHeaderVariant(
+                operation.request.headerVariants, "tus-resumable", "upload-length");
+        assertRequiredHeaderVariant(
+                operation.request.headerVariants, "tus-resumable", "upload-defer-length");
+        assertRequiredHeaderVariant(
+                operation.request.headerVariants,
+                "tus-resumable",
+                "upload-concat",
+                "upload-length");
+        assertRequiredHeaderVariant(
+                operation.request.headerVariants, "tus-resumable", "upload-concat");
+    }
+
+    /**
+     * Verifies the generated high-level lifecycle feature points at raw protocol operations.
+     */
+    @Test
+    public void testSingleUploadLifecycleFeatureReferencesProtocolOperations() {
+        GeneratedTusProtocolContract.GeneratedTusClientFeature feature =
+                findFeature("singleUploadLifecycle");
+
+        assertContains(feature.operationIds, "createTusUpload");
+        assertContains(feature.operationIds, "getTusUploadOffset");
+        assertContains(feature.operationIds, "patchTusUpload");
+        assertContains(feature.primitives, "store-resume-url");
+        assertContains(feature.primitives, "emit-progress");
+    }
+
+    /**
+     * Verifies this SDK-owned harness stays connected to api2's canonical contract fixture.
+     */
+    @Test
+    public void testSdkHarnessReferencesCanonicalContractFixture() {
+        String contractJson = canonicalContractJson();
+
+        for (GeneratedTusProtocolContract.GeneratedTusProtocolOperation operation
+                : GeneratedTusProtocolContract.OPERATIONS) {
+            assertCanonicalValue(contractJson, "operationId", operation.operationId);
+        }
+        for (GeneratedTusProtocolContract.GeneratedTusClientFeature feature
+                : GeneratedTusProtocolContract.CLIENT_FEATURES) {
+            assertCanonicalValue(contractJson, "featureId", feature.featureId);
+        }
+        for (GeneratedTusProtocolContract.GeneratedTusClientConformanceScenario scenario
+                : GeneratedTusClientConformanceScenarios.CLIENT_CONFORMANCE_SCENARIOS) {
+            assertCanonicalValue(contractJson, "scenarioId", scenario.scenarioId);
+        }
+        for (GeneratedTusProtocolContract.GeneratedTusManagedUploadProofCase proofCase
+                : GeneratedTusProtocolContract.MANAGED_UPLOAD_PROOF_CASES) {
+            assertCanonicalValue(contractJson, "scenarioId", proofCase.scenarioId);
+        }
+    }
+
+    private static String canonicalContractJson() {
+        InputStream input = TestGeneratedTusProtocolContract.class.getResourceAsStream(
+                "/api2_tus_contract.json");
+        assertNotNull(input);
+
+        try (Scanner scanner = new Scanner(input, "UTF-8").useDelimiter("\\A")) {
+            return scanner.hasNext() ? scanner.next() : "";
+        }
+    }
+
+    private static void assertCanonicalValue(String contractJson, String key, String value) {
+        assertTrue(contractJson.contains("\"" + key + "\": \"" + value + "\""));
+    }
+
+    private static GeneratedTusProtocolContract.GeneratedTusProtocolOperation findOperation(
+            String operationId) {
+        for (GeneratedTusProtocolContract.GeneratedTusProtocolOperation operation
+                : GeneratedTusProtocolContract.OPERATIONS) {
+            if (operation.operationId.equals(operationId)) {
+                return operation;
+            }
+        }
+
+        throw new AssertionError("Missing generated TUS operation: " + operationId);
+    }
+
+    private static String onlyGeneratedProtocolHeader(Map<String, String> headers) {
+        assertEquals(1, headers.size());
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
+            return entry.getValue();
+        }
+
+        throw new AssertionError("Generated protocol header map was empty");
+    }
+
+    private static GeneratedTusProtocolContract.GeneratedTusClientFeature findFeature(
+            String featureId) {
+        for (GeneratedTusProtocolContract.GeneratedTusClientFeature feature
+                : GeneratedTusProtocolContract.CLIENT_FEATURES) {
+            if (feature.featureId.equals(featureId)) {
+                return feature;
+            }
+        }
+
+        throw new AssertionError("Missing generated TUS client feature: " + featureId);
+    }
+
+    private static boolean hasRequiredHeader(
+            GeneratedTusProtocolContract.GeneratedTusHeaderVariant variant,
+            String headerName) {
+        assertNotNull(variant);
+
+        for (GeneratedTusProtocolContract.GeneratedTusHeaderField field : variant.fields) {
+            if (field.required && field.name.equals(headerName)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static void assertRequiredHeaderVariant(
+            GeneratedTusProtocolContract.GeneratedTusHeaderVariant[] variants,
+            String... headerNames) {
+        for (GeneratedTusProtocolContract.GeneratedTusHeaderVariant variant : variants) {
+            boolean hasAllHeaders = true;
+            for (String headerName : headerNames) {
+                if (!hasRequiredHeader(variant, headerName)) {
+                    hasAllHeaders = false;
+                    break;
+                }
+            }
+
+            if (hasAllHeaders) {
+                return;
+            }
+        }
+
+        throw new AssertionError("Missing generated header variant");
+    }
+
+    private static void assertContains(String[] values, String expected) {
+        for (String value : values) {
+            if (value.equals(expected)) {
+                return;
+            }
+        }
+
+        throw new AssertionError("Missing generated value: " + expected);
+    }
+}
